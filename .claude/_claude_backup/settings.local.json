@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "WebSearch",
+      "mcp__aws-knowledge__aws___read_documentation",
+      "Bash(npx:*)",
+      "Bash(mv:*)"
+    ]
+  }
+}
