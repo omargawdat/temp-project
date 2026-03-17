@@ -12,11 +12,12 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/common/status-badge";
-import { PMSheet } from "@/components/common/pm-sheet";
 import { serializeForClient } from "@/lib/serialize";
-import { BillingRingChart, ProjectBreakdownChart } from "@/components/common/pm-charts";
+import { BillingRingChart } from "@/components/common/pm-charts";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { PMFloatingActions } from "@/components/project-managers/floating-actions";
+import { filterOverdue, filterUpcoming, countCompleted, completionPercent, daysDifference } from "@/lib/milestones";
+import { getInitials, safePercent, formatCurrency } from "@/lib/format";
 
 export default async function ProjectManagerDetailPage({
   params,
@@ -45,48 +46,25 @@ export default async function ProjectManagerDetailPage({
 
   if (!pm) notFound();
 
-  const initials = pm.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = getInitials(pm.name);
 
   const totalProjects = pm.projects.length;
   const activeProjects = pm.projects.filter((p) => p.status === "ACTIVE").length;
   const allMilestones = pm.projects.flatMap((p) => p.milestones);
   const totalMilestones = allMilestones.length;
-  const completedMilestones = allMilestones.filter(
-    (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
-  ).length;
+  const completedMilestones = countCompleted(allMilestones);
   const inProgressMilestones = allMilestones.filter((m) => m.status === "IN_PROGRESS").length;
   const now = new Date();
-  const overdueMilestones = allMilestones.filter(
-    (m) =>
-      m.status !== "COMPLETED" &&
-      m.status !== "READY_FOR_INVOICING" &&
-      m.status !== "INVOICED" &&
-      new Date(m.plannedDate) < now,
-  );
-  const completionRate = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
+  const overdueMilestones = filterOverdue(allMilestones, now);
+  const completionRate = completionPercent(allMilestones);
 
   const totalContractValue = pm.projects.reduce((sum, p) => sum + Number(p.contractValue), 0);
   const totalInvoiced = sumUniqueInvoices(allMilestones);
   const totalPaid = sumUniqueInvoices(allMilestones, "PAID");
-  const billingPercent = totalContractValue > 0 ? Math.round((totalInvoiced / totalContractValue) * 100) : 0;
-  const collectionPercent = totalInvoiced > 0 ? Math.round((totalPaid / totalInvoiced) * 100) : 0;
+  const billingPercent = safePercent(totalInvoiced, totalContractValue);
+  const collectionPercent = safePercent(totalPaid, totalInvoiced);
 
-  // Upcoming milestones (next 30 days, not completed)
-  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-  const upcomingMilestones = allMilestones
-    .filter(
-      (m) =>
-        m.status !== "COMPLETED" &&
-        m.status !== "READY_FOR_INVOICING" &&
-        m.status !== "INVOICED" &&
-        new Date(m.plannedDate) >= now &&
-        new Date(m.plannedDate) <= thirtyDaysFromNow,
-    )
+  const upcomingMilestones = filterUpcoming(allMilestones, 30, now)
     .sort((a, b) => new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime());
 
   // Find project name for a milestone
@@ -227,7 +205,7 @@ export default async function ProjectManagerDetailPage({
               <div className="space-y-2">
                 {overdueMilestones.slice(0, 5).map((m) => {
                   const proj = milestoneProjectMap.get(m.id);
-                  const daysOverdue = Math.ceil((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24));
+                  const daysOverdue = daysDifference(m.plannedDate, now);
                   return (
                     <div key={m.id} className="flex items-center justify-between rounded-lg bg-red-500/[0.04] px-3 py-2">
                       <div className="min-w-0">
@@ -253,7 +231,7 @@ export default async function ProjectManagerDetailPage({
               <div className="space-y-2">
                 {upcomingMilestones.slice(0, 5).map((m) => {
                   const proj = milestoneProjectMap.get(m.id);
-                  const daysUntil = Math.ceil((new Date(m.plannedDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                  const daysUntil = -daysDifference(m.plannedDate, now);
                   return (
                     <div key={m.id} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2">
                       <div className="min-w-0">
@@ -301,13 +279,11 @@ export default async function ProjectManagerDetailPage({
             </thead>
             <tbody>
               {pm.projects.map((project, idx) => {
-                const done = project.milestones.filter(
-                  (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
-                ).length;
-                const pct = project.milestones.length > 0 ? Math.round((done / project.milestones.length) * 100) : 0;
+                const done = countCompleted(project.milestones);
+                const pct = completionPercent(project.milestones);
                 const projBilled = sumUniqueInvoices(project.milestones);
                 const projValue = Number(project.contractValue);
-                const billedPct = projValue > 0 ? Math.round((projBilled / projValue) * 100) : 0;
+                const billedPct = safePercent(projBilled, projValue);
 
                 // Timeline
                 const start = new Date(project.startDate);
@@ -328,11 +304,7 @@ export default async function ProjectManagerDetailPage({
                     </td>
                     <td className="px-4 py-4 text-sm text-muted-foreground/70">{project.client.name}</td>
                     <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground/80 whitespace-nowrap">
-                      {projValue.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: project.currency,
-                        maximumFractionDigits: 0,
-                      })}
+                      {formatCurrency(projValue, project.currency)}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <span className="font-mono text-sm tabular-nums text-foreground/70">${projBilled.toLocaleString()}</span>

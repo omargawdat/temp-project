@@ -1,4 +1,6 @@
 import { sumUniqueInvoices } from "@/lib/financial";
+import { countCompleted, completionPercent, filterOverdue, filterUpcoming, daysDifference } from "@/lib/milestones";
+import { safePercent } from "@/lib/format";
 
 type PMWithProjects = {
   id: string;
@@ -53,44 +55,27 @@ export function computePMStats(managers: PMWithProjects[]): PMStats[] {
     const activeProjects = pm.projects.filter((p) => p.status === "ACTIVE").length;
     const allMilestones = pm.projects.flatMap((p) => p.milestones);
     const totalMilestones = allMilestones.length;
-    const completedMilestones = allMilestones.filter(
-      (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
-    ).length;
+    const completedMilestones = countCompleted(allMilestones);
     const inProgressMilestones = allMilestones.filter((m) => m.status === "IN_PROGRESS").length;
     const overdueList = pm.projects.flatMap((p) =>
-      p.milestones
-        .filter(
-          (m) =>
-            m.status !== "COMPLETED" &&
-            m.status !== "READY_FOR_INVOICING" &&
-            m.status !== "INVOICED" &&
-            new Date(m.plannedDate) < now,
-        )
-        .map((m) => ({
-          milestoneName: m.name,
-          projectName: p.name,
-          plannedDate: m.plannedDate,
-          daysOverdue: Math.floor((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24)),
-        })),
+      filterOverdue(p.milestones, now).map((m) => ({
+        milestoneName: m.name,
+        projectName: p.name,
+        plannedDate: m.plannedDate,
+        daysOverdue: daysDifference(m.plannedDate, now),
+      })),
     );
     const overdueMilestones = overdueList.length;
-    const completionPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
+    const completionPct = completionPercent(allMilestones);
 
     // Next deadline
-    const upcoming = allMilestones
-      .filter(
-        (m) =>
-          m.status !== "COMPLETED" &&
-          m.status !== "READY_FOR_INVOICING" &&
-          m.status !== "INVOICED" &&
-          new Date(m.plannedDate) >= now,
-      )
+    const upcoming = filterUpcoming(allMilestones, 365, now)
       .sort((a, b) => new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime());
     const nextDeadline = upcoming[0]?.plannedDate ?? null;
 
     const portfolioValue = pm.projects.reduce((sum, p) => sum + Number(p.contractValue), 0);
     const billed = sumUniqueInvoices(allMilestones);
-    const billedPct = portfolioValue > 0 ? Math.round((billed / portfolioValue) * 100) : 0;
+    const billedPct = safePercent(billed, portfolioValue);
 
     return {
       ...pm,

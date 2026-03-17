@@ -22,9 +22,10 @@ import { ProjectSheet } from "@/components/common/project-sheet";
 import { ProjectStatusActions } from "@/components/common/project-status-actions";
 import { serializeForClient } from "@/lib/serialize";
 import { InvoiceSheet } from "@/components/common/invoice-sheet";
-import { sumUniqueInvoices } from "@/lib/financial";
+import { sumUniqueInvoices, deduplicateInvoices } from "@/lib/financial";
 import { NotesSection } from "@/components/common/notes-section";
 import { FloatingActions } from "@/components/projects/floating-actions";
+import { getInitials, safePercent, formatCurrency, formatDate } from "@/lib/format";
 
 function getLifecycleStep(status: string): number {
   if (status === "CLOSED") return 2;
@@ -88,9 +89,7 @@ export default async function ProjectDetailPage({
   }
 
   const contractValue = Number(project.contractValue);
-  const contractValueFormatted = contractValue.toLocaleString("en-US", {
-    style: "currency", currency: project.currency, maximumFractionDigits: 0,
-  });
+  const contractValueFormatted = formatCurrency(contractValue, project.currency);
 
   const stages = [
     { label: "Active", icon: Clock, done: lifecycleStep > 0, current: lifecycleStep === 0 },
@@ -98,63 +97,23 @@ export default async function ProjectDetailPage({
     { label: "Closed", icon: CheckCircle2, done: false, current: lifecycleStep === 2 },
   ];
 
-  const billedPercent = contractValue > 0 ? Math.min(100, Math.round((billedAmount / contractValue) * 100)) : 0;
-  const collectedPercent = contractValue > 0 ? Math.min(100, Math.round((collectedAmount / contractValue) * 100)) : 0;
+  const billedPercent = safePercent(billedAmount, contractValue);
+  const collectedPercent = safePercent(collectedAmount, contractValue);
 
   const startDate = new Date(project.startDate);
   const endDate = new Date(project.endDate);
-  const pmInitials = project.projectManager.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const pmInitials = getInitials(project.projectManager.name);
 
   const currencySymbol = contractValueFormatted.replace(/[\d,.\s]/g, "").trim();
   const isOverbilled = billedAmount > contractValue;
-  function formatAmount(amount: number) {
-    return amount.toLocaleString();
-  }
-
-  const projectCurrency = project.currency;
-  function formatCurrency(amount: number) {
-    return amount.toLocaleString("en-US", {
-      style: "currency", currency: projectCurrency, maximumFractionDigits: 0,
-    });
-  }
 
   if (isOverbilled) {
-    const overAmount = (billedAmount - contractValue).toLocaleString("en-US", {
-      style: "currency", currency: project!.currency, maximumFractionDigits: 0,
-    });
+    const overAmount = formatCurrency(billedAmount - contractValue, project.currency);
     alerts.push({ type: "warning", message: `Billed amount exceeds contract by ${overAmount}.` });
   }
 
   // Deduplicate invoices from milestones
-  const invoiceMap = new Map<string, {
-    id: string;
-    invoiceNumber: string;
-    amount: unknown;
-    vatAmount: unknown;
-    totalPayable: unknown;
-    status: string;
-    paymentDueDate: Date | null;
-    createdAt: Date;
-    milestoneNames: string[];
-  }>();
-  project.milestones.forEach((m) => {
-    if (m.invoice && !invoiceMap.has(m.invoice.id)) {
-      invoiceMap.set(m.invoice.id, {
-        ...m.invoice,
-        milestoneNames: [],
-      });
-    }
-    if (m.invoice) {
-      invoiceMap.get(m.invoice.id)!.milestoneNames.push(m.name);
-    }
-  });
-  const invoices = Array.from(invoiceMap.values())
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const invoices = deduplicateInvoices(project.milestones);
 
   const invoiceTotalAmount = invoices.reduce((sum, inv) => sum + Number(inv.amount), 0);
   const invoiceTotalVat = invoices.reduce((sum, inv) => sum + Number(inv.vatAmount), 0);
@@ -181,7 +140,7 @@ export default async function ProjectDetailPage({
               ) : (
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] ring-1 ring-white/[0.08]">
                   <span className="text-lg font-bold text-foreground/70">
-                    {project.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                    {getInitials(project.name)}
                   </span>
                 </div>
               )}
@@ -283,9 +242,9 @@ export default async function ProjectDetailPage({
           <div className="h-4 w-px bg-border/20" />
           <div className="flex items-center gap-2 text-base">
             <Calendar className="h-4 w-4 text-muted-foreground/50" />
-            <span className="font-semibold text-foreground/85">{startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+            <span className="font-semibold text-foreground/85">{formatDate(startDate, "full")}</span>
             <span className="text-muted-foreground/40">→</span>
-            <span className="font-semibold text-foreground/85">{endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+            <span className="font-semibold text-foreground/85">{formatDate(endDate, "full")}</span>
           </div>
         </div>
       </div>
@@ -300,11 +259,14 @@ export default async function ProjectDetailPage({
             <p className="text-sm text-muted-foreground/50">{project.currency} · {project.paymentTerms}</p>
           </div>
 
+          {/* Separator */}
+          <div className="self-stretch w-px bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />
+
           {/* Billed */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground/60">Billed</span>
-              <span className="text-base font-bold tabular-nums text-foreground">{formatCurrency(billedAmount)} <span className="text-muted-foreground/40 font-normal text-sm">/ {contractValueFormatted}</span></span>
+              <span className="text-base font-bold tabular-nums text-foreground">{formatCurrency(billedAmount, project.currency)} <span className="text-muted-foreground/40 font-normal text-sm">/ {contractValueFormatted}</span></span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
               <div className={`h-full rounded-full transition-all ${isOverbilled ? "bg-red-500/60" : "bg-foreground/25"}`} style={{ width: `${billedPercent}%` }} />
@@ -312,18 +274,21 @@ export default async function ProjectDetailPage({
             <div className="mt-1 flex justify-between text-sm">
               <span className={`font-medium ${isOverbilled ? "text-red-400/70" : "text-muted-foreground/60"}`}>{billedPercent}%</span>
               {isOverbilled ? (
-                <span className="font-medium text-red-400">{formatAmount(billedAmount - contractValue)} over-billed</span>
+                <span className="font-medium text-red-400">{(billedAmount - contractValue).toLocaleString()} over-billed</span>
               ) : (
-                <span className="text-muted-foreground/50">{formatAmount(contractValue - billedAmount)} remaining</span>
+                <span className="text-muted-foreground/50">{(contractValue - billedAmount).toLocaleString()} remaining</span>
               )}
             </div>
           </div>
+
+          {/* Separator */}
+          <div className="self-stretch w-px bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />
 
           {/* Collected */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground/60">Collected</span>
-              <span className="text-base font-bold tabular-nums text-foreground">{formatCurrency(collectedAmount)} <span className="text-muted-foreground/40 font-normal text-sm">/ {formatCurrency(billedAmount)}</span></span>
+              <span className="text-base font-bold tabular-nums text-foreground">{formatCurrency(collectedAmount, project.currency)} <span className="text-muted-foreground/40 font-normal text-sm">/ {formatCurrency(billedAmount, project.currency)}</span></span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
               <div className="relative h-full" style={{ width: `${billedPercent}%` }}>
@@ -382,7 +347,7 @@ export default async function ProjectDetailPage({
                     ${Number(m.value).toLocaleString("en-US", { minimumFractionDigits: 0 })}
                   </td>
                   <td className="px-4 py-4 text-base text-muted-foreground/70">
-                    {new Date(m.plannedDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" })}
+                    {formatDate(m.plannedDate, "short")}
                   </td>
                   <td className="px-4 py-4">
                     <StatusBadge status={m.status} />
@@ -482,13 +447,13 @@ export default async function ProjectDetailPage({
                         )}
                       </td>
                       <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground/85">
-                        {formatCurrency(Number(inv.amount))}
+                        {formatCurrency(Number(inv.amount), project.currency)}
                       </td>
                       <td className="px-4 py-4 text-right font-mono text-sm tabular-nums text-muted-foreground/60">
-                        {formatCurrency(Number(inv.vatAmount))}
+                        {formatCurrency(Number(inv.vatAmount), project.currency)}
                       </td>
                       <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground">
-                        {formatCurrency(Number(inv.totalPayable))}
+                        {formatCurrency(Number(inv.totalPayable), project.currency)}
                       </td>
                       <td className="px-4 py-4">
                         <StatusBadge status={inv.status} />
@@ -496,7 +461,7 @@ export default async function ProjectDetailPage({
                       <td className="px-4 py-4 text-sm">
                         {inv.paymentDueDate ? (
                           <span className={isOverdue ? "font-medium text-red-400" : "text-muted-foreground/70"}>
-                            {new Date(inv.paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            {formatDate(inv.paymentDueDate, "full")}
                           </span>
                         ) : (
                           <span className="text-muted-foreground/20">&mdash;</span>
@@ -521,13 +486,13 @@ export default async function ProjectDetailPage({
                 <tr className="border-t border-border/20 bg-white/[0.02]">
                   <td className="px-6 py-3.5 text-sm font-bold text-foreground" colSpan={2}>Total</td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-foreground">
-                    {formatCurrency(invoiceTotalAmount)}
+                    {formatCurrency(invoiceTotalAmount, project.currency)}
                   </td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-muted-foreground/60">
-                    {formatCurrency(invoiceTotalVat)}
+                    {formatCurrency(invoiceTotalVat, project.currency)}
                   </td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-foreground">
-                    {formatCurrency(invoiceTotalPayable)}
+                    {formatCurrency(invoiceTotalPayable, project.currency)}
                   </td>
                   <td colSpan={3} />
                 </tr>

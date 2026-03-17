@@ -17,6 +17,16 @@ import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/common/status-badge";
 import { sumUniqueInvoices } from "@/lib/financial";
 import {
+  filterOverdue,
+  filterUpcoming,
+  daysDifference,
+  countCompleted,
+  completionPercent,
+  isCompleted,
+  isOverdue,
+} from "@/lib/milestones";
+import { getInitials, safePercent } from "@/lib/format";
+import {
   CashFlowFunnelChart,
   DashboardBillingRing,
   MilestoneStatusDonut,
@@ -91,48 +101,30 @@ export default async function DashboardPage() {
   const totalCollected = sumUniqueInvoices(allMilestones, "PAID");
   const outstandingAmount = totalBilled - totalCollected;
   const unbilledAmount = portfolioValue - totalBilled;
-  const billedPct = portfolioValue > 0 ? Math.round((totalBilled / portfolioValue) * 100) : 0;
-  const collectedPct = portfolioValue > 0 ? Math.round((totalCollected / portfolioValue) * 100) : 0;
+  const billedPct = safePercent(totalBilled, portfolioValue);
+  const collectedPct = safePercent(totalCollected, portfolioValue);
 
   // Overdue milestones
   const overdueMilestones = allProjects.flatMap((p) =>
-    p.milestones
-      .filter(
-        (m) =>
-          m.status !== "COMPLETED" &&
-          m.status !== "READY_FOR_INVOICING" &&
-          m.status !== "INVOICED" &&
-          new Date(m.plannedDate) < now,
-      )
-      .map((m) => ({
-        id: m.id,
-        name: m.name,
-        projectName: p.name,
-        projectId: p.id,
-        daysOverdue: Math.ceil((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24)),
-      })),
+    filterOverdue(p.milestones).map((m) => ({
+      id: m.id,
+      name: m.name,
+      projectName: p.name,
+      projectId: p.id,
+      daysOverdue: daysDifference(m.plannedDate),
+    })),
   ).sort((a, b) => b.daysOverdue - a.daysOverdue);
 
   // Upcoming milestones (30 days)
-  const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   const upcomingMilestones = allProjects.flatMap((p) =>
-    p.milestones
-      .filter(
-        (m) =>
-          m.status !== "COMPLETED" &&
-          m.status !== "READY_FOR_INVOICING" &&
-          m.status !== "INVOICED" &&
-          new Date(m.plannedDate) >= now &&
-          new Date(m.plannedDate) <= thirtyDays,
-      )
-      .map((m) => ({
-        id: m.id,
-        name: m.name,
-        projectName: p.name,
-        projectId: p.id,
-        plannedDate: m.plannedDate,
-        daysUntil: Math.ceil((new Date(m.plannedDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
-      })),
+    filterUpcoming(p.milestones).map((m) => ({
+      id: m.id,
+      name: m.name,
+      projectName: p.name,
+      projectId: p.id,
+      plannedDate: m.plannedDate,
+      daysUntil: -daysDifference(m.plannedDate),
+    })),
   ).sort((a, b) => a.daysUntil - b.daysUntil);
 
   // Pending delivery notes
@@ -219,15 +211,10 @@ export default async function DashboardPage() {
     if (p.status === "ACTIVE") existing.activeProjects++;
     p.milestones.forEach((m) => {
       existing.totalMilestones++;
-      if (m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED") {
+      if (isCompleted(m.status)) {
         existing.completedMilestones++;
       }
-      if (
-        m.status !== "COMPLETED" &&
-        m.status !== "READY_FOR_INVOICING" &&
-        m.status !== "INVOICED" &&
-        new Date(m.plannedDate) < now
-      ) {
+      if (isOverdue(m, now)) {
         existing.overdue++;
       }
     });
@@ -247,10 +234,8 @@ export default async function DashboardPage() {
 
   // Recent projects: compute progress
   const recentProjectsWithProgress = recentProjects.map((p) => {
-    const done = p.milestones.filter(
-      (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
-    ).length;
-    return { ...p, done, total: p.milestones.length, pct: p.milestones.length > 0 ? Math.round((done / p.milestones.length) * 100) : 0 };
+    const done = countCompleted(p.milestones);
+    return { ...p, done, total: p.milestones.length, pct: completionPercent(p.milestones) };
   });
 
   return (
@@ -434,7 +419,7 @@ export default async function DashboardPage() {
                   <p className="text-xs text-white/35">{inv.milestones[0]?.project.name ?? "—"}</p>
                 </div>
                 <span className="shrink-0 text-[11px] font-bold tabular-nums text-red-400/70">
-                  {Math.ceil((now.getTime() - new Date(inv.paymentDueDate!).getTime()) / (1000 * 60 * 60 * 24))}d past due
+                  {daysDifference(inv.paymentDueDate!)}d past due
                 </span>
               </div>
             ))}
@@ -542,8 +527,8 @@ export default async function DashboardPage() {
           </div>
           <div className="space-y-2.5">
             {pmWorkload.map((pm) => {
-              const pct = pm.totalMilestones > 0 ? Math.round((pm.completedMilestones / pm.totalMilestones) * 100) : 0;
-              const initials = pm.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+              const pct = safePercent(pm.completedMilestones, pm.totalMilestones);
+              const initials = getInitials(pm.name);
               return (
                 <Link
                   key={pm.id}

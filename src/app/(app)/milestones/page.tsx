@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { MilestonesToolbar } from "@/components/milestones/milestones-toolbar";
 import {
   buildMilestoneWhere,
@@ -45,17 +44,6 @@ export default async function MilestonesPage({
     prisma.milestone.count(),
   ]);
 
-  const completed = milestones.filter(
-    (m) =>
-      m.status === "COMPLETED" ||
-      m.status === "READY_FOR_INVOICING" ||
-      m.status === "INVOICED",
-  ).length;
-  const progressPercent =
-    milestones.length > 0
-      ? Math.round((completed / milestones.length) * 100)
-      : 0;
-
   return (
     <div>
       <PageHeader
@@ -69,23 +57,6 @@ export default async function MilestonesPage({
         projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
         resultCount={milestones.length}
       />
-
-      {/* Progress Bar */}
-      {totalCount > 0 && (
-        <div className="border-border/50 bg-card mb-6 rounded-xl border p-5 shadow-lg shadow-black/10">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              Overall completion ·{" "}
-              <span className="text-foreground font-semibold">{completed}</span>{" "}
-              of {milestones.length}
-            </span>
-            <span className="text-lg font-bold text-teal-400">
-              {progressPercent}%
-            </span>
-          </div>
-          <Progress value={progressPercent} className="mt-3 h-2.5" />
-        </div>
-      )}
 
       {/* Table */}
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">

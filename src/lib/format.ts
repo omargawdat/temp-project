@@ -40,3 +40,8 @@ export function formatDate(
 export function toDateInputValue(date: Date | string): string {
   return new Date(date).toISOString().split("T")[0];
 }
+
+/** Safe percentage: returns 0 when denominator is 0. */
+export function safePercent(numerator: number, denominator: number): number {
+  return denominator > 0 ? Math.min(100, Math.round((numerator / denominator) * 100)) : 0;
+}

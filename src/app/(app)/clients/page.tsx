@@ -14,27 +14,9 @@ import {
   buildClientOrderBy,
   hasActiveClientFilters,
 } from "@/lib/client-queries";
-
-const sectorStyle: Record<string, { bg: string; text: string; dot: string }> = {
-  GOVERNMENT: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400" },
-  PRIVATE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
-  SEMI_GOVERNMENT: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-400" },
-};
-
-function formatSector(sector: string) {
-  return sector
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function fmt(amount: number, currency: string) {
-  return amount.toLocaleString("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  });
-}
+import { filterOverdue, daysDifference } from "@/lib/milestones";
+import { getInitials, safePercent, formatCurrency } from "@/lib/format";
+import { SECTOR_STYLES, DEFAULT_STATUS_STYLE, formatSector } from "@/lib/status-config";
 
 export default async function ClientsPage({
   searchParams,
@@ -126,46 +108,23 @@ export default async function ClientsPage({
             );
             const currency = client.projects[0]?.currency ?? "USD";
 
-            const billedPct =
-              totalContractValue > 0
-                ? Math.min(100, Math.round((billedAmount / totalContractValue) * 100))
-                : 0;
-            const collectedPct =
-              totalContractValue > 0
-                ? Math.min(100, Math.round((collectedAmount / totalContractValue) * 100))
-                : 0;
+            const billedPct = safePercent(billedAmount, totalContractValue);
+            const collectedPct = safePercent(collectedAmount, totalContractValue);
 
             const now = new Date();
             const overdueDetails = client.projects.flatMap((p) =>
-              p.milestones
-                .filter(
-                  (m) =>
-                    m.status !== "COMPLETED" &&
-                    m.status !== "READY_FOR_INVOICING" &&
-                    m.status !== "INVOICED" &&
-                    new Date(m.plannedDate) < now,
-                )
-                .map((m) => ({
-                  milestoneName: m.name,
-                  projectName: p.name,
-                  plannedDate: m.plannedDate,
-                  daysOverdue: Math.ceil((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24)),
-                })),
+              filterOverdue(p.milestones, now).map((m) => ({
+                milestoneName: m.name,
+                projectName: p.name,
+                plannedDate: m.plannedDate,
+                daysOverdue: daysDifference(m.plannedDate, now),
+              })),
             );
             const overdueMilestones = overdueDetails.length;
 
-            const sector = sectorStyle[client.sector] ?? {
-              bg: "bg-white/5",
-              text: "text-white/40",
-              dot: "bg-white/30",
-            };
+            const sector = SECTOR_STYLES[client.sector] ?? DEFAULT_STATUS_STYLE;
 
-            const initials = client.name
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase();
+            const initials = getInitials(client.name);
 
             return (
               <Link
@@ -241,7 +200,7 @@ export default async function ClientsPage({
                         Contract Value
                       </p>
                       <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
-                        {fmt(totalContractValue, currency)}
+                        {formatCurrency(totalContractValue, currency)}
                       </p>
                     </div>
                   </div>

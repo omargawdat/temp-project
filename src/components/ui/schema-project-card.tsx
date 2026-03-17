@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Calendar, ArrowUpRight, Hash, Target, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/common/status-badge";
+import { getInitials, safePercent, formatCurrency, formatDate } from "@/lib/format";
 
 interface SchemaProjectCardProps {
   id: string;
@@ -28,14 +29,6 @@ interface SchemaProjectCardProps {
   className?: string;
 }
 
-function fmt(amount: number, currency: string) {
-  return amount.toLocaleString("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  });
-}
-
 export function SchemaProjectCard({
   id,
   name,
@@ -57,29 +50,11 @@ export function SchemaProjectCard({
   colorIndex,
   className,
 }: SchemaProjectCardProps) {
-  const progressPct =
-    milestonesTotal > 0
-      ? Math.round((milestonesCompleted / milestonesTotal) * 100)
-      : 0;
-  const billedPct =
-    contractValue > 0
-      ? Math.min(100, Math.round((billedAmount / contractValue) * 100))
-      : 0;
-  const collectedPct =
-    contractValue > 0
-      ? Math.min(100, Math.round((collectedAmount / contractValue) * 100))
-      : 0;
-  const outstanding = billedAmount - collectedAmount;
+  const progressPct = safePercent(milestonesCompleted, milestonesTotal);
+  const billedPct = safePercent(billedAmount, contractValue);
+  const collectedPct = safePercent(collectedAmount, contractValue);
 
-  const pmInitials = projectManager
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  const fmtDate = (d: Date) =>
-    new Date(d).toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+  const pmInitials = getInitials(projectManager);
 
   return (
     <Link
@@ -109,7 +84,7 @@ export function SchemaProjectCard({
           ) : (
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500/20 to-teal-500/5 ring-1 ring-teal-500/20">
               <span className="text-sm font-bold text-teal-400">
-                {name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                {getInitials(name)}
               </span>
             </div>
           )}
@@ -131,7 +106,7 @@ export function SchemaProjectCard({
               Contract
             </p>
             <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
-              {fmt(contractValue, currency)}
+              {formatCurrency(contractValue, currency)}
             </p>
           </div>
           <div className="bg-[#0d1525] px-3.5 py-3">
@@ -139,7 +114,7 @@ export function SchemaProjectCard({
               Billed
             </p>
             <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
-              {fmt(billedAmount, currency)}
+              {formatCurrency(billedAmount, currency)}
             </p>
           </div>
           <div className="bg-[#0d1525] px-3.5 py-3">
@@ -147,7 +122,7 @@ export function SchemaProjectCard({
               Collected
             </p>
             <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
-              {fmt(collectedAmount, currency)}
+              {formatCurrency(collectedAmount, currency)}
             </p>
           </div>
         </div>
@@ -218,7 +193,7 @@ export function SchemaProjectCard({
             <div className="h-3 w-px shrink-0 bg-white/[0.06]" />
             <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
               <Calendar className="h-3 w-3" />
-              <span>{fmtDate(startDate)} — {fmtDate(endDate)}</span>
+              <span>{formatDate(startDate, "month-year")} — {formatDate(endDate, "month-year")}</span>
             </div>
             <div className="h-3 w-px bg-white/[0.06]" />
             <div className="flex items-center gap-1.5">
