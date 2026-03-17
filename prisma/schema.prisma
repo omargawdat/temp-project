@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────
+
+enum ClientInvoicingMethod {
+  PORTAL
+  EMAIL
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  FULLY_INVOICED
+  CLOSED
+}
+
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  READY_FOR_INVOICING
+  INVOICED
+}
+
+enum DeliveryNoteStatus {
+  DRAFT
+  SENT
+  SIGNED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  PAID
+  REJECTED
+}
+
+// ─── Models ─────────────────────────────────────────────────────
+
+model ProjectManager {
+  id       String  @id @default(cuid())
+  name     String
+  email    String  @unique
+  phone    String?
+  title    String?
+  photoUrl String?
+
+  projects Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id                    String                @id @default(cuid())
+  name                  String
+  clientName            String
+  contractNumber        String                @unique
+  contractValue         Decimal
+  currency              String
+  startDate             DateTime
+  endDate               DateTime
+  projectManagerId      String
+  paymentTerms          String
+  clientInvoicingMethod ClientInvoicingMethod
+  status                ProjectStatus         @default(ACTIVE)
+
+  projectManager ProjectManager @relation(fields: [projectManagerId], references: [id])
+  milestones     Milestone[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([projectManagerId])
+}
+
+model Milestone {
+  id                   String          @id @default(cuid())
+  projectId            String
+  name                 String
+  value                Decimal
+  plannedDate          DateTime
+  status               MilestoneStatus @default(NOT_STARTED)
+  requiresDeliveryNote Boolean         @default(false)
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  deliveryNote DeliveryNote?
+  invoice      Invoice?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId, status])
+  @@index([status])
+}
+
+model DeliveryNote {
+  id                String             @id @default(cuid())
+  milestoneId       String             @unique
+  description       String
+  workDelivered     String
+  status            DeliveryNoteStatus @default(DRAFT)
+  signedDocumentUrl String?
+  sentDate          DateTime?
+  signedDate        DateTime?
+
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  milestoneId    String        @unique
+  invoiceNumber  String        @unique
+  amount         Decimal
+  vatAmount      Decimal
+  totalPayable   Decimal
+  status         InvoiceStatus @default(DRAFT)
+  submittedDate  DateTime?
+  paymentDueDate DateTime?
+
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+model Payment {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  amount       Decimal
+  receivedDate DateTime
+  reference    String
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([invoiceId])
+}

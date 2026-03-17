@@ -1,0 +1,405 @@
+{
+  "project": "BlackStone eIT - Project Delivery & Invoice Coordination System",
+  "version": "1.0",
+  "generated": "2026-03-17",
+  "stories": [
+    {
+      "id": "S01",
+      "title": "Client Model & Schema",
+      "description": "Create the Client database model with all BRD fields: name, code, country, sector, primary contact, finance contact, email, phone, billing address, portal name, portal link, notes. Add relation to Project (one-to-many). Migrate existing clientName strings on Projects into Client records.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Client model exists in Prisma schema with all BRD fields",
+        "Sector enum: GOVERNMENT, PRIVATE, SEMI_GOVERNMENT",
+        "Project model has clientId FK replacing clientName string",
+        "Migration script converts existing clientName values to Client records",
+        "Database seeds correctly"
+      ]
+    },
+    {
+      "id": "S02",
+      "title": "Client CRUD Server Actions",
+      "description": "Create server actions for Client: createClient, updateClient, deleteClient. Validate uniqueness on clientCode. Prevent deletion if client has projects.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "createClient validates required fields and unique clientCode",
+        "updateClient preserves relations",
+        "deleteClient blocked if client has projects",
+        "Revalidates /clients path after mutations"
+      ]
+    },
+    {
+      "id": "S03",
+      "title": "Client List Page",
+      "description": "Create /clients page showing all clients in a table with columns: name, code, sector, country, projects count, total contract value. Include search/filter. Add 'Clients' to sidebar navigation.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Table displays all clients with key columns",
+        "Sidebar has Clients nav item between Dashboard and Projects",
+        "Empty state with CTA to add first client",
+        "PageHeader with '+ Add Client' action button"
+      ]
+    },
+    {
+      "id": "S04",
+      "title": "Client Create & Edit Pages",
+      "description": "Create /clients/new and /clients/[id]/edit pages with a ClientForm component. Fields grouped: Company Info (name, code, country, sector), Contacts (primary, finance, email, phone), Billing (address, portal name, portal link), Notes.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Form validates required fields (name, code)",
+        "Create redirects to client detail page",
+        "Edit pre-fills all existing values",
+        "Sector displayed as select dropdown"
+      ]
+    },
+    {
+      "id": "S05",
+      "title": "Client Detail Page",
+      "description": "Create /clients/[id] detail page showing client info, contact details, and a table of all associated projects with status, value, and milestone progress.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Displays all client fields in clean layout",
+        "Projects table shows name, contract value, status, milestone progress",
+        "Edit button links to edit page",
+        "Financial summary: total contract value, invoiced, collected across all projects"
+      ]
+    },
+    {
+      "id": "S06",
+      "title": "Update Project to Reference Client",
+      "description": "Update Project form and actions to select a Client from dropdown instead of typing clientName. Update project list cards and detail pages to show client from relation. Update all queries that reference clientName.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Project form has client dropdown (not free text)",
+        "Project cards show client name from relation",
+        "Project detail page shows client as clickable link",
+        "All existing project queries updated"
+      ]
+    },
+    {
+      "id": "S07",
+      "title": "Expand Project Model Fields",
+      "description": "Add missing BRD fields to Project: projectCode, rfpReference, contractType, billingFrequency, accountManagerId (FK to ProjectManager or new AccountManager concept). Update form and detail page.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "New fields added to Prisma schema",
+        "Project form includes new fields",
+        "Project detail page displays new fields",
+        "Migration runs without data loss"
+      ]
+    },
+    {
+      "id": "S08",
+      "title": "Expand Milestone Model Fields",
+      "description": "Add missing BRD fields to Milestone: percentageOfContract (auto-calculated or manual), completionDate, responsiblePMId (if different from project PM). Update milestone form and list.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Percentage auto-calculates from value/contractValue",
+        "Completion date recorded when status changes to COMPLETED",
+        "Milestone list shows percentage column",
+        "Existing data migrates cleanly"
+      ]
+    },
+    {
+      "id": "S09",
+      "title": "Milestone Detail Page",
+      "description": "Create /milestones/[id] detail page showing milestone info, linked project, delivery note status, invoice status, and timeline of status changes.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Shows milestone details: name, value, percentage, dates, status",
+        "Shows linked delivery note with status (or 'Not Required'/'Pending')",
+        "Shows linked invoice with status (or 'Not Created')",
+        "Status change buttons following the workflow transitions",
+        "Breadcrumb: Projects > [Project] > [Milestone]"
+      ]
+    },
+    {
+      "id": "S10",
+      "title": "Delivery Note Create & Edit UI",
+      "description": "Build UI for creating and editing delivery notes from the milestone detail page. Fields: description, work delivered, issue date. Upload section for delivery note document.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Create delivery note button appears on completed milestones that require one",
+        "Form captures description, work delivered",
+        "File upload for delivery note document",
+        "Status shows as DRAFT after creation"
+      ]
+    },
+    {
+      "id": "S11",
+      "title": "Delivery Note Status Workflow UI",
+      "description": "Build UI to transition delivery note through DRAFT → SENT → SIGNED workflow. Upload field for signed document. When SIGNED, milestone auto-transitions to READY_FOR_INVOICING.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Mark as Sent button (records sentDate)",
+        "Mark as Signed button with signed document upload",
+        "Signed date recorded",
+        "Milestone automatically becomes READY_FOR_INVOICING",
+        "Finance is notified (visual indicator for now)"
+      ]
+    },
+    {
+      "id": "S12",
+      "title": "Expand Delivery Note Model Fields",
+      "description": "Add BRD fields: deliveryNoteNumber, issueDate, uploadedFileUrl, signedFileUrl, comments. Update form and display.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Delivery note number auto-generated or manually entered",
+        "Issue date field added",
+        "File URLs stored for both draft and signed documents",
+        "Comments field available"
+      ]
+    },
+    {
+      "id": "S13",
+      "title": "Invoice Create & Edit UI",
+      "description": "Build invoice creation page/modal from milestones that are READY_FOR_INVOICING or INVOICED. Fields: invoice number, amount, VAT, total, submission method, portal name, payment due date, comments.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Create invoice from milestone detail or invoices page",
+        "Auto-populates amount from milestone value",
+        "VAT auto-calculates (configurable rate)",
+        "Invoice number validation (unique)",
+        "Submission method dropdown (Portal/Email)"
+      ]
+    },
+    {
+      "id": "S14",
+      "title": "Invoice Detail Page",
+      "description": "Create /invoices/[id] detail page showing invoice info, linked milestone/project, submission details, payment status, and payment history.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Shows all invoice fields",
+        "Links to project and milestone",
+        "Shows payment due date with overdue indicator",
+        "Status change buttons following workflow",
+        "Payment history table at bottom"
+      ]
+    },
+    {
+      "id": "S15",
+      "title": "Invoice Status Workflow UI",
+      "description": "Build status transition UI: DRAFT → SUBMITTED → UNDER_REVIEW → APPROVED → PAID. Also handle REJECTED path. Record submission date when submitted.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Status buttons show only valid next states",
+        "Submission date auto-recorded",
+        "Payment due date required before submission",
+        "REJECTED invoices can be edited and resubmitted",
+        "PAID auto-triggers project status recalculation"
+      ]
+    },
+    {
+      "id": "S16",
+      "title": "Expand Invoice Model Fields",
+      "description": "Add BRD fields: invoiceDate, submissionMethod (Portal/Email), portalName, paymentReceivedDate, comments, invoiceFileUrl.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "New fields in schema and form",
+        "Submission method tracked",
+        "Portal name shown when method is Portal",
+        "File upload for invoice document"
+      ]
+    },
+    {
+      "id": "S17",
+      "title": "Payment Recording UI",
+      "description": "Build UI to record payments against approved invoices. Form: amount, received date, reference number. Auto-mark invoice as PAID when fully paid.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Add payment button on invoice detail (only APPROVED invoices)",
+        "Form captures amount, date, reference",
+        "Running total shown vs totalPayable",
+        "Auto-marks PAID when fully collected",
+        "Partial payments supported"
+      ]
+    },
+    {
+      "id": "S18",
+      "title": "Expand Payment Model Fields",
+      "description": "Add BRD fields: paymentStatus, outstandingAmount (computed), paymentNotes. Show payment status on invoice list.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Outstanding amount calculated automatically",
+        "Payment notes field available",
+        "Invoice list shows payment progress indicator"
+      ]
+    },
+    {
+      "id": "S19",
+      "title": "Project Status Auto-Calculation",
+      "description": "Ensure project status automatically transitions: ACTIVE → FULLY_INVOICED (all milestones invoiced) → CLOSED (all invoices paid). This logic exists in actions but needs to trigger consistently across all status changes.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Status recalculates after milestone status change",
+        "Status recalculates after invoice status change",
+        "Status recalculates after payment recorded",
+        "Manual override still possible"
+      ]
+    },
+    {
+      "id": "S20",
+      "title": "Finance Dashboard",
+      "description": "Create a finance-focused dashboard showing: total invoices issued, total payments received, outstanding invoices, overdue payments, invoice pipeline by status, payment performance trend.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "KPI cards: total invoiced, paid, outstanding, overdue",
+        "Invoice pipeline chart (by status)",
+        "List of overdue invoices with days overdue",
+        "Upcoming payment due dates"
+      ]
+    },
+    {
+      "id": "S21",
+      "title": "Project Dashboard Enhancement",
+      "description": "Enhance existing dashboard with: upcoming milestones (next 30 days), milestones ready for invoicing, pending delivery notes, overdue milestones.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Upcoming milestones section with countdown",
+        "Ready for invoicing queue",
+        "Missing delivery notes alert list",
+        "Overdue milestones highlighted in red"
+      ]
+    },
+    {
+      "id": "S22",
+      "title": "Management Dashboard",
+      "description": "Create management reporting dashboard: revenue per client, revenue per project, invoice pipeline, payment performance, project health overview.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Revenue by client chart",
+        "Revenue by project chart",
+        "Overall billing efficiency metrics",
+        "Collection rate percentage"
+      ]
+    },
+    {
+      "id": "S23",
+      "title": "Document Upload System",
+      "description": "Build reusable document upload component supporting: contracts, purchase orders, delivery notes, signed delivery notes, invoices, payment confirmations. Documents linked to client/project/milestone/invoice.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Upload component with drag-and-drop",
+        "File type validation (PDF, images, Office docs)",
+        "File size limit (10MB)",
+        "Documents listed with download links on entity detail pages",
+        "Delete document capability"
+      ]
+    },
+    {
+      "id": "S24",
+      "title": "Search & Filter on List Pages",
+      "description": "Add search and filter controls to all list pages: clients, projects, milestones, invoices. Filter by status, date range, client, project manager.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Text search on name/code fields",
+        "Status filter dropdowns",
+        "Date range filter for milestones and invoices",
+        "Client filter on projects",
+        "PM filter on projects",
+        "Filters persist in URL params"
+      ]
+    },
+    {
+      "id": "S25",
+      "title": "System Notifications — Visual Alerts",
+      "description": "Implement in-app notification system showing alerts for: milestone due soon (10 days), milestone overdue, delivery note missing, invoice pending, payment overdue. Display as a notification bell with badge count in sidebar.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Notification bell icon in sidebar with unread count",
+        "Notification list panel",
+        "Alerts generated based on BRD trigger rules",
+        "Click notification navigates to relevant entity",
+        "Mark as read/dismiss"
+      ]
+    },
+    {
+      "id": "S26",
+      "title": "Overdue & Upcoming Indicators",
+      "description": "Add visual indicators across the app for: milestones approaching due date (amber), overdue milestones (red), invoices approaching payment due (amber), overdue payments (red).",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Amber badge for items due within 10 days",
+        "Red badge for overdue items",
+        "Indicators appear on list pages, detail pages, and dashboard",
+        "Tooltip shows days until due or days overdue"
+      ]
+    },
+    {
+      "id": "S27",
+      "title": "User Authentication",
+      "description": "Implement user authentication with login page, session management, and protected routes. Users table with email, password hash, name, role.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Login page with email/password",
+        "Session-based authentication",
+        "Protected routes redirect to login",
+        "Logout functionality",
+        "Current user shown in sidebar"
+      ]
+    },
+    {
+      "id": "S28",
+      "title": "User Roles & Permissions",
+      "description": "Implement role-based access control: Admin (full access), Project Manager (projects, milestones, delivery notes), Finance (invoices, payments), Account Manager (clients, read projects), Management (read-only dashboards).",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Role enum: ADMIN, PROJECT_MANAGER, FINANCE, ACCOUNT_MANAGER, MANAGEMENT",
+        "Server actions check user role before mutations",
+        "UI hides actions user cannot perform",
+        "Admin can manage users and assign roles"
+      ]
+    },
+    {
+      "id": "S29",
+      "title": "User Management (Admin)",
+      "description": "Admin page to create, edit, deactivate users. Assign roles. Reset passwords.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "User list page (admin only)",
+        "Create user with role assignment",
+        "Edit user details and role",
+        "Deactivate user (soft delete)",
+        "Password reset"
+      ]
+    },
+    {
+      "id": "S30",
+      "title": "Audit Trail",
+      "description": "Log all financial record changes: who changed what, when, previous value, new value. Applicable to invoices, payments, milestone status changes.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "AuditLog model: entityType, entityId, action, userId, oldValue, newValue, timestamp",
+        "Auto-logged on invoice/payment/milestone mutations",
+        "Viewable on entity detail pages",
+        "Admin can view full audit log"
+      ]
+    },
+    {
+      "id": "S31",
+      "title": "Email Notifications",
+      "description": "Send email notifications for critical events: milestone overdue, delivery note missing after 5 days, payment overdue. Configurable per user.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Email sent for overdue milestones",
+        "Email sent for missing delivery notes",
+        "Email sent for overdue payments",
+        "User can opt-out of specific notification types",
+        "Email includes link to relevant page"
+      ]
+    },
+    {
+      "id": "S32",
+      "title": "Data Export",
+      "description": "Allow exporting data to CSV/Excel: project list, milestone list, invoice list, payment reports. Filtered by date range and status.",
+      "status": "todo",
+      "acceptance_criteria": [
+        "Export button on list pages",
+        "CSV download with current filters applied",
+        "Includes all visible columns",
+        "Date range selector for reports"
+      ]
+    }
+  ]
+}
+
