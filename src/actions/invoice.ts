@@ -3,7 +3,11 @@
 import { prisma } from "@/lib/prisma";
 import type { ActionResult } from "@/types";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { parseRequiredString, parseDecimal } from "@/lib/validation";
+import {
+  parseRequiredString,
+  parseDecimal,
+  ValidationError,
+} from "@/lib/validation";
 import { recalculateProjectStatus } from "./project";
 
 const INVOICE_TRANSITIONS: Record<string, string[]> = {
@@ -19,53 +23,88 @@ export async function createInvoice(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const milestoneId = parseRequiredString(formData, "milestoneId");
-    const invoiceNumber = parseRequiredString(formData, "invoiceNumber");
-    const amount = parseDecimal(formData, "amount");
+    const milestoneIdsRaw = parseRequiredString(formData, "milestoneIds");
     const vatAmount = parseDecimal(formData, "vatAmount");
-    const totalPayable = parseDecimal(formData, "totalPayable");
 
-    const milestone = await prisma.milestone.findUnique({
-      where: { id: milestoneId },
-      include: { invoice: true, deliveryNote: true },
+    const milestoneIds = milestoneIdsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    if (milestoneIds.length === 0) {
+      return { success: false, error: "At least one milestone is required." };
+    }
+
+    const milestones = await prisma.milestone.findMany({
+      where: { id: { in: milestoneIds } },
+      include: { deliveryNote: true, project: true },
     });
 
-    if (!milestone) {
-      return { success: false, error: "Milestone not found." };
+    if (milestones.length !== milestoneIds.length) {
+      return { success: false, error: "One or more milestones not found." };
     }
 
-    if (milestone.invoice) {
-      return { success: false, error: "An invoice already exists for this milestone." };
+    // All must be from the same project
+    const projectIds = new Set(milestones.map((m) => m.projectId));
+    if (projectIds.size > 1) {
+      return { success: false, error: "All milestones must belong to the same project." };
+    }
+    const projectId = milestones[0].projectId;
+
+    // All must be READY_FOR_INVOICING
+    const notReady = milestones.find((m) => m.status !== "READY_FOR_INVOICING");
+    if (notReady) {
+      return { success: false, error: `Milestone "${notReady.name}" is not ready for invoicing.` };
     }
 
-    if (milestone.status !== "READY_FOR_INVOICING") {
-      return { success: false, error: "Milestone must be in Ready for Invoicing status." };
+    // None can already have an invoice
+    const alreadyInvoiced = milestones.find((m) => m.invoiceId);
+    if (alreadyInvoiced) {
+      return { success: false, error: `Milestone "${alreadyInvoiced.name}" already has an invoice.` };
     }
 
-    if (milestone.requiresDeliveryNote) {
-      if (!milestone.deliveryNote || milestone.deliveryNote.status !== "SIGNED") {
-        return { success: false, error: "Delivery note must be signed before creating an invoice." };
+    // Check delivery note requirements
+    for (const m of milestones) {
+      if (m.requiresDeliveryNote) {
+        if (!m.deliveryNote || m.deliveryNote.status !== "SIGNED") {
+          return { success: false, error: `Delivery note for "${m.name}" must be signed before invoicing.` };
+        }
       }
     }
 
-    const existingInvoice = await prisma.invoice.findUnique({ where: { invoiceNumber } });
-    if (existingInvoice) {
-      return { success: false, error: "Invoice number already exists." };
+    // Auto-calculate amount from milestone values
+    const amount = milestones.reduce((sum, m) => sum + Number(m.value), 0);
+    const vatNum = Number(vatAmount);
+
+    // Validate VAT is not negative
+    if (vatNum < 0) {
+      throw new ValidationError("VAT amount cannot be negative.");
     }
 
+    // Calculate totalPayable = amount + VAT
+    const totalPayable = amount + vatNum;
+
+    // Generate invoice number: INV-YYYY-NNN
+    const year = new Date().getFullYear();
+    const count = await prisma.invoice.count();
+    const invoiceNumber = `INV-${year}-${String(count + 1).padStart(3, "0")}`;
+
     const invoice = await prisma.invoice.create({
-      data: { milestoneId, invoiceNumber, amount, vatAmount, totalPayable, status: "DRAFT" },
+      data: {
+        invoiceNumber,
+        amount: amount.toString(),
+        vatAmount,
+        totalPayable: totalPayable.toString(),
+        status: "DRAFT",
+      },
     });
 
-    await prisma.milestone.update({
-      where: { id: milestoneId },
-      data: { status: "INVOICED" },
+    // Link milestones and set status to INVOICED
+    await prisma.milestone.updateMany({
+      where: { id: { in: milestoneIds } },
+      data: { invoiceId: invoice.id, status: "INVOICED" },
     });
 
-    await recalculateProjectStatus(milestone.projectId);
+    await recalculateProjectStatus(projectId);
     revalidateEntity("invoices");
     revalidateEntity("milestones");
-    revalidateEntity("projects", milestone.projectId);
+    revalidateEntity("projects", projectId);
 
     return { success: true, data: { id: invoice.id } };
   });
@@ -77,11 +116,12 @@ export async function updateInvoice(
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
     const invoiceNumber = parseRequiredString(formData, "invoiceNumber");
-    const amount = parseDecimal(formData, "amount");
     const vatAmount = parseDecimal(formData, "vatAmount");
-    const totalPayable = parseDecimal(formData, "totalPayable");
 
-    const invoice = await prisma.invoice.findUnique({ where: { id } });
+    const invoice = await prisma.invoice.findUnique({
+      where: { id },
+      include: { milestones: true },
+    });
 
     if (!invoice) {
       return { success: false, error: "Invoice not found." };
@@ -91,9 +131,32 @@ export async function updateInvoice(
       return { success: false, error: "Can only edit draft or rejected invoices." };
     }
 
+    // Recalculate amount from linked milestones
+    const amount = invoice.milestones.reduce((sum, m) => sum + Number(m.value), 0);
+    const vatNum = Number(vatAmount);
+
+    if (vatNum < 0) {
+      throw new ValidationError("VAT amount cannot be negative.");
+    }
+
+    const totalPayable = amount + vatNum;
+
+    // Invoice number uniqueness (if changed)
+    if (invoiceNumber !== invoice.invoiceNumber) {
+      const existing = await prisma.invoice.findUnique({ where: { invoiceNumber } });
+      if (existing) {
+        return { success: false, error: "Invoice number already exists." };
+      }
+    }
+
     await prisma.invoice.update({
       where: { id },
-      data: { invoiceNumber, amount, vatAmount, totalPayable },
+      data: {
+        invoiceNumber,
+        amount: amount.toString(),
+        vatAmount,
+        totalPayable: totalPayable.toString(),
+      },
     });
 
     revalidateEntity("invoices");
@@ -108,11 +171,15 @@ export async function updateInvoiceStatus(
   return withErrorHandling(async () => {
     const invoice = await prisma.invoice.findUnique({
       where: { id },
-      include: { milestone: true },
+      include: { milestones: true },
     });
 
     if (!invoice) {
       return { success: false, error: "Invoice not found." };
+    }
+
+    if (invoice.milestones.length === 0) {
+      return { success: false, error: "Invoice has no linked milestones." };
     }
 
     const allowedTransitions = INVOICE_TRANSITIONS[invoice.status] ?? [];
@@ -135,9 +202,10 @@ export async function updateInvoiceStatus(
 
     await prisma.invoice.update({ where: { id }, data: updateData });
 
-    await recalculateProjectStatus(invoice.milestone.projectId);
+    const projectId = invoice.milestones[0].projectId;
+    await recalculateProjectStatus(projectId);
     revalidateEntity("invoices");
-    revalidateEntity("projects", invoice.milestone.projectId);
+    revalidateEntity("projects", projectId);
 
     return { success: true, data: undefined };
   });

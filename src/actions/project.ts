@@ -17,7 +17,6 @@ const INVOICING_METHODS = ["PORTAL", "EMAIL"] as const;
 /**
  * Recalculates project status based on milestones and invoices.
  * - All milestones invoiced + all invoices paid → CLOSED
- * - All milestones invoiced (invoices submitted) → FULLY_INVOICED
  * - Otherwise → ACTIVE
  */
 export async function recalculateProjectStatus(projectId: string) {
@@ -44,8 +43,6 @@ export async function recalculateProjectStatus(projectId: string) {
 
   if (allPaid && allInvoiced) {
     newStatus = "CLOSED";
-  } else if (allInvoiced) {
-    newStatus = "FULLY_INVOICED";
   } else {
     newStatus = "ACTIVE";
   }
@@ -61,7 +58,6 @@ export async function recalculateProjectStatus(projectId: string) {
 const PROJECT_TRANSITIONS: Record<string, string[]> = {
   ACTIVE: ["ON_HOLD", "CLOSED"],
   ON_HOLD: ["ACTIVE"],
-  FULLY_INVOICED: ["CLOSED"],
   CLOSED: ["ACTIVE"],
 };
 
@@ -83,7 +79,7 @@ export async function updateProjectStatus(
 
     await prisma.project.update({
       where: { id },
-      data: { status: newStatus as "ACTIVE" | "ON_HOLD" | "FULLY_INVOICED" | "CLOSED" },
+      data: { status: newStatus as "ACTIVE" | "ON_HOLD" | "CLOSED" },
     });
 
     revalidateEntity("projects", id);
@@ -93,7 +89,7 @@ export async function updateProjectStatus(
 
 function validateProjectData(formData: FormData) {
   const name = parseRequiredString(formData, "name");
-  const clientName = parseRequiredString(formData, "clientName");
+  const clientId = parseRequiredString(formData, "clientId");
   const contractNumber = parseRequiredString(formData, "contractNumber");
   const contractValue = parseDecimal(formData, "contractValue");
   const currency = parseRequiredString(formData, "currency");
@@ -111,7 +107,7 @@ function validateProjectData(formData: FormData) {
 
   return {
     name,
-    clientName,
+    clientId,
     contractNumber,
     contractValue,
     currency: currency.toUpperCase(),

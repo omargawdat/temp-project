@@ -14,29 +14,12 @@ import {
   PieLegend,
 } from "@/components/common/dashboard-charts";
 
-const INITIALS_COLORS = [
-  "from-indigo-500 to-purple-600",
-  "from-emerald-500 to-teal-600",
-  "from-amber-500 to-orange-600",
-  "from-rose-500 to-pink-600",
-  "from-sky-500 to-blue-600",
-];
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 export default async function DashboardPage() {
   const [
     totalProjects,
     activeProjects,
     closedProjects,
-    fullyInvoicedProjects,
     pendingInvoices,
     paidInvoices,
     allInvoices,
@@ -46,7 +29,6 @@ export default async function DashboardPage() {
     prisma.project.count(),
     prisma.project.count({ where: { status: "ACTIVE" } }),
     prisma.project.count({ where: { status: "CLOSED" } }),
-    prisma.project.count({ where: { status: "FULLY_INVOICED" } }),
     prisma.invoice.count({
       where: { status: { in: ["DRAFT", "SUBMITTED", "UNDER_REVIEW"] } },
     }),
@@ -58,13 +40,13 @@ export default async function DashboardPage() {
       select: {
         totalPayable: true,
         status: true,
-        milestone: { select: { project: { select: { name: true } } } },
+        milestones: { select: { project: { select: { name: true } } } },
       },
     }),
     prisma.project.findMany({
       take: 5,
       orderBy: { updatedAt: "desc" },
-      include: { _count: { select: { milestones: true } } },
+      include: { client: { select: { name: true } }, _count: { select: { milestones: true } } },
     }),
     prisma.milestone.findMany({
       take: 5,
@@ -85,14 +67,13 @@ export default async function DashboardPage() {
 
   const projectStatusData = [
     { name: "Active", value: activeProjects },
-    { name: "Fully Invoiced", value: fullyInvoicedProjects },
     { name: "Closed", value: closedProjects },
   ].filter((d) => d.value > 0);
 
   const revenueByProject: Record<string, number> = {};
   for (const inv of allInvoices) {
     if (inv.status === "PAID" || inv.status === "APPROVED") {
-      const name = inv.milestone.project.name;
+      const name = inv.milestones[0]?.project.name ?? "Unknown";
       revenueByProject[name] =
         (revenueByProject[name] ?? 0) + Number(inv.totalPayable);
     }
@@ -111,7 +92,7 @@ export default async function DashboardPage() {
       icon: FolderKanban,
       sub: `${activeProjects} active`,
       accent: "accent-indigo",
-      iconBg: "bg-indigo-500/10 text-indigo-400",
+      iconBg: "bg-teal-500/10 text-teal-400",
     },
     {
       title: "Active Projects",
@@ -205,84 +186,86 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Activity Feed */}
+      {/* Recent tables */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="border-border/50 bg-card rounded-xl border shadow-lg shadow-black/10">
-          <div className="border-border/50 flex items-center justify-between border-b px-6 py-4">
-            <h3 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-              Recent Projects
-            </h3>
-            <Link
-              href="/projects"
-              className="text-xs font-semibold text-indigo-400 transition-colors hover:text-indigo-300"
-            >
+        {/* Recent Projects */}
+        <div className="overflow-hidden rounded-xl border border-border/15 bg-card/30">
+          <div className="flex items-center justify-between border-b border-border/10 px-5 py-3.5">
+            <span className="text-sm font-semibold text-foreground">Recent Projects</span>
+            <Link href="/projects" className="text-[11px] font-semibold text-teal-400 transition-colors hover:text-teal-300">
               View all →
             </Link>
           </div>
-          <div className="divide-border/30 divide-y">
-            {recentProjects.map((project, i) => (
-              <Link
-                key={project.id}
-                href={`/projects/${project.id}`}
-                className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02]"
-              >
-                <div
-                  className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${INITIALS_COLORS[i % INITIALS_COLORS.length]} text-xs font-bold text-white shadow-lg`}
-                >
-                  {getInitials(project.name)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-foreground truncate text-sm font-semibold">
-                    {project.name}
-                  </p>
-                  <p className="text-muted-foreground truncate text-xs">
-                    {project.clientName} · {project._count.milestones}{" "}
-                    milestones
-                  </p>
-                </div>
-                <StatusBadge status={project.status} />
-              </Link>
-            ))}
-          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/8">
+                <th className="px-5 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Project</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Client</th>
+                <th className="px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Milestones</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentProjects.map((project, idx) => (
+                <tr key={project.id} className={`transition-colors hover:bg-white/[0.015] ${idx < recentProjects.length - 1 ? "border-b border-border/6" : ""}`}>
+                  <td className="px-5 py-3">
+                    <Link href={`/projects/${project.id}`} className="font-medium text-foreground/85 hover:text-teal-400 transition-colors">
+                      {project.name}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground/50">{project.client.name}</td>
+                  <td className="px-4 py-3 text-center text-xs tabular-nums text-muted-foreground/50">{project._count.milestones}</td>
+                  <td className="px-4 py-3"><StatusBadge status={project.status} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {recentProjects.length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground/40">No projects yet.</p>
+          )}
         </div>
 
-        <div className="border-border/50 bg-card rounded-xl border shadow-lg shadow-black/10">
-          <div className="border-border/50 flex items-center justify-between border-b px-6 py-4">
-            <h3 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-              Recent Milestones
-            </h3>
-            <Link
-              href="/milestones"
-              className="text-xs font-semibold text-indigo-400 transition-colors hover:text-indigo-300"
-            >
+        {/* Recent Milestones */}
+        <div className="overflow-hidden rounded-xl border border-border/15 bg-card/30">
+          <div className="flex items-center justify-between border-b border-border/10 px-5 py-3.5">
+            <span className="text-sm font-semibold text-foreground">Recent Milestones</span>
+            <Link href="/milestones" className="text-[11px] font-semibold text-teal-400 transition-colors hover:text-teal-300">
               View all →
             </Link>
           </div>
-          <div className="divide-border/30 divide-y">
-            {recentMilestones.map((milestone, i) => (
-              <Link
-                key={milestone.id}
-                href={`/projects/${milestone.projectId}`}
-                className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02]"
-              >
-                <div
-                  className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${INITIALS_COLORS[(i + 2) % INITIALS_COLORS.length]} text-xs font-bold text-white shadow-lg`}
-                >
-                  {getInitials(milestone.name)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-foreground truncate text-sm font-semibold">
-                    {milestone.name}
-                  </p>
-                  <p className="text-muted-foreground truncate text-xs">
-                    {milestone.project.name} · $
-                    {Number(milestone.value).toLocaleString()}
-                  </p>
-                </div>
-                <StatusBadge status={milestone.status} />
-              </Link>
-            ))}
-          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/8">
+                <th className="px-5 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Milestone</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Project</th>
+                <th className="px-4 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Value</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/40">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentMilestones.map((milestone, idx) => (
+                <tr key={milestone.id} className={`transition-colors hover:bg-white/[0.015] ${idx < recentMilestones.length - 1 ? "border-b border-border/6" : ""}`}>
+                  <td className="px-5 py-3">
+                    <Link href={`/projects/${milestone.projectId}`} className="font-medium text-foreground/85 hover:text-teal-400 transition-colors">
+                      {milestone.name}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link href={`/projects/${milestone.projectId}`} className="text-xs text-muted-foreground/50 hover:text-teal-400 transition-colors">
+                      {milestone.project.name}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-right font-mono text-xs tabular-nums text-foreground/70">
+                    ${Number(milestone.value).toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                  </td>
+                  <td className="px-4 py-3"><StatusBadge status={milestone.status} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {recentMilestones.length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground/40">No milestones yet.</p>
+          )}
         </div>
       </div>
     </div>

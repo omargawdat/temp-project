@@ -9,6 +9,55 @@ async function main() {
   await prisma.milestone.deleteMany();
   await prisma.project.deleteMany();
   await prisma.projectManager.deleteMany();
+  await prisma.client.deleteMany();
+
+  // Clients
+  const client1 = await prisma.client.create({
+    data: {
+      name: "TechCorp Ltd",
+      code: "TC-001",
+      country: "Saudi Arabia",
+      sector: "PRIVATE",
+      primaryContact: "John Smith",
+      financeContact: "Jane Doe",
+      email: "projects@techcorp.com",
+      phone: "+966 11 456 7890",
+      billingAddress: "King Fahd Road, Riyadh 12211, Saudi Arabia",
+      portalName: "TechCorp Vendor Portal",
+      portalLink: "https://vendors.techcorp.com",
+    },
+  });
+
+  const client2 = await prisma.client.create({
+    data: {
+      name: "FinanceHub Inc",
+      code: "FH-001",
+      country: "United Arab Emirates",
+      sector: "PRIVATE",
+      primaryContact: "Ali Hassan",
+      financeContact: "Fatima Al-Sayed",
+      email: "procurement@financehub.ae",
+      phone: "+971 4 555 6789",
+      billingAddress: "DIFC Gate Village, Dubai, UAE",
+    },
+  });
+
+  const client3 = await prisma.client.create({
+    data: {
+      name: "GlobalRetail Corp",
+      code: "GR-001",
+      country: "Saudi Arabia",
+      sector: "SEMI_GOVERNMENT",
+      primaryContact: "Mohammed Al-Rashid",
+      financeContact: "Sara Ahmed",
+      email: "it@globalretail.sa",
+      phone: "+966 12 345 6789",
+      billingAddress: "Jeddah Corniche, Jeddah 21452, Saudi Arabia",
+      portalName: "ADEO",
+      portalLink: "https://adeo.globalretail.sa",
+      notes: "Preferred payment method: wire transfer",
+    },
+  });
 
   // Project Managers
   const pm1 = await prisma.projectManager.create({
@@ -18,7 +67,7 @@ async function main() {
       phone: "+966 50 123 4567",
       title: "Senior Project Manager",
       photoUrl:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
     },
   });
 
@@ -29,11 +78,11 @@ async function main() {
       phone: "+966 55 987 6543",
       title: "Project Director",
       photoUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
     },
   });
 
-  const pm3 = await prisma.projectManager.create({
+  await prisma.projectManager.create({
     data: {
       name: "Ahmed Al-Rashid",
       email: "ahmed.rashid@company.com",
@@ -47,7 +96,7 @@ async function main() {
   const project1 = await prisma.project.create({
     data: {
       name: "E-Commerce Platform Redesign",
-      clientName: "TechCorp Ltd",
+      clientId: client1.id,
       contractNumber: "TC-2026-001",
       contractValue: 150000,
       currency: "USD",
@@ -116,11 +165,28 @@ async function main() {
     },
   });
 
+  // Invoice for milestone1a
+  const invoice1a = await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2026-003",
+      amount: 30000,
+      vatAmount: 4500,
+      totalPayable: 34500,
+      status: "SUBMITTED",
+      submittedDate: new Date("2026-02-20"),
+      paymentDueDate: new Date("2026-03-22"),
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: milestone1a.id },
+    data: { invoiceId: invoice1a.id, status: "INVOICED" },
+  });
+
   // Project 2
   await prisma.project.create({
     data: {
       name: "Mobile Banking App",
-      clientName: "FinanceHub Inc",
+      clientId: client2.id,
       contractNumber: "FH-2026-042",
       contractValue: 280000,
       currency: "USD",
@@ -155,7 +221,7 @@ async function main() {
   const project3 = await prisma.project.create({
     data: {
       name: "CRM Data Migration",
-      clientName: "GlobalRetail Corp",
+      clientId: client3.id,
       contractNumber: "GR-2025-089",
       contractValue: 75000,
       currency: "EUR",
@@ -164,7 +230,7 @@ async function main() {
       projectManagerId: pm1.id,
       paymentTerms: "Net 30",
       clientInvoicingMethod: "PORTAL",
-      status: "FULLY_INVOICED",
+      status: "CLOSED",
     },
   });
 
@@ -191,28 +257,6 @@ async function main() {
     },
   });
 
-  const invoice3a = await prisma.invoice.create({
-    data: {
-      milestoneId: milestone3a.id,
-      invoiceNumber: "INV-2025-001",
-      amount: 37500,
-      vatAmount: 5625,
-      totalPayable: 43125,
-      status: "PAID",
-      submittedDate: new Date("2025-11-02"),
-      paymentDueDate: new Date("2025-12-02"),
-    },
-  });
-
-  await prisma.payment.create({
-    data: {
-      invoiceId: invoice3a.id,
-      amount: 43125,
-      receivedDate: new Date("2025-11-28"),
-      reference: "WIRE-TRF-20251128-001",
-    },
-  });
-
   const milestone3b = await prisma.milestone.create({
     data: {
       projectId: project3.id,
@@ -224,38 +268,63 @@ async function main() {
     },
   });
 
-  await prisma.invoice.create({
+  // Invoice covering BOTH milestones from project 3 (many-to-one demo)
+  const invoice3 = await prisma.invoice.create({
     data: {
-      milestoneId: milestone3b.id,
-      invoiceNumber: "INV-2025-002",
-      amount: 37500,
-      vatAmount: 5625,
-      totalPayable: 43125,
-      status: "APPROVED",
-      submittedDate: new Date("2026-01-05"),
-      paymentDueDate: new Date("2026-02-04"),
+      invoiceNumber: "INV-2025-001",
+      amount: 75000,
+      vatAmount: 11250,
+      totalPayable: 86250,
+      status: "PAID",
+      submittedDate: new Date("2025-11-02"),
+      paymentDueDate: new Date("2025-12-02"),
     },
   });
 
-  await prisma.invoice.create({
+  // Link both milestones to the same invoice
+  await prisma.milestone.updateMany({
+    where: { id: { in: [milestone3a.id, milestone3b.id] } },
+    data: { invoiceId: invoice3.id },
+  });
+
+  await prisma.payment.create({
     data: {
-      milestoneId: milestone1a.id,
-      invoiceNumber: "INV-2026-003",
-      amount: 30000,
-      vatAmount: 4500,
-      totalPayable: 34500,
-      status: "SUBMITTED",
-      submittedDate: new Date("2026-02-20"),
-      paymentDueDate: new Date("2026-03-22"),
+      invoiceId: invoice3.id,
+      amount: 86250,
+      receivedDate: new Date("2025-11-28"),
+      reference: "WIRE-TRF-20251128-001",
+    },
+  });
+
+  // Company Settings
+  await prisma.companySettings.upsert({
+    where: { id: "default" },
+    update: {},
+    create: {
+      id: "default",
+      companyName: "BlackStone eIT",
+      address: "King Fahd Road, Al Olaya District",
+      city: "Riyadh",
+      country: "Saudi Arabia",
+      taxId: "300000000000003",
+      email: "finance@blackstone-eit.com",
+      phone: "+966 11 234 5678",
+      website: "https://blackstone-eit.com",
+      bankName: "Saudi National Bank (SNB)",
+      bankAccount: "SA0380000000608010167519",
+      bankIban: "SA0380000000608010167519",
+      bankSwift: "NCBKSAJE",
+      invoiceFooter: "Thank you for your business. Payment is due within the agreed terms.",
     },
   });
 
   console.log("Seed data created successfully!");
+  console.log("  - 3 clients");
   console.log("  - 3 project managers");
   console.log("  - 3 projects");
   console.log("  - 7 milestones");
   console.log("  - 2 delivery notes");
-  console.log("  - 3 invoices");
+  console.log("  - 2 invoices (1 covers 2 milestones)");
   console.log("  - 1 payment");
 }
 

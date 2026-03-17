@@ -15,8 +15,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Project Delivery",
-  description: "Project Delivery & Invoicing System",
+  title: "BlackStone eIT — Delivery Hub",
+  description: "Project Delivery, Milestone & Invoice Coordination System",
 };
 
 export default function RootLayout({

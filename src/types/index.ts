@@ -32,5 +32,5 @@ export type MilestoneWithRelations = Prisma.MilestoneGetPayload<{
 }>;
 
 export type InvoiceWithRelations = Prisma.InvoiceGetPayload<{
-  include: { payments: true; milestone: { include: { project: true } } };
+  include: { payments: true; milestones: { include: { project: true } } };
 }>;

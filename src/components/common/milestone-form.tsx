@@ -1,93 +1,130 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useState, useTransition } from "react";
 import { createMilestone } from "@/actions/milestone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProjectDatePicker } from "@/components/ui/date-picker";
 import type { ActionResult } from "@/types";
-import { Loader2, Plus, AlertCircle, Check } from "lucide-react";
+import { Loader2, Plus, Check } from "lucide-react";
 
-function SubmitButton({ showSuccess }: { showSuccess: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      disabled={pending}
-      size="sm"
-      className={`h-8 gap-1.5 shrink-0 rounded-md px-4 text-[11px] font-semibold transition-all duration-300 disabled:opacity-50 ${
-        showSuccess
-          ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
-          : "bg-indigo-500/10 text-indigo-400 ring-1 ring-indigo-500/20 hover:bg-indigo-500/20 hover:text-indigo-300"
-      }`}
-    >
-      {pending ? (
-        <Loader2 className="h-3 w-3 animate-spin" />
-      ) : showSuccess ? (
-        <Check className="h-3 w-3" />
-      ) : (
-        <Plus className="h-3 w-3" />
-      )}
-      {pending ? "Adding…" : showSuccess ? "Added" : "Add"}
-    </Button>
-  );
+function formatWithCommas(val: string): string {
+  const num = val.replace(/[^0-9.]/g, "");
+  const parts = num.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
+
+function stripCommas(val: string): string {
+  return val.replace(/,/g, "");
 }
 
 export function MilestoneForm({ projectId }: { projectId: string }) {
-  const formRef = useRef<HTMLFormElement>(null);
+  const [name, setName] = useState("");
+  const [displayValue, setDisplayValue] = useState("");
+  const [dn, setDn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const prevStateRef = useRef<ActionResult<{ id: string }> | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [dateKey, setDateKey] = useState(0);
 
-  async function handleAction(
-    _prevState: ActionResult<{ id: string }> | null,
-    formData: FormData,
-  ): Promise<ActionResult<{ id: string }>> {
-    return createMilestone(formData);
+  function handleValueChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/[^0-9.,]/g, "");
+    setDisplayValue(formatWithCommas(raw));
   }
 
-  const [state, formAction] = useActionState(handleAction, null);
+  function handleSubmit(formData: FormData) {
+    setError(null);
+    const currentName = formData.get("name") as string;
+    const currentDisplayValue = displayValue;
 
-  useEffect(() => {
-    if (state?.success && state !== prevStateRef.current) {
-      prevStateRef.current = state;
-      formRef.current?.reset();
-      setShowSuccess(true);
-      const timer = setTimeout(() => setShowSuccess(false), 1500);
-      return () => clearTimeout(timer);
-    }
-    prevStateRef.current = state;
-  }, [state]);
+    // Replace the formatted value with the raw number
+    formData.set("value", stripCommas(displayValue));
+
+    startTransition(async () => {
+      const result: ActionResult<{ id: string }> = await createMilestone(formData);
+      if (result.success) {
+        setName("");
+        setDisplayValue("");
+        setDn(false);
+        setDateKey((k) => k + 1);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 1500);
+      } else {
+        setName(currentName);
+        setDisplayValue(currentDisplayValue);
+        setError(result.error ?? "Something went wrong.");
+      }
+    });
+  }
 
   return (
-    <form ref={formRef} action={formAction} className="border-t border-border/15 px-5 py-3">
-      {state && !state.success && (
-        <div className="mb-2.5 flex items-center gap-2 rounded-md bg-red-500/5 px-3 py-2 text-[11px] ring-1 ring-red-500/10">
-          <AlertCircle className="h-3 w-3 flex-shrink-0 text-red-400" />
-          <span className="text-red-300">{state.error}</span>
-        </div>
-      )}
-
+    <form action={handleSubmit} className="border-t border-border/15 px-5 py-3">
       <input type="hidden" name="projectId" value={projectId} />
+      <input type="hidden" name="value" value={stripCommas(displayValue)} />
 
-      <div className="flex items-end gap-2.5">
-        <div className="min-w-0 flex-[2.5] space-y-1">
-          <label className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/40">Name</label>
-          <Input name="name" placeholder="e.g. Phase 1" required className="h-8 border-border/25 bg-white/[0.02] text-xs placeholder:text-muted-foreground/20" />
+      <div className="flex items-end gap-3">
+        <div className="min-w-0 flex-[2] space-y-1">
+          <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/40">Name</label>
+          <Input
+            name="name"
+            placeholder="e.g. Phase 1"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="h-9 border-border/25 bg-white/[0.02] text-sm placeholder:text-muted-foreground/20"
+          />
         </div>
         <div className="min-w-0 flex-1 space-y-1">
-          <label className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/40">Value</label>
-          <Input name="value" type="number" step="0.01" placeholder="30000" required className="h-8 border-border/25 bg-white/[0.02] text-xs placeholder:text-muted-foreground/20" />
+          <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/40">Value</label>
+          <Input
+            placeholder="30,000"
+            required
+            value={displayValue}
+            onChange={handleValueChange}
+            className={`h-9 border-border/25 bg-white/[0.02] text-sm font-semibold tabular-nums placeholder:text-muted-foreground/20 placeholder:font-normal ${error ? "border-red-500/40 ring-1 ring-red-500/20" : ""}`}
+          />
         </div>
-        <div className="min-w-[130px]">
-          <ProjectDatePicker name="plannedDate" label="Date" compact />
+        <div className="min-w-0 flex-1">
+          <ProjectDatePicker key={dateKey} name="plannedDate" label="Date" compact />
         </div>
-        <label className="flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-border/20 px-2.5 text-[11px] text-muted-foreground/50 transition-all hover:border-border/40 has-[:checked]:border-indigo-500/25 has-[:checked]:bg-indigo-500/5 has-[:checked]:text-indigo-400">
-          <input type="checkbox" name="requiresDeliveryNote" className="h-3 w-3 rounded border-border bg-input accent-indigo-500" />
-          DN
-        </label>
-        <SubmitButton showSuccess={showSuccess} />
+        <input type="hidden" name="requiresDeliveryNote" value={dn ? "on" : ""} />
+        <button
+          type="button"
+          role="switch"
+          aria-checked={dn}
+          onClick={() => setDn(!dn)}
+          className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5"
+        >
+          <span className={`text-[11px] font-medium transition-colors ${dn ? "text-teal-400" : "text-muted-foreground/40"}`}>DN</span>
+          <div className={`relative h-4 w-7 rounded-full transition-colors ${dn ? "bg-teal-500" : "bg-border"}`}>
+            <div className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${dn ? "left-3.5" : "left-0.5"}`} />
+          </div>
+        </button>
+        <Button
+          type="submit"
+          disabled={isPending}
+          size="sm"
+          className={`h-8 gap-1.5 shrink-0 rounded-md px-4 text-[11px] font-semibold transition-all duration-300 disabled:opacity-50 ${
+            showSuccess
+              ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
+              : "bg-teal-500/10 text-teal-400 ring-1 ring-teal-500/20 hover:bg-teal-500/20 hover:text-teal-300"
+          }`}
+        >
+          {isPending ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : showSuccess ? (
+            <Check className="h-3 w-3" />
+          ) : (
+            <Plus className="h-3 w-3" />
+          )}
+          {isPending ? "Adding…" : showSuccess ? "Added" : "Add"}
+        </Button>
       </div>
+
+      {error && (
+        <p className="mt-2 text-xs font-medium text-red-400">{error}</p>
+      )}
     </form>
   );
 }

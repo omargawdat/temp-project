@@ -21,7 +21,7 @@ export async function createPayment(
 
     const invoice = await prisma.invoice.findUnique({
       where: { id: invoiceId },
-      include: { payments: true, milestone: true },
+      include: { payments: true, milestones: true },
     });
 
     if (!invoice) {
@@ -51,9 +51,12 @@ export async function createPayment(
       });
     }
 
-    await recalculateProjectStatus(invoice.milestone.projectId);
+    const projectId = invoice.milestones[0]?.projectId;
+    if (projectId) {
+      await recalculateProjectStatus(projectId);
+      revalidateEntity("projects", projectId);
+    }
     revalidateEntity("invoices");
-    revalidateEntity("projects", invoice.milestone.projectId);
 
     return { success: true, data: { id: payment.id } };
   });

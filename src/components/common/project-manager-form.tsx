@@ -30,7 +30,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
     <Button
       type="submit"
       disabled={pending}
-      className="btn-gradient w-full border-0 py-3 font-semibold text-white shadow-lg shadow-indigo-500/25"
+      className="btn-gradient w-full border-0 py-3 font-semibold text-white shadow-lg shadow-teal-500/25"
     >
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {pending ? "Saving…" : isEdit ? "Update" : "Add Team Member"}

@@ -228,7 +228,7 @@
     {
       "id": "S19",
       "title": "Project Status Auto-Calculation",
-      "description": "Ensure project status automatically transitions: ACTIVE → FULLY_INVOICED (all milestones invoiced) → CLOSED (all invoices paid). This logic exists in actions but needs to trigger consistently across all status changes.",
+      "description": "Ensure project status automatically transitions: ACTIVE → CLOSED (all milestones invoiced and all invoices paid). This logic exists in actions but needs to trigger consistently across all status changes.",
       "status": "todo",
       "acceptance_criteria": [
         "Status recalculates after milestone status change",

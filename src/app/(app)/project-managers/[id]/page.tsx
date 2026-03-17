@@ -4,19 +4,18 @@ import {
   Mail,
   Phone,
   CalendarDays,
-  TrendingUp,
   Clock,
   CheckCircle2,
   AlertTriangle,
-  FileText,
-  CircleDollarSign,
-  AlertCircle,
+  FolderKanban,
+  Target,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/common/status-badge";
-import { Progress } from "@/components/ui/progress";
 import { PMSheet } from "@/components/common/pm-sheet";
 import { serializeForClient } from "@/lib/serialize";
+import { BillingRingChart, ProjectBreakdownChart } from "@/components/common/pm-charts";
+import { sumUniqueInvoices } from "@/lib/financial";
 
 export default async function ProjectManagerDetailPage({
   params,
@@ -31,10 +30,11 @@ export default async function ProjectManagerDetailPage({
       projects: {
         orderBy: { updatedAt: "desc" },
         include: {
+          client: { select: { name: true } },
           milestones: {
+            orderBy: { plannedDate: "asc" },
             include: {
-              invoice: { select: { status: true, totalPayable: true } },
-              deliveryNote: { select: { id: true } },
+              invoice: { select: { id: true, status: true, totalPayable: true } },
             },
           },
         },
@@ -51,337 +51,307 @@ export default async function ProjectManagerDetailPage({
     .slice(0, 2)
     .toUpperCase();
 
-  // --- Compute insights ---
   const totalProjects = pm.projects.length;
   const activeProjects = pm.projects.filter((p) => p.status === "ACTIVE").length;
-  const closedProjects = pm.projects.filter((p) => p.status === "CLOSED").length;
-  const invoicedProjects = pm.projects.filter((p) => p.status === "FULLY_INVOICED").length;
-
   const allMilestones = pm.projects.flatMap((p) => p.milestones);
   const totalMilestones = allMilestones.length;
   const completedMilestones = allMilestones.filter(
     (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
   ).length;
   const inProgressMilestones = allMilestones.filter((m) => m.status === "IN_PROGRESS").length;
+  const now = new Date();
   const overdueMilestones = allMilestones.filter(
     (m) =>
       m.status !== "COMPLETED" &&
       m.status !== "READY_FOR_INVOICING" &&
       m.status !== "INVOICED" &&
-      new Date(m.plannedDate) < new Date(),
-  ).length;
+      new Date(m.plannedDate) < now,
+  );
   const completionRate = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
 
   const totalContractValue = pm.projects.reduce((sum, p) => sum + Number(p.contractValue), 0);
-  const totalInvoiced = allMilestones.reduce(
-    (sum, m) => sum + (m.invoice ? Number(m.invoice.totalPayable) : 0),
-    0,
-  );
-  const totalPaid = allMilestones.reduce(
-    (sum, m) => sum + (m.invoice?.status === "PAID" ? Number(m.invoice.totalPayable) : 0),
-    0,
-  );
-  const billingProgress = totalContractValue > 0 ? Math.round((totalInvoiced / totalContractValue) * 100) : 0;
-  const collectionProgress = totalInvoiced > 0 ? Math.round((totalPaid / totalInvoiced) * 100) : 0;
+  const totalInvoiced = sumUniqueInvoices(allMilestones);
+  const totalPaid = sumUniqueInvoices(allMilestones, "PAID");
+  const billingPercent = totalContractValue > 0 ? Math.round((totalInvoiced / totalContractValue) * 100) : 0;
+  const collectionPercent = totalInvoiced > 0 ? Math.round((totalPaid / totalInvoiced) * 100) : 0;
 
-  // Status breakdown for visual bar
-  const statusBreakdown = [
-    { label: "Active", count: activeProjects, color: "bg-emerald-500" },
-    { label: "Invoiced", count: invoicedProjects, color: "bg-blue-500" },
-    { label: "Closed", count: closedProjects, color: "bg-white/20" },
-  ].filter((s) => s.count > 0);
+  // Upcoming milestones (next 30 days, not completed)
+  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const upcomingMilestones = allMilestones
+    .filter(
+      (m) =>
+        m.status !== "COMPLETED" &&
+        m.status !== "READY_FOR_INVOICING" &&
+        m.status !== "INVOICED" &&
+        new Date(m.plannedDate) >= now &&
+        new Date(m.plannedDate) <= thirtyDaysFromNow,
+    )
+    .sort((a, b) => new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime());
 
-  // --- Build alerts ---
-  const readyForInvoicing = allMilestones.filter(
-    (m) => m.status === "READY_FOR_INVOICING" && !m.invoice,
-  ).length;
-  const missingDeliveryNotes = allMilestones.filter(
-    (m) => m.requiresDeliveryNote && !m.deliveryNote && m.status === "COMPLETED",
-  ).length;
-  const pendingCollection = totalInvoiced - totalPaid;
-
-  type Alert = { icon: React.ElementType; message: string; type: "danger" | "warning" | "info" };
-  const alerts: Alert[] = [];
-
-  if (overdueMilestones > 0) {
-    alerts.push({
-      icon: AlertCircle,
-      message: `${overdueMilestones} milestone${overdueMilestones > 1 ? "s" : ""} overdue`,
-      type: "danger",
-    });
+  // Find project name for a milestone
+  const milestoneProjectMap = new Map<string, { projectName: string; projectId: string }>();
+  for (const project of pm.projects) {
+    for (const m of project.milestones) {
+      milestoneProjectMap.set(m.id, { projectName: project.name, projectId: project.id });
+    }
   }
-  if (missingDeliveryNotes > 0) {
-    alerts.push({
-      icon: FileText,
-      message: `${missingDeliveryNotes} completed milestone${missingDeliveryNotes > 1 ? "s" : ""} missing delivery note`,
-      type: "warning",
-    });
-  }
-  if (readyForInvoicing > 0) {
-    alerts.push({
-      icon: CircleDollarSign,
-      message: `${readyForInvoicing} milestone${readyForInvoicing > 1 ? "s" : ""} ready for invoicing`,
-      type: "info",
-    });
-  }
-  if (pendingCollection > 10000) {
-    alerts.push({
-      icon: TrendingUp,
-      message: `$${Math.round(pendingCollection / 1000)}k pending collection`,
-      type: "warning",
-    });
-  }
-
-  const alertStyles = {
-    danger: "ring-red-500/20 bg-red-500/10 text-red-400",
-    warning: "ring-amber-500/20 bg-amber-500/10 text-amber-400",
-    info: "ring-indigo-500/20 bg-indigo-500/10 text-indigo-400",
-  };
 
   return (
     <div className="space-y-6">
-      {/* Profile card */}
-      <div className="border-border/50 bg-card overflow-hidden rounded-xl border px-6 py-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            {pm.photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={pm.photoUrl}
-                alt={pm.name}
-                className="h-16 w-16 rounded-full object-cover ring-2 ring-border/50"
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 text-lg font-bold text-white ring-2 ring-border/50">
-                {initials}
-              </div>
-            )}
-            <div>
-              <h1 className="text-foreground text-2xl font-bold tracking-tight">
-                {pm.name}
-              </h1>
-              {pm.title && (
-                <p className="text-muted-foreground mt-0.5 text-sm">{pm.title}</p>
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-4">
+          {pm.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={pm.photoUrl}
+              alt={pm.name}
+              className="h-14 w-14 rounded-full object-cover ring-2 ring-teal-500/20"
+            />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-teal-600 to-cyan-700 text-base font-bold text-white ring-2 ring-teal-500/20">
+              {initials}
+            </div>
+          )}
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{pm.name}</h1>
+            <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
+              {pm.title && <span>{pm.title}</span>}
+              <span className="flex items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground/40" />
+                {pm.email}
+              </span>
+              {pm.phone && (
+                <span className="flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-muted-foreground/40" />
+                  {pm.phone}
+                </span>
               )}
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 text-muted-foreground/40" />
+                Joined {new Date(pm.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+              </span>
             </div>
           </div>
-          <PMSheet pm={serializeForClient(pm)} variant="edit" />
         </div>
-
-        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Mail className="h-3.5 w-3.5 text-muted-foreground/50" />
-            {pm.email}
-          </span>
-          {pm.phone && (
-            <span className="flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5 text-muted-foreground/50" />
-              {pm.phone}
-            </span>
-          )}
-          <span className="flex items-center gap-1.5">
-            <CalendarDays className="h-3.5 w-3.5 text-muted-foreground/50" />
-            Joined{" "}
-            {new Date(pm.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              year: "numeric",
-            })}
-          </span>
-        </div>
+        <PMSheet pm={serializeForClient(pm)} variant="edit" />
       </div>
 
-      {/* Alerts — inline banner */}
-      {alerts.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          {alerts.map((alert, i) => (
-            <span
-              key={i}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${alertStyles[alert.type]}`}
-            >
-              <alert.icon className="h-3 w-3" />
-              {alert.message}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Insights grid */}
+      {/* ── Financial overview ── */}
       {totalProjects > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Workload & Performance */}
-          <div className="border-border/50 bg-card rounded-xl border p-5">
-            <h3 className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-              Workload & Performance
-            </h3>
+        <div className="grid grid-cols-[1fr_auto] gap-4">
+          {/* Left: 3 stat cards */}
+          <div className="grid grid-cols-3 gap-4">
+            {/* Portfolio */}
+            <div className="relative overflow-hidden rounded-xl border border-teal-500/15 p-5" style={{ background: "linear-gradient(135deg, rgba(45,212,191,0.06) 0%, rgba(16,24,40,0.8) 100%)" }}>
+              <p className="text-sm font-semibold text-muted-foreground">Portfolio</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-foreground">${totalContractValue.toLocaleString()}</p>
+              <p className="mt-1 text-sm font-medium text-teal-400/80">{totalProjects} projects <span className="text-teal-400/50">· {activeProjects} active</span></p>
+            </div>
 
-            {/* Project status bar */}
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Projects</span>
-                <span className="text-foreground font-semibold">{totalProjects}</span>
-              </div>
-              <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-accent/50">
-                {statusBreakdown.map((s) => (
-                  <div
-                    key={s.label}
-                    className={`${s.color} transition-all`}
-                    style={{ width: `${(s.count / totalProjects) * 100}%` }}
-                  />
-                ))}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                {statusBreakdown.map((s) => (
-                  <span key={s.label} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    <span className={`h-2 w-2 rounded-full ${s.color}`} />
-                    {s.count} {s.label}
-                  </span>
-                ))}
+            {/* Billed */}
+            <div className="relative overflow-hidden rounded-xl border border-amber-500/15 p-5" style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.05) 0%, rgba(16,24,40,0.8) 100%)" }}>
+              <p className="text-sm font-semibold text-muted-foreground">Billed</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-foreground">${totalInvoiced.toLocaleString()}</p>
+              <p className="mt-1 text-sm font-medium text-amber-400/80">{(totalContractValue - totalInvoiced).toLocaleString()} <span className="text-amber-400/50">unbilled</span></p>
+              <div className="mt-2.5 flex items-center gap-2.5">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-amber-500/10">
+                  <div className="h-full rounded-full bg-amber-500/70 transition-all" style={{ width: `${billingPercent}%` }} />
+                </div>
+                <span className="text-sm tabular-nums text-muted-foreground/60">{billingPercent}%</span>
               </div>
             </div>
 
-            {/* Milestone completion */}
-            <div className="mt-5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Milestone Completion</span>
-                <span className="text-foreground font-semibold">{completionRate}%</span>
-              </div>
-              <Progress value={completionRate} className="mt-2 h-2" />
-              <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-                  {completedMilestones} done
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3 text-amber-400" />
-                  {inProgressMilestones} in progress
-                </span>
-                {overdueMilestones > 0 && (
-                  <span className="flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3 text-red-400" />
-                    {overdueMilestones} overdue
-                  </span>
-                )}
+            {/* Collected */}
+            <div className="relative overflow-hidden rounded-xl border border-emerald-500/15 p-5" style={{ background: "linear-gradient(135deg, rgba(52,211,153,0.06) 0%, rgba(16,24,40,0.8) 100%)" }}>
+              <p className="text-sm font-semibold text-muted-foreground">Collected</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-foreground">${totalPaid.toLocaleString()}</p>
+              <p className="mt-1 text-sm font-medium text-emerald-400/80">{(totalInvoiced - totalPaid).toLocaleString()} <span className="text-emerald-400/50">outstanding</span></p>
+              <div className="mt-2.5 flex items-center gap-2.5">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-emerald-500/10">
+                  <div className="h-full rounded-full bg-emerald-500/70 transition-all" style={{ width: `${collectionPercent}%` }} />
+                </div>
+                <span className="text-sm tabular-nums text-muted-foreground/60">{collectionPercent}%</span>
               </div>
             </div>
           </div>
 
-          {/* Financial Summary */}
-          <div className="border-border/50 bg-card rounded-xl border p-5">
-            <h3 className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-              Financial Summary
-            </h3>
-
-            {/* Contract value */}
-            <div className="mt-4">
-              <p className="text-foreground text-2xl font-bold tabular-nums">
-                ${totalContractValue >= 1000 ? `${Math.round(totalContractValue / 1000)}k` : totalContractValue}
-              </p>
-              <p className="text-muted-foreground/60 text-xs">Total contract value</p>
-            </div>
-
-            {/* Billing progress */}
-            <div className="mt-5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Invoiced</span>
-                <span className="text-foreground font-semibold">
-                  ${totalInvoiced >= 1000 ? `${Math.round(totalInvoiced / 1000)}k` : totalInvoiced}
-                  <span className="text-muted-foreground/50 ml-1 font-normal">
-                    ({billingProgress}%)
-                  </span>
-                </span>
-              </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-accent/50">
-                <div
-                  className="h-full rounded-full bg-indigo-500 transition-all"
-                  style={{ width: `${Math.min(billingProgress, 100)}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Collection progress */}
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Collected</span>
-                <span className="text-foreground font-semibold">
-                  ${totalPaid >= 1000 ? `${Math.round(totalPaid / 1000)}k` : totalPaid}
-                  <span className="text-muted-foreground/50 ml-1 font-normal">
-                    ({collectionProgress}%)
-                  </span>
-                </span>
-              </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-accent/50">
-                <div
-                  className="h-full rounded-full bg-emerald-500 transition-all"
-                  style={{ width: `${Math.min(collectionProgress, 100)}%` }}
-                />
-              </div>
-            </div>
-
+          {/* Right: Donut chart */}
+          <div className="w-[240px] rounded-xl border border-border/20 bg-card/40 p-5 flex flex-col items-center justify-center">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 self-start">Cash Flow</p>
+            <BillingRingChart billed={totalInvoiced} collected={totalPaid} total={totalContractValue} />
           </div>
         </div>
       )}
 
-      {/* Projects table */}
-      <div>
-        <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
-          Assigned Projects · {pm.projects.length}
-        </h3>
+      {/* ── Delivery stats bar ── */}
+      {totalProjects > 0 && (
+        <div className="flex items-center gap-6 rounded-xl border border-border/15 bg-card/30 px-6 py-3.5">
+          <div className="flex items-center gap-2.5 text-sm">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400/60" />
+            <span className="text-muted-foreground/70">Milestones:</span>
+            <span className="font-semibold text-foreground/85">{completedMilestones}/{totalMilestones} done</span>
+            <span className="text-muted-foreground/40">({completionRate}%)</span>
+          </div>
+          <div className="h-4 w-px bg-border/20" />
+          <div className="flex items-center gap-2.5 text-sm">
+            <Clock className="h-4 w-4 text-blue-400/60" />
+            <span className="font-semibold text-foreground/85">{inProgressMilestones}</span>
+            <span className="text-muted-foreground/70">in progress</span>
+          </div>
+          {overdueMilestones.length > 0 && (
+            <>
+              <div className="h-4 w-px bg-border/20" />
+              <div className="flex items-center gap-2.5 text-sm">
+                <AlertTriangle className="h-4 w-4 text-red-400/80" />
+                <span className="font-semibold text-red-400">{overdueMilestones.length}</span>
+                <span className="text-red-400/60">overdue</span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
-        <div className="border-border/50 bg-card overflow-x-auto rounded-lg border">
+      {/* ── Overdue + Upcoming milestones ── */}
+      {(overdueMilestones.length > 0 || upcomingMilestones.length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Overdue */}
+          {overdueMilestones.length > 0 && (
+            <div className="rounded-xl border border-red-500/15 bg-red-500/[0.03] p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="h-4 w-4 text-red-400" />
+                <span className="text-sm font-bold text-red-400">Overdue Milestones</span>
+                <span className="rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-semibold text-red-400">{overdueMilestones.length}</span>
+              </div>
+              <div className="space-y-2">
+                {overdueMilestones.slice(0, 5).map((m) => {
+                  const proj = milestoneProjectMap.get(m.id);
+                  const daysOverdue = Math.ceil((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <div key={m.id} className="flex items-center justify-between rounded-lg bg-red-500/[0.04] px-3 py-2">
+                      <div className="min-w-0">
+                        <Link href={`/milestones/${m.id}`} className="text-sm font-medium text-foreground/90 hover:text-red-400 transition-colors">{m.name}</Link>
+                        {proj && <p className="text-xs text-muted-foreground/50">{proj.projectName}</p>}
+                      </div>
+                      <span className="shrink-0 text-xs font-semibold text-red-400/80">{daysOverdue}d overdue</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Upcoming */}
+          {upcomingMilestones.length > 0 && (
+            <div className="rounded-xl border border-border/20 bg-card/40 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Target className="h-4 w-4 text-teal-400" />
+                <span className="text-sm font-bold text-foreground">Upcoming (30 days)</span>
+                <span className="rounded-md bg-white/[0.06] px-2 py-0.5 text-xs font-semibold text-muted-foreground/60">{upcomingMilestones.length}</span>
+              </div>
+              <div className="space-y-2">
+                {upcomingMilestones.slice(0, 5).map((m) => {
+                  const proj = milestoneProjectMap.get(m.id);
+                  const daysUntil = Math.ceil((new Date(m.plannedDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <div key={m.id} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2">
+                      <div className="min-w-0">
+                        <Link href={`/milestones/${m.id}`} className="text-sm font-medium text-foreground/90 hover:text-teal-400 transition-colors">{m.name}</Link>
+                        {proj && <p className="text-xs text-muted-foreground/50">{proj.projectName}</p>}
+                      </div>
+                      <span className={`shrink-0 text-xs font-semibold ${daysUntil <= 7 ? "text-amber-400/80" : "text-muted-foreground/50"}`}>
+                        {daysUntil === 0 ? "Today" : `${daysUntil}d`}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Projects table ── */}
+      <div className="overflow-hidden rounded-xl border border-border/20 bg-card/40">
+        <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
+          <div className="flex items-center gap-2.5">
+            <div className="rounded-lg bg-teal-500/12 p-2">
+              <FolderKanban className="h-4 w-4 text-teal-400" />
+            </div>
+            <span className="text-base font-bold text-foreground">Assigned Projects</span>
+            <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
+              {pm.projects.length}
+            </span>
+          </div>
+        </div>
+
+        {pm.projects.length > 0 ? (
           <table className="w-full">
             <thead>
-              <tr className="border-border/50 bg-accent/40 border-b">
-                <th className="text-muted-foreground/60 px-6 py-3.5 text-left text-[10px] font-semibold tracking-wider uppercase">
-                  Project
-                </th>
-                <th className="text-muted-foreground/60 px-4 py-3.5 text-left text-[10px] font-semibold tracking-wider uppercase">
-                  Client
-                </th>
-                <th className="text-muted-foreground/60 px-4 py-3.5 text-right text-[10px] font-semibold tracking-wider uppercase">
-                  Value
-                </th>
-                <th className="text-muted-foreground/60 px-4 py-3.5 text-left text-[10px] font-semibold tracking-wider uppercase">
-                  Milestones
-                </th>
-                <th className="text-muted-foreground/60 px-4 py-3.5 text-left text-[10px] font-semibold tracking-wider uppercase">
-                  Status
-                </th>
+              <tr className="border-b border-border/15">
+                <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Project</th>
+                <th className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Client</th>
+                <th className="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Value</th>
+                <th className="px-4 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Billed</th>
+                <th className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Progress</th>
+                <th className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Timeline</th>
+                <th className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-border/20 divide-y">
-              {pm.projects.map((project) => {
-                const completed = project.milestones.filter(
-                  (m) =>
-                    m.status === "COMPLETED" ||
-                    m.status === "READY_FOR_INVOICING" ||
-                    m.status === "INVOICED",
+            <tbody>
+              {pm.projects.map((project, idx) => {
+                const done = project.milestones.filter(
+                  (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
                 ).length;
+                const pct = project.milestones.length > 0 ? Math.round((done / project.milestones.length) * 100) : 0;
+                const projBilled = sumUniqueInvoices(project.milestones);
+                const projValue = Number(project.contractValue);
+                const billedPct = projValue > 0 ? Math.round((projBilled / projValue) * 100) : 0;
+
+                // Timeline
+                const start = new Date(project.startDate);
+                const end = new Date(project.endDate);
+                const totalDur = end.getTime() - start.getTime();
+                const elapsed = now.getTime() - start.getTime();
+                const timePct = totalDur > 0 ? Math.min(100, Math.max(0, Math.round((elapsed / totalDur) * 100))) : 0;
 
                 return (
                   <tr
                     key={project.id}
-                    className="hover:bg-accent/20 transition-colors"
+                    className={`group transition-colors hover:bg-teal-500/[0.03] ${idx < pm.projects.length - 1 ? "border-b border-border/10" : ""}`}
                   >
                     <td className="px-6 py-4">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="text-foreground text-sm font-medium transition-colors hover:text-indigo-400"
-                      >
+                      <Link href={`/projects/${project.id}`} className="text-[15px] font-semibold text-foreground hover:text-teal-400 transition-colors">
                         {project.name}
                       </Link>
                     </td>
-                    <td className="text-muted-foreground px-4 py-4 text-sm">
-                      {project.clientName}
-                    </td>
-                    <td className="text-foreground px-4 py-4 text-right font-mono text-sm whitespace-nowrap">
-                      {Number(project.contractValue).toLocaleString("en-US", {
+                    <td className="px-4 py-4 text-sm text-muted-foreground/70">{project.client.name}</td>
+                    <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground/80 whitespace-nowrap">
+                      {projValue.toLocaleString("en-US", {
                         style: "currency",
                         currency: project.currency,
                         maximumFractionDigits: 0,
                       })}
                     </td>
-                    <td className="text-muted-foreground px-4 py-4 text-xs whitespace-nowrap">
-                      {completed}/{project.milestones.length} done
+                    <td className="px-4 py-4 text-right">
+                      <span className="font-mono text-sm tabular-nums text-foreground/70">${projBilled.toLocaleString()}</span>
+                      <span className="ml-1 text-xs text-muted-foreground/40">({billedPct}%)</span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-20 overflow-hidden rounded-full bg-white/[0.06]">
+                          <div className="h-full rounded-full bg-teal-500/70 transition-all" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-xs font-medium tabular-nums text-muted-foreground/60">{done}/{project.milestones.length}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                          <div className={`h-full rounded-full transition-all ${timePct >= 90 ? "bg-red-500/70" : timePct >= 70 ? "bg-amber-500/70" : "bg-blue-500/50"}`} style={{ width: `${timePct}%` }} />
+                        </div>
+                        <span className="text-xs tabular-nums text-muted-foreground/50">{timePct}%</span>
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <StatusBadge status={project.status} />
@@ -391,13 +361,11 @@ export default async function ProjectManagerDetailPage({
               })}
             </tbody>
           </table>
-
-          {pm.projects.length === 0 && (
-            <div className="text-muted-foreground py-14 text-center text-sm">
-              No projects assigned to this manager yet.
-            </div>
-          )}
-        </div>
+        ) : (
+          <div className="py-14 text-center text-sm text-muted-foreground/40">
+            No projects assigned yet.
+          </div>
+        )}
       </div>
     </div>
   );

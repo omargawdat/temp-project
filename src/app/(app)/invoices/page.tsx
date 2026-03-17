@@ -8,7 +8,7 @@ export default async function InvoicesPage() {
   const invoices = await prisma.invoice.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      milestone: {
+      milestones: {
         include: { project: true },
       },
     },
@@ -40,9 +40,9 @@ export default async function InvoicesPage() {
         <div className="mb-8 grid gap-5 sm:grid-cols-3">
           <div className="accent-indigo card-hover bg-card rounded-xl p-6 shadow-lg shadow-black/20">
             <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-indigo-500/10 p-3">
+              <div className="rounded-xl bg-teal-500/10 p-3">
                 <DollarSign
-                  className="h-5 w-5 text-indigo-400"
+                  className="h-5 w-5 text-teal-400"
                   strokeWidth={1.8}
                 />
               </div>
@@ -134,17 +134,19 @@ export default async function InvoicesPage() {
           {invoices.map((invoice) => (
             <Link
               key={invoice.id}
-              href={`/projects/${invoice.milestone.projectId}`}
+              href={`/projects/${invoice.milestones[0]?.projectId}`}
               className="table-row-hover grid grid-cols-[120px_1fr_150px_100px_80px_110px_110px_110px] items-center gap-0 px-6 py-4"
             >
-              <span className="font-mono text-xs font-bold text-indigo-400">
+              <span className="font-mono text-xs font-bold text-teal-400">
                 {invoice.invoiceNumber}
               </span>
               <span className="text-foreground truncate text-sm">
-                {invoice.milestone.project.name}
+                {invoice.milestones[0]?.project.name ?? "—"}
               </span>
               <span className="text-muted-foreground truncate text-xs">
-                {invoice.milestone.name}
+                {invoice.milestones.length === 1
+                  ? invoice.milestones[0].name
+                  : `${invoice.milestones[0]?.name} (+${invoice.milestones.length - 1})`}
               </span>
               <span className="text-foreground text-right font-mono text-sm">
                 $
@@ -185,8 +187,8 @@ export default async function InvoicesPage() {
 
         {invoices.length === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
-            <div className="rounded-2xl bg-indigo-500/10 p-4">
-              <FileText className="h-8 w-8 text-indigo-400" />
+            <div className="rounded-2xl bg-teal-500/10 p-4">
+              <FileText className="h-8 w-8 text-teal-400" />
             </div>
             <div className="text-center">
               <p className="text-foreground text-base font-semibold">

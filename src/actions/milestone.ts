@@ -43,6 +43,11 @@ export async function createMilestone(
     const plannedDate = parseDate(formData, "plannedDate");
     const requiresDeliveryNote = parseBoolean(formData, "requiresDeliveryNote");
 
+    // Value must be positive
+    if (Number(value) <= 0) {
+      throw new ValidationError("Milestone value must be greater than zero.");
+    }
+
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: { milestones: true },
@@ -57,6 +62,15 @@ export async function createMilestone(
         success: false,
         error: "Can only add milestones to active projects.",
       };
+    }
+
+    // Validate planned date is within project timeline
+    const projectStart = new Date(project.startDate);
+    const projectEnd = new Date(project.endDate);
+    if (plannedDate < projectStart || plannedDate > projectEnd) {
+      throw new ValidationError(
+        `Planned date must be between ${projectStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${projectEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`,
+      );
     }
 
     const existingTotal = project.milestones.reduce(
@@ -97,6 +111,11 @@ export async function updateMilestone(
     const plannedDate = parseDate(formData, "plannedDate");
     const requiresDeliveryNote = parseBoolean(formData, "requiresDeliveryNote");
 
+    // Value must be positive
+    if (Number(value) <= 0) {
+      throw new ValidationError("Milestone value must be greater than zero.");
+    }
+
     const milestone = await prisma.milestone.findUnique({
       where: { id },
       include: { project: { include: { milestones: true } } },
@@ -108,6 +127,15 @@ export async function updateMilestone(
 
     if (milestone.status === "INVOICED") {
       return { success: false, error: "Cannot update an invoiced milestone." };
+    }
+
+    // Validate planned date is within project timeline
+    const projectStart = new Date(milestone.project.startDate);
+    const projectEnd = new Date(milestone.project.endDate);
+    if (plannedDate < projectStart || plannedDate > projectEnd) {
+      throw new ValidationError(
+        `Planned date must be between ${projectStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${projectEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`,
+      );
     }
 
     const otherMilestonesTotal = milestone.project.milestones

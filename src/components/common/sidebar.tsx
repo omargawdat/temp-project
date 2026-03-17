@@ -1,50 +1,76 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
+  LayoutGrid,
   FolderKanban,
   ListChecks,
-  FileText,
-  Users,
+  Receipt,
+  Users2,
+  Settings,
+  LogOut,
+  ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/milestones", label: "Milestones", icon: ListChecks },
-  { href: "/invoices", label: "Invoices", icon: FileText },
-  { href: "/project-managers", label: "Team", icon: Users },
+  { href: "/dashboard", label: "Overview", icon: LayoutGrid, color: "#2dd4bf" },
+  { href: "/projects", label: "Projects", icon: FolderKanban, color: "#60a5fa" },
+  { href: "/milestones", label: "Milestones", icon: ListChecks, color: "#fbbf24" },
+  { href: "/invoices", label: "Invoices", icon: Receipt, color: "#f472b6" },
+  { href: "/project-managers", label: "Team", icon: Users2, color: "#a78bfa" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(true);
 
   return (
-    <aside className="sidebar-gradient border-sidebar-border flex h-full w-[260px] flex-shrink-0 flex-col border-r">
+    <aside
+      className={cn(
+        "relative flex h-full flex-shrink-0 flex-col transition-[width] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+        open ? "w-60" : "w-20",
+      )}
+      style={{
+        background: "linear-gradient(180deg, #0a1020 0%, #060c18 100%)",
+      }}
+    >
+      {/* Right border glow */}
+      <div className="absolute right-0 top-0 bottom-0 w-px bg-white/[0.04]" />
+
+      {/* Toggle button */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.08] bg-[#0e1828] text-white/40 shadow-lg shadow-black/40 transition-colors hover:bg-[#162236] hover:text-white/70"
+      >
+        {open ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+      </button>
+
       {/* Brand */}
-      <div className="flex h-[72px] items-center gap-3 px-6">
+      <div className={cn("flex items-center gap-3 px-5 pt-5 pb-6", !open && "justify-center px-0")}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/blackstone-logo.svg" alt="Blackstone" className="h-9 w-9" />
-        <div>
-          <span className="text-sidebar-accent-foreground text-[15px] font-bold tracking-tight">
-            BlackStone eIT
-          </span>
-          <span className="block text-[10px] font-medium tracking-[0.15em] text-indigo-400/70 uppercase">
-            Delivery Hub
-          </span>
-        </div>
+        <img src="/images/blackstone-logo.svg" alt="BlackStone" className="h-10 w-10 flex-shrink-0" />
+        {open && (
+          <div className="overflow-hidden">
+            <p className="text-[14px] font-bold text-white tracking-tight">BlackStone</p>
+            <p className="text-[10px] font-medium tracking-widest text-white/25 uppercase">Delivery</p>
+          </div>
+        )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 pt-6">
-        <p className="text-sidebar-foreground/30 mb-3 px-3 text-[10px] font-bold tracking-[0.2em] uppercase">
-          Navigation
+      {/* Nav label */}
+      {open && (
+        <p className="px-5 mb-2 text-[10px] font-semibold tracking-widest text-white/20 uppercase">
+          Menu
         </p>
-        <div className="space-y-1">
+      )}
+
+      {/* Nav items */}
+      <nav className={cn("flex-1 px-3", !open && "px-2")}>
+        <div className="flex flex-col gap-1">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
@@ -53,28 +79,67 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                  "group relative flex items-center rounded-xl transition-all duration-200",
+                  open ? "gap-3.5 px-3.5 py-3" : "justify-center p-3",
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                    ? "bg-white/[0.06]"
+                    : "hover:bg-white/[0.03]",
                 )}
               >
-                {isActive && (
-                  <div className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-indigo-400 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                )}
+                {/* Icon container */}
                 <div
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-200",
+                    "flex flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200",
+                    open ? "h-10 w-10" : "h-11 w-11",
                     isActive
-                      ? "bg-indigo-500/20 text-indigo-400"
-                      : "bg-sidebar-foreground/5 text-sidebar-foreground/40 group-hover:bg-sidebar-foreground/10 group-hover:text-sidebar-foreground/60",
+                      ? "shadow-lg"
+                      : "bg-white/[0.04] group-hover:bg-white/[0.06]",
                   )}
+                  style={
+                    isActive
+                      ? {
+                          background: `linear-gradient(135deg, ${item.color}20, ${item.color}10)`,
+                          boxShadow: `0 4px 12px ${item.color}15`,
+                        }
+                      : undefined
+                  }
                 >
-                  <item.icon className="h-[17px] w-[17px]" strokeWidth={1.8} />
+                  <item.icon
+                    className={cn(
+                      "transition-colors duration-200",
+                      open ? "h-5 w-5" : "h-[22px] w-[22px]",
+                    )}
+                    style={{ color: isActive ? item.color : undefined }}
+                    color={isActive ? item.color : undefined}
+                    strokeWidth={1.6}
+                  />
+                  {!isActive && (
+                    <style>{`
+                      /* fallback for non-active uncolored icons */
+                    `}</style>
+                  )}
                 </div>
-                <span className="flex-1">{item.label}</span>
-                {isActive && (
-                  <ChevronRight className="h-3.5 w-3.5 text-indigo-400/50" />
+
+                {/* Label */}
+                {open && (
+                  <div className="overflow-hidden">
+                    <span
+                      className={cn(
+                        "text-[13px] font-semibold transition-colors",
+                        isActive ? "text-white" : "text-white/40 group-hover:text-white/60",
+                      )}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
+                )}
+
+                {/* Active dot when collapsed */}
+                {!open && isActive && (
+                  <div
+                    className="absolute -right-0.5 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full"
+                    style={{ background: item.color }}
+                  />
                 )}
               </Link>
             );
@@ -82,23 +147,58 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* User */}
-      <div className="border-sidebar-border border-t px-4 py-5">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 opacity-50 blur-[2px]" />
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-[11px] font-bold text-white">
-              PM
+      {/* Footer */}
+      <div className={cn("px-3 pb-4", !open && "px-2")}>
+        {/* Settings */}
+        {(() => {
+          const isActive = pathname === "/settings" || pathname.startsWith("/settings/");
+          return (
+            <Link
+              href="/settings"
+              className={cn(
+                "group flex items-center rounded-xl transition-all duration-200",
+                open ? "gap-3.5 px-3.5 py-2.5" : "justify-center p-3",
+                isActive
+                  ? "bg-white/[0.06] text-white"
+                  : "text-white/25 hover:bg-white/[0.03] hover:text-white/45",
+              )}
+            >
+              <Settings
+                className={cn(open ? "h-5 w-5" : "h-[22px] w-[22px]")}
+                strokeWidth={1.6}
+              />
+              {open && <span className="text-[13px] font-medium">Settings</span>}
+            </Link>
+          );
+        })()}
+
+        {/* Separator */}
+        <div className={cn("my-3 h-px bg-white/[0.04]", !open && "mx-2")} />
+
+        {/* User row */}
+        <div
+          className={cn(
+            "flex items-center rounded-xl",
+            open ? "gap-3 px-3 py-2" : "justify-center py-2",
+          )}
+        >
+          <div className="relative flex-shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 text-[11px] font-bold text-white">
+              OG
             </div>
+            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0a1020] bg-emerald-400" />
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sidebar-accent-foreground truncate text-[13px] font-semibold">
-              Project Manager
-            </p>
-            <p className="text-sidebar-foreground/40 truncate text-[11px]">
-              pm@company.com
-            </p>
-          </div>
+          {open && (
+            <>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12.5px] font-semibold text-white/65">Omar Gawdat</p>
+                <p className="truncate text-[10px] text-white/20">Project Director</p>
+              </div>
+              <button className="text-white/15 hover:text-white/40 transition-colors">
+                <LogOut className="h-4 w-4" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </aside>

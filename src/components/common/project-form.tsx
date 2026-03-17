@@ -36,7 +36,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
     <Button
       type="submit"
       disabled={pending}
-      className="w-full rounded-md bg-gradient-to-r from-indigo-600 to-indigo-500 py-4.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-indigo-600/25 transition-all hover:from-indigo-500 hover:to-indigo-400 hover:shadow-indigo-500/30 active:scale-[0.99]"
+      className="w-full rounded-md bg-gradient-to-r from-teal-600 to-teal-500 py-4.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-teal-600/25 transition-all hover:from-teal-500 hover:to-teal-400 hover:shadow-teal-500/30 active:scale-[0.99]"
     >
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {pending ? "Saving…" : isEdit ? "Update Project" : "Register Project"}
@@ -79,10 +79,12 @@ function SectionHeader({
 export function ProjectForm({
   project,
   projectManagers,
+  clients,
   onSuccess,
 }: {
   project?: Project;
   projectManagers: { id: string; name: string; title?: string | null; photoUrl?: string | null }[];
+  clients: { id: string; name: string }[];
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!project;
@@ -128,12 +130,23 @@ export function ProjectForm({
           icon={Handshake}
           title={isEdit ? "Project & Client Details" : "Contract & Client Details"}
           subtitle={isEdit ? "Update project and client information" : "Enter details from the signed contract"}
-          accentColor="bg-indigo-500/10 text-indigo-400"
+          accentColor="bg-teal-500/10 text-teal-400"
           step={1}
         />
         <div className="space-y-4">
-          <FieldWrapper icon={Building2} label="Client Name" htmlFor="clientName">
-            <Input id="clientName" name="clientName" placeholder="TechCorp Ltd" defaultValue={project?.clientName ?? ""} className="h-10" required />
+          <FieldWrapper icon={Building2} label="Client" htmlFor="clientId">
+            <select
+              id="clientId"
+              name="clientId"
+              defaultValue={project?.clientId ?? ""}
+              required
+              className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 text-sm text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="" disabled>Select a client</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </FieldWrapper>
           <FieldWrapper icon={FileText} label="Project Name" htmlFor="name">
             <Input id="name" name="name" placeholder="E-Commerce Platform Redesign" defaultValue={project?.name ?? ""} className="h-10" required />
@@ -191,7 +204,7 @@ export function ProjectForm({
               {CURRENCIES.map((c) => (
                 <label
                   key={c.code}
-                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2.5 text-sm transition-all has-[:checked]:border-indigo-500/50 has-[:checked]:bg-indigo-500/10 has-[:checked]:text-indigo-400"
+                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2.5 text-sm transition-all has-[:checked]:border-teal-500/50 has-[:checked]:bg-teal-500/10 has-[:checked]:text-teal-400"
                 >
                   <input
                     type="radio"
@@ -220,7 +233,7 @@ export function ProjectForm({
           icon={User}
           title="Project Manager"
           subtitle="Assign a project manager"
-          accentColor="bg-purple-500/10 text-purple-400"
+          accentColor="bg-blue-500/10 text-blue-400"
           step={3}
         />
         <div className="grid gap-2">
@@ -229,7 +242,7 @@ export function ProjectForm({
             return (
               <label
                 key={pm.id}
-                className="group flex cursor-pointer items-center gap-2 rounded-md border border-border/50 px-2.5 py-2 transition-all has-[:checked]:border-indigo-500/40 has-[:checked]:bg-indigo-500/5 hover:bg-accent/40"
+                className="group flex cursor-pointer items-center gap-2 rounded-md border border-border/50 px-2.5 py-2 transition-all has-[:checked]:border-teal-500/40 has-[:checked]:bg-teal-500/5 hover:bg-accent/40"
               >
                 <input
                   type="radio"
@@ -244,10 +257,10 @@ export function ProjectForm({
                   <img
                     src={pm.photoUrl}
                     alt={pm.name}
-                    className="h-7 w-7 flex-shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-has-[:checked]:ring-indigo-500"
+                    className="h-7 w-7 flex-shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-has-[:checked]:ring-teal-500"
                   />
                 ) : (
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-muted-foreground transition-all group-has-[:checked]:bg-indigo-500 group-has-[:checked]:text-white">
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-muted-foreground transition-all group-has-[:checked]:bg-teal-500 group-has-[:checked]:text-white">
                     {initials}
                   </div>
                 )}
@@ -255,7 +268,7 @@ export function ProjectForm({
                   <span className="block truncate text-xs font-medium text-foreground">{pm.name}</span>
                   <span className="block truncate text-[10px] text-muted-foreground/50">{pm.title || "Project Manager"}</span>
                 </div>
-                <div className="ml-auto h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 border-border/50 transition-all group-has-[:checked]:border-indigo-500 group-has-[:checked]:bg-indigo-500 group-has-[:checked]:shadow-[inset_0_0_0_2px_white]" />
+                <div className="ml-auto h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 border-border/50 transition-all group-has-[:checked]:border-teal-500 group-has-[:checked]:bg-teal-500 group-has-[:checked]:shadow-[inset_0_0_0_2px_white]" />
               </label>
             );
           })}
@@ -280,7 +293,7 @@ export function ProjectForm({
               ].map((opt) => (
                 <label
                   key={opt.value}
-                  className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground/50 transition-all hover:text-muted-foreground has-[:checked]:bg-indigo-500/15 has-[:checked]:text-indigo-400 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500/30"
+                  className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground/50 transition-all hover:text-muted-foreground has-[:checked]:bg-teal-500/15 has-[:checked]:text-teal-400 has-[:checked]:ring-1 has-[:checked]:ring-teal-500/30"
                 >
                   <input
                     type="radio"

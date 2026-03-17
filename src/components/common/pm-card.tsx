@@ -14,7 +14,7 @@ interface PMCardProps {
     projects: {
       id: string;
       name: string;
-      clientName: string;
+      client: { name: string };
       status: string;
       contractValue: number | { toNumber(): number };
       currency: string;

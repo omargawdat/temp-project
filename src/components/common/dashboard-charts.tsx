@@ -13,7 +13,7 @@ import {
   Cell,
 } from "recharts";
 
-const PIE_COLORS = ["#818cf8", "#34d399", "#8890a4"];
+const PIE_COLORS = ["#2dd4bf", "#60a5fa", "#5f7590"];
 
 export function ProjectStatusChart({
   data,
@@ -80,7 +80,7 @@ export function RevenueBarChart({
           tick={{ fontSize: 11, fill: "#8890a4" }}
           axisLine={false}
           tickLine={false}
-          tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+          tickFormatter={(v) => `$${v.toLocaleString()}`}
         />
         <Tooltip
           contentStyle={{
@@ -99,8 +99,8 @@ export function RevenueBarChart({
         />
         <defs>
           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#818cf8" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor="#2dd4bf" />
+            <stop offset="100%" stopColor="#14b8a6" />
           </linearGradient>
         </defs>
         <Bar dataKey="amount" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />

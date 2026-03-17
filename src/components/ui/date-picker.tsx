@@ -144,10 +144,10 @@ export function ProjectDatePicker({ name, label, defaultValue, compact }: Projec
                 onClick={() => selectDate(day)}
                 className={`flex h-8 w-8 items-center justify-center rounded-md text-xs transition-colors ${
                   isSelected(day)
-                    ? "bg-indigo-500 font-bold text-white"
+                    ? "bg-teal-500 font-bold text-white"
                     : isToday(day)
-                      ? "font-bold text-indigo-400"
-                      : "text-foreground hover:bg-indigo-500/10 hover:text-indigo-400"
+                      ? "font-bold text-teal-400"
+                      : "text-foreground hover:bg-teal-500/10 hover:text-teal-400"
                 }`}
               >
                 {day}
@@ -161,7 +161,7 @@ export function ProjectDatePicker({ name, label, defaultValue, compact }: Projec
           <button
             type="button"
             onClick={() => { setSelected(new Date()); setOpen(false); }}
-            className="text-[11px] font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+            className="text-[11px] font-medium text-teal-400 transition-colors hover:text-teal-300"
           >
             Today
           </button>

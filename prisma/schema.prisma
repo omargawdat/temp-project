@@ -17,7 +17,6 @@ enum ClientInvoicingMethod {
 enum ProjectStatus {
   ACTIVE
   ON_HOLD
-  FULLY_INVOICED
   CLOSED
 }
 
@@ -44,7 +43,34 @@ enum InvoiceStatus {
   REJECTED
 }
 
+enum ClientSector {
+  GOVERNMENT
+  PRIVATE
+  SEMI_GOVERNMENT
+}
+
 // ─── Models ─────────────────────────────────────────────────────
+
+model Client {
+  id              String       @id @default(cuid())
+  name            String
+  code            String       @unique
+  country         String
+  sector          ClientSector
+  primaryContact  String
+  financeContact  String
+  email           String
+  phone           String
+  billingAddress  String
+  portalName      String?
+  portalLink      String?
+  notes           String?
+
+  projects Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model ProjectManager {
   id       String  @id @default(cuid())
@@ -63,7 +89,7 @@ model ProjectManager {
 model Project {
   id                    String                @id @default(cuid())
   name                  String
-  clientName            String
+  clientId              String
   contractNumber        String                @unique
   contractValue         Decimal
   currency              String
@@ -74,6 +100,7 @@ model Project {
   clientInvoicingMethod ClientInvoicingMethod
   status                ProjectStatus         @default(ACTIVE)
 
+  client         Client         @relation(fields: [clientId], references: [id])
   projectManager ProjectManager @relation(fields: [projectManagerId], references: [id])
   milestones     Milestone[]
 
@@ -81,6 +108,7 @@ model Project {
   updatedAt DateTime @updatedAt
 
   @@index([status])
+  @@index([clientId])
   @@index([projectManagerId])
 }
 
@@ -92,16 +120,18 @@ model Milestone {
   plannedDate          DateTime
   status               MilestoneStatus @default(NOT_STARTED)
   requiresDeliveryNote Boolean         @default(false)
+  invoiceId            String?
 
   project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   deliveryNote DeliveryNote?
-  invoice      Invoice?
+  invoice      Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([projectId, status])
   @@index([status])
+  @@index([invoiceId])
 }
 
 model DeliveryNote {
@@ -122,7 +152,6 @@ model DeliveryNote {
 
 model Invoice {
   id             String        @id @default(cuid())
-  milestoneId    String        @unique
   invoiceNumber  String        @unique
   amount         Decimal
   vatAmount      Decimal
@@ -131,13 +160,32 @@ model Invoice {
   submittedDate  DateTime?
   paymentDueDate DateTime?
 
-  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
-  payments  Payment[]
+  milestones Milestone[]
+  payments   Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
+}
+
+model CompanySettings {
+  id            String   @id @default("default")
+  companyName   String   @default("")
+  address       String   @default("")
+  city          String   @default("")
+  country       String   @default("")
+  taxId         String   @default("")
+  email         String   @default("")
+  phone         String   @default("")
+  website       String   @default("")
+  logoUrl       String?
+  bankName      String   @default("")
+  bankAccount   String   @default("")
+  bankIban      String   @default("")
+  bankSwift     String   @default("")
+  invoiceFooter String   @default("")
+  updatedAt     DateTime @updatedAt
 }
 
 model Payment {

@@ -21,12 +21,14 @@ interface ProjectSheetProps {
     title?: string | null;
     photoUrl?: string | null;
   }[];
+  clients: { id: string; name: string }[];
   project?: Project;
   trigger?: "button" | "icon";
 }
 
 export function ProjectSheet({
   projectManagers,
+  clients,
   project,
   trigger = "button",
 }: ProjectSheetProps) {
@@ -46,25 +48,16 @@ export function ProjectSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {isEdit ? (
-        trigger === "icon" ? (
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            onClick={() => setOpen(true)}
-          >
-            <Pencil className="h-3 w-3" />
-            Edit Project
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
-            <Pencil className="h-3.5 w-3.5" />
-            Edit
-          </Button>
-        )
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 rounded-lg border border-teal-500/25 bg-teal-500/10 px-4 py-2 text-[13px] font-semibold text-teal-400 shadow-sm transition-all duration-200 hover:bg-teal-500/20 hover:shadow-md hover:shadow-teal-500/10"
+        >
+          <Pencil className="h-4 w-4" strokeWidth={2} />
+          Edit
+        </button>
       ) : (
         <Button
-          className="btn-gradient border-0 px-5 font-semibold text-white shadow-lg shadow-indigo-500/20"
+          className="btn-gradient border-0 px-5 font-semibold text-white shadow-lg shadow-teal-500/20"
           onClick={() => setOpen(true)}
         >
           <Plus className="mr-1 h-4 w-4" />
@@ -90,6 +83,7 @@ export function ProjectSheet({
           <ProjectForm
             project={project}
             projectManagers={projectManagers}
+            clients={clients}
             onSuccess={handleSuccess}
           />
         </div>

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
   {
+    // Project statuses
     ACTIVE: {
       bg: "bg-emerald-500/10",
       text: "text-emerald-400",
@@ -13,21 +14,18 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
       text: "text-amber-400",
       dot: "bg-amber-400",
     },
-    FULLY_INVOICED: {
-      bg: "bg-blue-500/10",
-      text: "text-blue-400",
-      dot: "bg-blue-400",
-    },
     CLOSED: { bg: "bg-white/5", text: "text-white/40", dot: "bg-white/30" },
+
+    // Milestone statuses
     NOT_STARTED: {
       bg: "bg-white/5",
       text: "text-white/40",
       dot: "bg-white/30",
     },
     IN_PROGRESS: {
-      bg: "bg-amber-500/10",
-      text: "text-amber-400",
-      dot: "bg-amber-400 animate-pulse",
+      bg: "bg-blue-500/10",
+      text: "text-blue-400",
+      dot: "bg-blue-400 animate-pulse",
     },
     COMPLETED: {
       bg: "bg-emerald-500/10",
@@ -40,10 +38,12 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
       dot: "bg-purple-400",
     },
     INVOICED: {
-      bg: "bg-blue-500/10",
-      text: "text-blue-400",
-      dot: "bg-blue-400",
+      bg: "bg-indigo-500/10",
+      text: "text-indigo-400",
+      dot: "bg-indigo-400",
     },
+
+    // Delivery note statuses
     DRAFT: { bg: "bg-white/5", text: "text-white/40", dot: "bg-white/30" },
     SENT: { bg: "bg-sky-500/10", text: "text-sky-400", dot: "bg-sky-400" },
     SIGNED: {
@@ -51,6 +51,8 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
       text: "text-emerald-400",
       dot: "bg-emerald-400",
     },
+
+    // Invoice statuses
     SUBMITTED: {
       bg: "bg-amber-500/10",
       text: "text-amber-400",
@@ -67,9 +69,9 @@ const statusConfig: Record<string, { bg: string; text: string; dot: string }> =
       dot: "bg-emerald-400",
     },
     PAID: {
-      bg: "bg-indigo-500/10",
-      text: "text-indigo-400",
-      dot: "bg-indigo-400",
+      bg: "bg-teal-500/10",
+      text: "text-teal-400",
+      dot: "bg-teal-400",
     },
     REJECTED: { bg: "bg-red-500/10", text: "text-red-400", dot: "bg-red-400" },
   };

@@ -9,38 +9,46 @@ interface StatusAction {
   label: string;
   icon: React.ElementType;
   target: string;
-  className: string;
+  bg: string;
+  text: string;
+  border: string;
+  hoverBg: string;
+  shadow: string;
 }
 
 const ACTIONS: Record<string, StatusAction[]> = {
   ACTIVE: [
     {
-      label: "Hold",
+      label: "Put on Hold",
       icon: Pause,
       target: "ON_HOLD",
-      className: "text-amber-400/80 hover:text-amber-400 hover:bg-amber-500/10",
+      bg: "bg-amber-500/10",
+      text: "text-amber-400",
+      border: "border-amber-500/25",
+      hoverBg: "hover:bg-amber-500/20",
+      shadow: "hover:shadow-amber-500/10",
     },
     {
-      label: "Close",
+      label: "Close Project",
       icon: Lock,
       target: "CLOSED",
-      className: "text-muted-foreground/50 hover:text-muted-foreground hover:bg-white/5",
+      bg: "bg-white/[0.04]",
+      text: "text-white/50",
+      border: "border-white/10",
+      hoverBg: "hover:bg-white/[0.08]",
+      shadow: "hover:shadow-white/5",
     },
   ],
   ON_HOLD: [
     {
-      label: "Resume",
+      label: "Resume Project",
       icon: Play,
       target: "ACTIVE",
-      className: "text-emerald-400/80 hover:text-emerald-400 hover:bg-emerald-500/10",
-    },
-  ],
-  FULLY_INVOICED: [
-    {
-      label: "Close",
-      icon: Lock,
-      target: "CLOSED",
-      className: "text-muted-foreground/50 hover:text-muted-foreground hover:bg-white/5",
+      bg: "bg-emerald-500/10",
+      text: "text-emerald-400",
+      border: "border-emerald-500/25",
+      hoverBg: "hover:bg-emerald-500/20",
+      shadow: "hover:shadow-emerald-500/10",
     },
   ],
   CLOSED: [
@@ -48,7 +56,11 @@ const ACTIONS: Record<string, StatusAction[]> = {
       label: "Reopen",
       icon: RotateCcw,
       target: "ACTIVE",
-      className: "text-indigo-400/80 hover:text-indigo-400 hover:bg-indigo-500/10",
+      bg: "bg-teal-500/10",
+      text: "text-teal-400",
+      border: "border-teal-500/25",
+      hoverBg: "hover:bg-teal-500/20",
+      shadow: "hover:shadow-teal-500/10",
     },
   ],
 };
@@ -76,15 +88,15 @@ export function ProjectStatusActions({
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2">
       {actions.map((action) => (
         <button
           key={action.target}
           disabled={isPending}
           onClick={() => handleAction(action.target)}
-          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors disabled:opacity-50 ${action.className}`}
+          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-[13px] font-semibold transition-all duration-200 shadow-sm disabled:opacity-50 ${action.bg} ${action.text} ${action.border} ${action.hoverBg} ${action.shadow} hover:shadow-md`}
         >
-          <action.icon className="h-3.5 w-3.5" />
+          <action.icon className="h-4 w-4" strokeWidth={2} />
           {action.label}
         </button>
       ))}

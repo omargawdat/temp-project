@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ListChecks, Calendar, DollarSign, ArrowRight } from "lucide-react";
+import { Calendar, ArrowUpRight, Hash, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/common/status-badge";
 
@@ -13,50 +13,26 @@ interface SchemaProjectCardProps {
   contractNumber: string;
   contractValue: number;
   currency: string;
+  startDate: Date;
   endDate: Date;
   projectManager: string;
+  projectManagerPhoto?: string | null;
   status: string;
   milestonesCompleted: number;
   milestonesTotal: number;
+  billedAmount: number;
+  collectedAmount: number;
   colorIndex: number;
   className?: string;
 }
 
-const COVER_IMAGES = [
-  "https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1497215842964-222b430dc094?w=600&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=300&fit=crop",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=300&fit=crop",
-];
-
-const ACCENT_COLORS = [
-  {
-    line: "from-indigo-500 to-purple-500",
-    badge: "border-indigo-400/30 text-indigo-300",
-    overlay: "from-indigo-950/80 via-indigo-950/50",
-  },
-  {
-    line: "from-emerald-500 to-teal-500",
-    badge: "border-emerald-400/30 text-emerald-300",
-    overlay: "from-emerald-950/80 via-emerald-950/50",
-  },
-  {
-    line: "from-amber-500 to-orange-500",
-    badge: "border-amber-400/30 text-amber-300",
-    overlay: "from-amber-950/80 via-amber-950/50",
-  },
-  {
-    line: "from-rose-500 to-pink-500",
-    badge: "border-rose-400/30 text-rose-300",
-    overlay: "from-rose-950/80 via-rose-950/50",
-  },
-  {
-    line: "from-sky-500 to-cyan-500",
-    badge: "border-sky-400/30 text-sky-300",
-    overlay: "from-sky-950/80 via-sky-950/50",
-  },
-];
+function fmt(amount: number, currency: string) {
+  return amount.toLocaleString("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  });
+}
 
 export function SchemaProjectCard({
   id,
@@ -65,107 +41,170 @@ export function SchemaProjectCard({
   contractNumber,
   contractValue,
   currency,
+  startDate,
   endDate,
   projectManager,
+  projectManagerPhoto,
   status,
   milestonesCompleted,
   milestonesTotal,
+  billedAmount,
+  collectedAmount,
   colorIndex,
   className,
 }: SchemaProjectCardProps) {
-  const i = colorIndex % ACCENT_COLORS.length;
-  const accent = ACCENT_COLORS[i];
-  const progressPercent =
+  const progressPct =
     milestonesTotal > 0
       ? Math.round((milestonesCompleted / milestonesTotal) * 100)
       : 0;
+  const billedPct =
+    contractValue > 0
+      ? Math.min(100, Math.round((billedAmount / contractValue) * 100))
+      : 0;
+  const collectedPct =
+    contractValue > 0
+      ? Math.min(100, Math.round((collectedAmount / contractValue) * 100))
+      : 0;
+  const outstanding = billedAmount - collectedAmount;
+
+  const pmInitials = projectManager
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const fmtDate = (d: Date) =>
+    new Date(d).toLocaleDateString("en-US", { month: "short", year: "2-digit" });
 
   return (
     <Link
       href={`/projects/${id}`}
       className={cn(
-        "card-border group animate-float relative block overflow-hidden rounded-lg transition-all duration-300 hover:border-white/15",
+        "card-hover noise-overlay group relative block overflow-hidden rounded-2xl border border-white/[0.06] transition-all duration-300",
         className,
       )}
-      style={{ animationDelay: `${colorIndex * 0.8}s` }}
+      style={{
+        background:
+          "linear-gradient(165deg, rgba(16,24,40,0.97), rgba(11,17,32,0.99))",
+      }}
     >
-      {/* Cover image */}
-      <div className="relative h-44 w-full overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={COVER_IMAGES[i]}
-          alt={name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        <div
-          className={`absolute inset-0 bg-gradient-to-t ${accent.overlay} to-transparent`}
-        />
+      {/* Subtle top glow */}
+      <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[70%] -translate-x-1/2 rounded-full bg-teal-500/[0.04] blur-3xl" />
 
-        {/* Progress overlay */}
-        <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/60 to-transparent px-5 pt-8 pb-4">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="text-white/50">Progress</span>
-            <span className="font-bold text-white/80">{progressPercent}%</span>
-          </div>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${accent.line} transition-all duration-700`}
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-      {/* Content */}
-      <div className="p-5">
-        <div className="mb-3 flex items-center gap-2">
+      <div className="relative p-6">
+        {/* Row 1: Status + Contract # */}
+        <div className="flex items-center justify-between">
           <StatusBadge status={status} />
-          <span
-            className={`glass rounded-full border px-2.5 py-0.5 text-[10px] font-medium ${accent.badge}`}
-          >
-            {milestonesCompleted}/{milestonesTotal} milestones
-          </span>
-        </div>
-
-        <h3 className="text-base font-bold text-white">{name}</h3>
-        <p className="mt-0.5 text-xs text-white/50">{clientName}</p>
-
-        {/* Stats */}
-        <div className="mt-4 flex items-center gap-4 text-[11px]">
-          <div className="flex items-center gap-1 text-white/40">
-            <DollarSign className="h-3 w-3" />
-            <span className="font-semibold text-white/70">
-              {contractValue.toLocaleString("en-US", {
-                style: "currency",
-                currency,
-                maximumFractionDigits: 0,
-              })}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 text-white/40">
-            <Calendar className="h-3 w-3" />
-            <span className="text-white/70">
-              {new Date(endDate).toLocaleDateString("en-US", {
-                month: "short",
-                year: "2-digit",
-              })}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 text-white/40">
-            <ListChecks className="h-3 w-3" />
-            <span className="text-white/70">{projectManager}</span>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-4 flex items-center justify-between">
-          <span className="glass rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-white/40">
+          <span className="font-mono text-[10px] tracking-wide text-white/25">
             {contractNumber}
           </span>
-          <ArrowRight className="h-4 w-4 text-white/20 transition-all group-hover:translate-x-0.5 group-hover:text-indigo-400" />
+        </div>
+
+        {/* Row 2: Name + Client */}
+        <h3 className="mt-4 text-[17px] font-bold leading-snug tracking-tight text-white/95 transition-colors group-hover:text-white">
+          {name}
+        </h3>
+        <p className="mt-1 text-[13px] text-white/35">{clientName}</p>
+
+        {/* Row 3: Financial grid */}
+        <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-white/[0.04]">
+          <div className="bg-[#0d1525] px-3.5 py-3">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-white/25">
+              Contract
+            </p>
+            <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
+              {fmt(contractValue, currency)}
+            </p>
+          </div>
+          <div className="bg-[#0d1525] px-3.5 py-3">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-amber-400/50">
+              Billed
+            </p>
+            <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
+              {fmt(billedAmount, currency)}
+            </p>
+          </div>
+          <div className="bg-[#0d1525] px-3.5 py-3">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-emerald-400/50">
+              Collected
+            </p>
+            <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
+              {fmt(collectedAmount, currency)}
+            </p>
+          </div>
+        </div>
+
+        {/* Row 4: Stacked billing bar */}
+        <div className="mt-3">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.04]">
+            {/* Collected (green, bottom layer) */}
+            <div className="relative h-full">
+              <div
+                className="absolute inset-y-0 left-0 rounded-full bg-amber-500/50 transition-all duration-700"
+                style={{ width: `${billedPct}%` }}
+              />
+              <div
+                className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80 transition-all duration-700"
+                style={{ width: `${collectedPct}%` }}
+              />
+            </div>
+          </div>
+          {outstanding > 0 && (
+            <p className="mt-1.5 text-right text-[10px] tabular-nums text-white/20">
+              {fmt(outstanding, currency)} outstanding
+            </p>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="my-4 h-px bg-white/[0.05]" />
+
+        {/* Row 5: Milestones */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <Target className="h-3.5 w-3.5 text-white/20" />
+            <span className="text-[12px] text-white/40">Milestones</span>
+          </div>
+          <div className="flex flex-1 items-center gap-2.5">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.04]">
+              <div
+                className="h-full rounded-full bg-teal-500/70 transition-all duration-700"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+            <span className="text-[12px] font-semibold tabular-nums text-white/50">
+              {milestonesCompleted}
+              <span className="text-white/20">/{milestonesTotal}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Row 6: Footer */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-[11px] text-white/25">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3 w-3" />
+              <span>{fmtDate(startDate)} — {fmtDate(endDate)}</span>
+            </div>
+            <div className="h-3 w-px bg-white/[0.06]" />
+            <div className="flex items-center gap-1.5">
+              {projectManagerPhoto ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={projectManagerPhoto}
+                  alt=""
+                  className="h-4 w-4 rounded-full object-cover ring-1 ring-white/10"
+                />
+              ) : (
+                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white/[0.08] text-[7px] font-bold text-white/40">
+                  {pmInitials}
+                </div>
+              )}
+              <span>{projectManager.split(" ")[0]}</span>
+            </div>
+          </div>
+          <ArrowUpRight className="h-4 w-4 text-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-teal-400/60" />
         </div>
       </div>
     </Link>
