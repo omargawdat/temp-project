@@ -2,6 +2,8 @@ import { sumUniqueInvoices } from "@/lib/financial";
 import { countCompleted, completionPercent, filterOverdue, filterUpcoming, daysDifference } from "@/lib/milestones";
 import { safePercent } from "@/lib/format";
 
+type DecimalLike = number | string | { toString(): string };
+
 type PMWithProjects = {
   id: string;
   name: string;
@@ -15,12 +17,12 @@ type PMWithProjects = {
     id: string;
     name: string;
     status: string;
-    contractValue: unknown;
+    contractValue: DecimalLike;
     milestones: {
       name: string;
       status: string;
       plannedDate: Date;
-      invoice?: { id: string; totalPayable: unknown; status?: string } | null;
+      invoice?: { id: string; totalPayable: DecimalLike; status?: string } | null;
     }[];
   }[];
 };

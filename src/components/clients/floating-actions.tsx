@@ -7,9 +7,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { ClientForm } from "@/components/common/client-form";
 import { FloatingActionBar, scrollToSection, type FloatingAction } from "@/components/common/floating-action-bar";
 import type { Client } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 
 interface ClientFloatingActionsProps {
-  client: Client;
+  client: Serialized<Client>;
   countries: { id: string; name: string; code: string; flag: string }[];
   notesCount?: number;
 }

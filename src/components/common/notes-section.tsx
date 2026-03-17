@@ -10,9 +10,23 @@ import { cn } from "@/lib/utils";
 interface NoteData {
   id: string;
   content: string;
+  noteType?: string;
   createdBy: string;
   createdAt: string | Date;
   updatedAt: string | Date;
+}
+
+const NOTE_TYPES = [
+  { value: "GENERAL", label: "General", color: "bg-white/10 text-white/50" },
+  { value: "MEETING", label: "Meeting", color: "bg-blue-500/10 text-blue-400" },
+  { value: "DECISION", label: "Decision", color: "bg-purple-500/10 text-purple-400" },
+  { value: "RISK", label: "Risk", color: "bg-red-500/10 text-red-400" },
+  { value: "ACTION", label: "Action Item", color: "bg-amber-500/10 text-amber-400" },
+  { value: "FINANCE", label: "Finance", color: "bg-emerald-500/10 text-emerald-400" },
+] as const;
+
+function noteTypeStyle(type?: string) {
+  return NOTE_TYPES.find((t) => t.value === type) ?? NOTE_TYPES[0];
 }
 
 function timeAgo(date: string | Date) {
@@ -94,6 +108,13 @@ function NoteItem({
   return (
     <div className="group flex gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.02]">
       <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          {note.noteType && note.noteType !== "GENERAL" && (
+            <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${noteTypeStyle(note.noteType).color}`}>
+              {noteTypeStyle(note.noteType).label}
+            </span>
+          )}
+        </div>
         <p className="text-base text-foreground/85 whitespace-pre-wrap">{note.content}</p>
         <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground/40">
           <span className="font-medium text-muted-foreground/55">{note.createdBy}</span>
@@ -140,6 +161,7 @@ export function NotesSection({
 }) {
   const [adding, setAdding] = useState(false);
   const [content, setContent] = useState("");
+  const [noteType, setNoteType] = useState("GENERAL");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -148,9 +170,11 @@ export function NotesSection({
     startTransition(async () => {
       const formData = new FormData();
       formData.set("content", content.trim());
-      formData.set("createdBy", "Omar Gawdat"); // TODO: replace with authenticated user
+      formData.set("createdBy", "System"); // TODO: replace with authenticated user
+      formData.set("noteType", noteType);
       await createNote(entityType, entityId, formData);
       setContent("");
+      setNoteType("GENERAL");
       setAdding(false);
       router.refresh();
     });
@@ -180,6 +204,23 @@ export function NotesSection({
         {/* Add note form */}
         {adding && (
           <div className="p-4">
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {NOTE_TYPES.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setNoteType(t.value)}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all",
+                    noteType === t.value
+                      ? `${t.color} ring-1 ring-current/20`
+                      : "text-white/30 hover:text-white/50 bg-white/[0.03] hover:bg-white/[0.06]",
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}

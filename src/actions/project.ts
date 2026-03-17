@@ -9,12 +9,9 @@ import {
   parseDate,
   parseEnum,
   validateDateRange,
-  ValidationError,
 } from "@/lib/validation";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { MAX_PHOTO_SIZE_BYTES, ALLOWED_IMAGE_TYPES } from "@/lib/constants";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { handleImageUpload } from "@/lib/image-upload";
 
 const INVOICING_METHODS = ["PORTAL", "EMAIL"] as const;
 
@@ -91,42 +88,6 @@ export async function updateProjectStatus(
   });
 }
 
-async function handleProjectImage(
-  formData: FormData,
-  existingImageUrl: string | null,
-): Promise<string | null> {
-  const file = formData.get("image") as File | null;
-
-  if (!file || file.size === 0) {
-    return existingImageUrl;
-  }
-
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    throw new ValidationError(
-      `Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}.`,
-    );
-  }
-
-  if (file.size > MAX_PHOTO_SIZE_BYTES) {
-    const maxMB = MAX_PHOTO_SIZE_BYTES / (1024 * 1024);
-    throw new ValidationError(`Image exceeds the maximum size of ${maxMB}MB.`);
-  }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const ext = file.name.split(".").pop() || "jpg";
-  const filename = `project-${Date.now()}.${ext}`;
-  const filepath = path.join(process.cwd(), "public", "images", "projects", filename);
-
-  try {
-    await writeFile(filepath, buffer);
-  } catch {
-    throw new ValidationError("Failed to save image. Please try again.");
-  }
-
-  return `/images/projects/${filename}`;
-}
-
 function validateProjectData(formData: FormData) {
   const name = parseRequiredString(formData, "name");
   const clientId = parseRequiredString(formData, "clientId");
@@ -164,7 +125,7 @@ export async function createProject(
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
     const data = validateProjectData(formData);
-    const imageUrl = await handleProjectImage(formData, null);
+    const imageUrl = await handleImageUpload(formData, "image", "projects");
 
     const existing = await prisma.project.findUnique({
       where: { contractNumber: data.contractNumber },
@@ -198,7 +159,7 @@ export async function updateProject(
       return { success: false, error: "Project not found." };
     }
 
-    const imageUrl = await handleProjectImage(formData, current.imageUrl);
+    const imageUrl = await handleImageUpload(formData, "image", "projects", current.imageUrl);
 
     const existing = await prisma.project.findFirst({
       where: { contractNumber: data.contractNumber, id: { not: id } },
@@ -218,29 +179,31 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: string): Promise<ActionResult> {
-  const project = await prisma.project.findUnique({
-    where: { id },
-    include: { milestones: true },
+  return withErrorHandling(async () => {
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: { milestones: true },
+    });
+
+    if (!project) {
+      return { success: false, error: "Project not found." };
+    }
+
+    const hasStartedMilestones = project.milestones.some(
+      (m) => m.status !== "NOT_STARTED",
+    );
+
+    if (project.status !== "CLOSED" && hasStartedMilestones) {
+      return {
+        success: false,
+        error:
+          "Cannot delete project with active milestones. Close the project first.",
+      };
+    }
+
+    await prisma.project.delete({ where: { id } });
+
+    revalidateEntity("projects");
+    redirect("/projects");
   });
-
-  if (!project) {
-    return { success: false, error: "Project not found." };
-  }
-
-  const hasStartedMilestones = project.milestones.some(
-    (m) => m.status !== "NOT_STARTED",
-  );
-
-  if (project.status !== "CLOSED" && hasStartedMilestones) {
-    return {
-      success: false,
-      error:
-        "Cannot delete project with active milestones. Close the project first.",
-    };
-  }
-
-  await prisma.project.delete({ where: { id } });
-
-  revalidateEntity("projects");
-  redirect("/projects");
 }

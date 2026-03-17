@@ -4,6 +4,7 @@ import * as React from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { Project } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import { createProject, updateProject } from "@/actions/project";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,7 +96,7 @@ export function ProjectForm({
   clients,
   onSuccess,
 }: {
-  project?: Project;
+  project?: Project | Serialized<Project>;
   projectManagers: { id: string; name: string; title?: string | null; photoUrl?: string | null }[];
   clients: { id: string; name: string; imageUrl?: string | null }[];
   onSuccess?: (id: string) => void;

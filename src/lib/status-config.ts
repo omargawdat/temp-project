@@ -53,26 +53,32 @@ export function formatStatus(status: string): string {
 
 export const formatSector = formatStatus;
 
-/** Toolbar-friendly status option lists */
+/** Toolbar-friendly status option lists (matches ToolbarStatusPills shape) */
 export const PROJECT_STATUSES = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "ON_HOLD", label: "On Hold" },
-  { value: "CLOSED", label: "Closed" },
+  { key: "ACTIVE", label: "Active", dot: "bg-emerald-400" },
+  { key: "ON_HOLD", label: "On Hold", dot: "bg-amber-400" },
+  { key: "CLOSED", label: "Closed", dot: "bg-zinc-400" },
 ] as const;
 
 export const MILESTONE_STATUSES = [
-  { value: "NOT_STARTED", label: "Not Started" },
-  { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "READY_FOR_INVOICING", label: "Ready for Invoicing" },
-  { value: "INVOICED", label: "Invoiced" },
+  { key: "NOT_STARTED", label: "Not Started", dot: "bg-zinc-400" },
+  { key: "IN_PROGRESS", label: "In Progress", dot: "bg-blue-400" },
+  { key: "COMPLETED", label: "Completed", dot: "bg-emerald-400" },
+  { key: "READY_FOR_INVOICING", label: "Ready for Invoicing", dot: "bg-purple-400" },
+  { key: "INVOICED", label: "Invoiced", dot: "bg-indigo-400" },
 ] as const;
 
 export const INVOICE_STATUSES = [
-  { value: "DRAFT", label: "Draft" },
-  { value: "SUBMITTED", label: "Submitted" },
-  { value: "UNDER_REVIEW", label: "Under Review" },
-  { value: "APPROVED", label: "Approved" },
-  { value: "PAID", label: "Paid" },
-  { value: "REJECTED", label: "Rejected" },
+  { key: "DRAFT", label: "Draft", dot: "bg-zinc-400" },
+  { key: "SUBMITTED", label: "Submitted", dot: "bg-amber-400" },
+  { key: "UNDER_REVIEW", label: "Under Review", dot: "bg-orange-400" },
+  { key: "APPROVED", label: "Approved", dot: "bg-emerald-400" },
+  { key: "PAID", label: "Paid", dot: "bg-teal-400" },
+  { key: "REJECTED", label: "Rejected", dot: "bg-red-400" },
+] as const;
+
+export const CLIENT_SECTORS = [
+  { key: "GOVERNMENT", label: "Government", dot: "bg-blue-400" },
+  { key: "PRIVATE", label: "Private", dot: "bg-emerald-400" },
+  { key: "SEMI_GOVERNMENT", label: "Semi Government", dot: "bg-amber-400" },
 ] as const;

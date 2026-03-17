@@ -8,12 +8,7 @@ import { ToolbarStatusPills } from "@/components/toolbar/toolbar-status-pills";
 import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
 import { ToolbarSortDropdown } from "@/components/toolbar/toolbar-sort-dropdown";
 import { ToolbarExportButton } from "@/components/toolbar/toolbar-export-button";
-
-const CLIENT_SECTORS = [
-  { key: "GOVERNMENT", label: "Government", dot: "bg-blue-400" },
-  { key: "PRIVATE", label: "Private", dot: "bg-emerald-400" },
-  { key: "SEMI_GOVERNMENT", label: "Semi Government", dot: "bg-amber-400" },
-];
+import { CLIENT_SECTORS } from "@/lib/status-config";
 
 const SORT_OPTIONS = [
   { label: "Name", value: "name" },

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { Country } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import { createCountry, updateCountry } from "@/actions/country";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,7 +124,7 @@ function CountryForm({
   country,
   onSuccess,
 }: {
-  country?: Country;
+  country?: Country | Serialized<Country>;
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!country;
@@ -191,7 +192,7 @@ function CountryForm({
 }
 
 interface CountrySheetProps {
-  country?: Country;
+  country?: Country | Serialized<Country>;
   variant?: "create" | "edit";
 }
 

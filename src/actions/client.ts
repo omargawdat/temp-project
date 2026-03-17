@@ -9,38 +9,8 @@ import {
   validateEmail,
   ValidationError,
 } from "@/lib/validation";
-import { MAX_PHOTO_SIZE_BYTES, ALLOWED_IMAGE_TYPES } from "@/lib/constants";
+import { handleImageUpload } from "@/lib/image-upload";
 import type { ActionResult } from "@/types";
-import { writeFile } from "fs/promises";
-import path from "path";
-
-async function handleClientImage(
-  formData: FormData,
-  existingImageUrl: string | null,
-): Promise<string | null> {
-  const file = formData.get("image") as File | null;
-  if (!file || file.size === 0) return existingImageUrl;
-
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    throw new ValidationError(`Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}.`);
-  }
-  if (file.size > MAX_PHOTO_SIZE_BYTES) {
-    throw new ValidationError(`Image exceeds ${MAX_PHOTO_SIZE_BYTES / (1024 * 1024)}MB limit.`);
-  }
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const ext = file.name.split(".").pop() || "jpg";
-  const filename = `client-${Date.now()}.${ext}`;
-  const filepath = path.join(process.cwd(), "public", "images", "clients", filename);
-
-  try {
-    await writeFile(filepath, buffer);
-  } catch {
-    throw new ValidationError("Failed to save image.");
-  }
-
-  return `/images/clients/${filename}`;
-}
 
 function parseClientFields(formData: FormData) {
   const name = parseRequiredString(formData, "name");
@@ -82,7 +52,7 @@ export async function createClient(
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
     const fields = parseClientFields(formData);
-    const imageUrl = await handleClientImage(formData, null);
+    const imageUrl = await handleImageUpload(formData, "image", "clients");
 
     const existing = await prisma.client.findUnique({
       where: { code: fields.code },
@@ -109,7 +79,7 @@ export async function updateClient(
     const current = await prisma.client.findUnique({ where: { id } });
     if (!current) throw new ValidationError("Client not found.");
 
-    const imageUrl = await handleClientImage(formData, current.imageUrl);
+    const imageUrl = await handleImageUpload(formData, "image", "clients", current.imageUrl);
 
     const existing = await prisma.client.findFirst({
       where: { code: fields.code, id: { not: id } },

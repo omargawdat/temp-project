@@ -223,6 +223,7 @@ model Note {
   id         String   @id @default(cuid())
   entityType String
   entityId   String
+  noteType   String   @default("GENERAL")
   content    String
   createdBy  String
 

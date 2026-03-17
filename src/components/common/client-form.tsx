@@ -4,6 +4,7 @@ import * as React from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { Client } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import { createClient, updateClient } from "@/actions/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,7 +133,7 @@ export function ClientForm({
   countries,
   onSuccess,
 }: {
-  client?: Client & { countryId?: string };
+  client?: (Client | Serialized<Client>) & { countryId?: string };
   countries: CountryOption[];
   onSuccess?: (id: string) => void;
 }) {

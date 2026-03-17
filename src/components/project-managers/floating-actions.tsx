@@ -7,9 +7,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { ProjectManagerForm } from "@/components/common/project-manager-form";
 import { FloatingActionBar, scrollToSection, type FloatingAction } from "@/components/common/floating-action-bar";
 import type { ProjectManager } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 
 interface PMFloatingActionsProps {
-  pm: ProjectManager;
+  pm: Serialized<ProjectManager>;
 }
 
 export function PMFloatingActions({ pm }: PMFloatingActionsProps) {

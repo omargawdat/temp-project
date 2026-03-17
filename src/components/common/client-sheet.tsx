@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Client } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,7 +16,7 @@ import { ClientForm } from "@/components/common/client-form";
 import { Plus, Pencil } from "lucide-react";
 
 interface ClientSheetProps {
-  client?: Client;
+  client?: Client | Serialized<Client>;
   countries: { id: string; name: string; code: string; flag: string }[];
   variant?: "create" | "edit";
 }

@@ -22,9 +22,10 @@ export async function createNote(
   return withErrorHandling(async () => {
     const content = parseRequiredString(formData, "content");
     const createdBy = parseRequiredString(formData, "createdBy");
+    const noteType = formData.get("noteType")?.toString() || "GENERAL";
 
     const note = await prisma.note.create({
-      data: { entityType, entityId, content, createdBy },
+      data: { entityType, entityId, content, createdBy, noteType },
     });
 
     revalidateParent(entityType, entityId);

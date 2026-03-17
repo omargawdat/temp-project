@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Project } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -22,7 +23,7 @@ interface ProjectSheetProps {
     photoUrl?: string | null;
   }[];
   clients: { id: string; name: string; imageUrl?: string | null }[];
-  project?: Project;
+  project?: Project | Serialized<Project>;
   trigger?: "button" | "icon";
 }
 

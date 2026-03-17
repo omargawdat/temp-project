@@ -13,7 +13,7 @@ export function ToolbarStatusPills({
   value,
   onChange,
 }: {
-  statuses: StatusOption[];
+  statuses: readonly StatusOption[];
   value: string[];
   onChange: (value: string[]) => void;
 }) {

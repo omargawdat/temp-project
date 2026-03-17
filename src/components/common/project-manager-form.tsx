@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useState, useRef } from "react";
 import type { ProjectManager } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import {
   createProjectManager,
   updateProjectManager,
@@ -117,7 +118,7 @@ export function ProjectManagerForm({
   pm,
   onSuccess,
 }: {
-  pm?: ProjectManager;
+  pm?: ProjectManager | Serialized<ProjectManager>;
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!pm;

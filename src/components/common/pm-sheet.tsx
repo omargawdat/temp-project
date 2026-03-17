@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectManager } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,7 +16,7 @@ import { ProjectManagerForm } from "@/components/common/project-manager-form";
 import { Plus, Pencil } from "lucide-react";
 
 interface PMSheetProps {
-  pm?: ProjectManager;
+  pm?: ProjectManager | Serialized<ProjectManager>;
   variant?: "create" | "edit";
 }
 

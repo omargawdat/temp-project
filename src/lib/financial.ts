@@ -1,10 +1,12 @@
+type DecimalLike = number | string | { toString(): string };
+
 /**
  * Sum invoice totalPayable from milestones, deduplicating by invoice ID.
  * Prevents double-counting when multiple milestones share one invoice.
  */
 export function sumUniqueInvoices(
   milestones: Array<{
-    invoice?: { id: string; totalPayable: unknown; status?: string } | null;
+    invoice?: { id: string; totalPayable: DecimalLike; status?: string } | null;
   }>,
   statusFilter?: string,
 ): number {
@@ -44,9 +46,9 @@ export function deduplicateInvoices<
     invoice?: {
       id: string;
       invoiceNumber: string;
-      amount: unknown;
-      vatAmount: unknown;
-      totalPayable: unknown;
+      amount: DecimalLike;
+      vatAmount: DecimalLike;
+      totalPayable: DecimalLike;
       status: string;
       paymentDueDate: Date | null;
       createdAt: Date;

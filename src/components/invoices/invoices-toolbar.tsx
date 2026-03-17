@@ -8,15 +8,7 @@ import { ToolbarStatusPills } from "@/components/toolbar/toolbar-status-pills";
 import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
 import { ToolbarExportButton } from "@/components/toolbar/toolbar-export-button";
 import { ToolbarDateRange } from "@/components/milestones/toolbar-date-range";
-
-const INVOICE_STATUSES = [
-  { key: "DRAFT", label: "Draft", dot: "bg-zinc-400" },
-  { key: "SUBMITTED", label: "Submitted", dot: "bg-amber-400" },
-  { key: "UNDER_REVIEW", label: "Under Review", dot: "bg-orange-400" },
-  { key: "APPROVED", label: "Approved", dot: "bg-emerald-400" },
-  { key: "PAID", label: "Paid", dot: "bg-teal-400" },
-  { key: "REJECTED", label: "Rejected", dot: "bg-red-400" },
-];
+import { INVOICE_STATUSES } from "@/lib/status-config";
 
 export function InvoicesToolbar({
   projects,

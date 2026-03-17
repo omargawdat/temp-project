@@ -8,9 +8,10 @@ import { ProjectForm } from "@/components/common/project-form";
 import { FloatingActionBar, scrollToSection, type FloatingAction } from "@/components/common/floating-action-bar";
 import { updateProjectStatus } from "@/actions/project";
 import type { Project } from "@prisma/client";
+import type { Serialized } from "@/lib/serialize";
 
 interface FloatingActionsProps {
-  project: Project;
+  project: Serialized<Project>;
   projectManagers: { id: string; name: string; title?: string | null; photoUrl?: string | null }[];
   clients: { id: string; name: string; imageUrl?: string | null }[];
   notesCount?: number;

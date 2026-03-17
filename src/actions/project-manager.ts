@@ -8,49 +8,8 @@ import {
   validateEmail,
   ValidationError,
 } from "@/lib/validation";
-import { MAX_PHOTO_SIZE_BYTES, ALLOWED_IMAGE_TYPES } from "@/lib/constants";
+import { handleImageUpload } from "@/lib/image-upload";
 import type { ActionResult } from "@/types";
-import { writeFile } from "fs/promises";
-import path from "path";
-
-async function handlePhotoUpload(
-  formData: FormData,
-  existingPhotoUrl: string | null,
-): Promise<string | null> {
-  const file = formData.get("photo") as File | null;
-
-  if (!file || file.size === 0) {
-    return existingPhotoUrl;
-  }
-
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    throw new ValidationError(
-      `Invalid image type. Allowed types: ${ALLOWED_IMAGE_TYPES.join(", ")}.`,
-    );
-  }
-
-  if (file.size > MAX_PHOTO_SIZE_BYTES) {
-    const maxMB = MAX_PHOTO_SIZE_BYTES / (1024 * 1024);
-    throw new ValidationError(
-      `Photo exceeds the maximum size of ${maxMB}MB.`,
-    );
-  }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const ext = file.name.split(".").pop() || "jpg";
-  const filename = `pm-${Date.now()}.${ext}`;
-  const filepath = path.join(process.cwd(), "public", "images", "team", filename);
-
-  try {
-    await writeFile(filepath, buffer);
-  } catch (error) {
-    console.error("Failed to write photo file:", error);
-    throw new ValidationError("Failed to save photo. Please try again.");
-  }
-
-  return `/images/team/${filename}`;
-}
 
 function parseProjectManagerFields(formData: FormData) {
   const name = parseRequiredString(formData, "name");
@@ -74,7 +33,7 @@ export async function createProjectManager(
       );
     }
 
-    const photoUrl = await handlePhotoUpload(formData, null);
+    const photoUrl = await handleImageUpload(formData, "photo", "team");
 
     const pm = await prisma.projectManager.create({
       data: { name, email, phone, title, photoUrl },
@@ -102,7 +61,7 @@ export async function updateProjectManager(
     }
 
     const currentPm = await prisma.projectManager.findUnique({ where: { id } });
-    const photoUrl = await handlePhotoUpload(formData, currentPm?.photoUrl ?? null);
+    const photoUrl = await handleImageUpload(formData, "photo", "team", currentPm?.photoUrl ?? null);
 
     await prisma.projectManager.update({
       where: { id },

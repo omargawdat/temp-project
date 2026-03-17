@@ -8,12 +8,7 @@ import { ToolbarStatusPills } from "@/components/toolbar/toolbar-status-pills";
 import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
 import { ToolbarExportButton } from "@/components/toolbar/toolbar-export-button";
 import { ToolbarSortDropdown } from "@/components/toolbar/toolbar-sort-dropdown";
-
-const PROJECT_STATUSES = [
-  { key: "ACTIVE", label: "Active", dot: "bg-emerald-400" },
-  { key: "ON_HOLD", label: "On Hold", dot: "bg-amber-400" },
-  { key: "CLOSED", label: "Closed", dot: "bg-zinc-400" },
-];
+import { PROJECT_STATUSES } from "@/lib/status-config";
 
 const SORT_OPTIONS = [
   { label: "Name", value: "name" },
