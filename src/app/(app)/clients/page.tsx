@@ -209,18 +209,15 @@ export default async function ClientsPage({
                         <h3 className="text-[17px] font-bold leading-snug tracking-tight text-white/95 transition-colors group-hover:text-white truncate">
                           {client.name}
                         </h3>
-                        <span className={cn("text-[11px] font-semibold", sector.text)}>
-                          {formatSector(client.sector)}
-                        </span>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={client.country.flag} alt={client.country.name} className="h-3.5 w-5 shrink-0 rounded-[2px] object-cover" />
                       </div>
                       <div className="mt-0.5 flex items-center gap-2">
                         <span className="font-mono text-[12px] tracking-wide text-white/30">
                           {client.code}
                         </span>
-                        <span className="flex items-center gap-1.5 text-[12px] text-white/30">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={client.country.flag} alt={client.country.name} className="h-3 w-5 rounded-[2px] object-cover" />
-                          {client.country.name}
+                        <span className={cn("text-[11px] font-semibold", sector.text)}>
+                          {formatSector(client.sector)}
                         </span>
                       </div>
                     </div>

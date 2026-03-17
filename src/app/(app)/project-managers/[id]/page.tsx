@@ -16,6 +16,7 @@ import { PMSheet } from "@/components/common/pm-sheet";
 import { serializeForClient } from "@/lib/serialize";
 import { BillingRingChart, ProjectBreakdownChart } from "@/components/common/pm-charts";
 import { sumUniqueInvoices } from "@/lib/financial";
+import { PMFloatingActions } from "@/components/project-managers/floating-actions";
 
 export default async function ProjectManagerDetailPage({
   params,
@@ -134,7 +135,7 @@ export default async function ProjectManagerDetailPage({
             </div>
           </div>
         </div>
-        <PMSheet pm={serializeForClient(pm)} variant="edit" />
+        <div />
       </div>
 
       {/* ── Financial overview ── */}
@@ -272,7 +273,7 @@ export default async function ProjectManagerDetailPage({
       )}
 
       {/* ── Projects table ── */}
-      <div className="overflow-hidden rounded-xl border border-border/20 bg-card/40">
+      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-teal-500/12 p-2">
@@ -367,6 +368,10 @@ export default async function ProjectManagerDetailPage({
           </div>
         )}
       </div>
+
+      <div className="h-16" />
+
+      <PMFloatingActions pm={serializeForClient(pm)} />
     </div>
   );
 }

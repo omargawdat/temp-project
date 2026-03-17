@@ -129,8 +129,7 @@ async function main() {
       email: "sarah.johnson@company.com",
       phone: "+966 50 123 4567",
       title: "Senior Project Manager",
-      photoUrl:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
+      photoUrl: "/images/team/sarah.png",
     },
   });
 
@@ -140,8 +139,7 @@ async function main() {
       email: "omar.gawdat@company.com",
       phone: "+966 55 987 6543",
       title: "Project Director",
-      photoUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+      photoUrl: "/images/team/omar.png",
     },
   });
 
@@ -151,8 +149,7 @@ async function main() {
       email: "ahmed.rashid@company.com",
       phone: "+971 50 555 1234",
       title: "Technical Project Manager",
-      photoUrl:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+      photoUrl: "/images/team/ahmed.png",
     },
   });
 
@@ -162,8 +159,7 @@ async function main() {
       email: "fatima.alsayed@company.com",
       phone: "+971 55 678 9012",
       title: "Delivery Manager",
-      photoUrl:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+      photoUrl: "/images/team/fatima.png",
     },
   });
 

@@ -26,6 +26,7 @@ import { ClientSheet } from "@/components/common/client-sheet";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { serializeForClient } from "@/lib/serialize";
 import { NotesSection } from "@/components/common/notes-section";
+import { ClientFloatingActions } from "@/components/clients/floating-actions";
 
 export default async function ClientDetailPage({
   params,
@@ -224,7 +225,7 @@ export default async function ClientDetailPage({
             </div>
           </div>
         </div>
-        <ClientSheet client={serializeForClient(client)} countries={countries} variant="edit" />
+        <div />
       </div>
 
       {/* ── B. Financial & Delivery Dashboard ── */}
@@ -336,74 +337,77 @@ export default async function ClientDetailPage({
 
             {/* Overdue + Upcoming milestones */}
             <div className="px-5 py-4">
-              {(overdueMilestones.length > 0 || upcomingMilestones.length > 0) ? (
-                <div className="grid grid-cols-2 gap-5">
-                  {/* Overdue */}
-                  {overdueMilestones.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-2.5">
-                        <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
-                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-400/70">Overdue</span>
-                        <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-red-400/80">{overdueMilestones.length}</span>
-                      </div>
-                      <div className="space-y-1">
-                        {overdueMilestones.slice(0, 3).map((m) => {
-                          const proj = milestoneProjectMap.get(m.id);
-                          const daysOverdue = Math.ceil((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24));
-                          return (
-                            <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-500/[0.04] px-3 py-2 transition-colors hover:bg-red-500/[0.08]">
-                              <div className="min-w-0 mr-2">
-                                <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
-                                {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
-                              </div>
-                              <span className="shrink-0 text-xs font-bold tabular-nums text-red-400/70">{daysOverdue}d</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
+              <div className="grid grid-cols-2 gap-5">
+                {/* Overdue */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-400/70">Overdue</span>
+                    <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-red-400/80">{overdueMilestones.length}</span>
+                  </div>
+                  {overdueMilestones.length > 0 ? (
+                    <div className="max-h-[104px] overflow-y-auto space-y-1 pr-0.5">
+                      {overdueMilestones.map((m) => {
+                        const proj = milestoneProjectMap.get(m.id);
+                        const daysOverdue = Math.ceil((now.getTime() - new Date(m.plannedDate).getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-500/[0.04] px-3 py-2 transition-colors hover:bg-red-500/[0.08]">
+                            <div className="min-w-0 mr-2">
+                              <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
+                              {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
+                            </div>
+                            <span className="shrink-0 text-xs font-bold tabular-nums text-red-400/70">{daysOverdue}d</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center rounded-lg bg-white/[0.02] py-4 text-xs text-emerald-400/50">
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                      All on track
                     </div>
                   )}
+                </div>
 
-                  {/* Upcoming */}
-                  {upcomingMilestones.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-2.5">
-                        <Clock className="h-3.5 w-3.5 text-orange-400/80" />
-                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-orange-400/70">Upcoming</span>
-                        <span className="rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-orange-400/80">{upcomingMilestones.length}</span>
-                      </div>
-                      <div className="space-y-1">
-                        {upcomingMilestones.slice(0, 3).map((m) => {
-                          const proj = milestoneProjectMap.get(m.id);
-                          const daysUntil = Math.ceil((new Date(m.plannedDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                          return (
-                            <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]">
-                              <div className="min-w-0 mr-2">
-                                <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
-                                {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
-                              </div>
-                              <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-400/70" : "text-white/30"}`}>
-                                {daysUntil === 0 ? "Today" : `${daysUntil}d`}
-                              </span>
-                            </Link>
-                          );
-                        })}
-                      </div>
+                {/* Upcoming */}
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <Clock className="h-3.5 w-3.5 text-orange-400/80" />
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-orange-400/70">Upcoming</span>
+                    <span className="rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-orange-400/80">{upcomingMilestones.length}</span>
+                  </div>
+                  {upcomingMilestones.length > 0 ? (
+                    <div className="max-h-[104px] overflow-y-auto space-y-1 pr-0.5">
+                      {upcomingMilestones.map((m) => {
+                        const proj = milestoneProjectMap.get(m.id);
+                        const daysUntil = Math.ceil((new Date(m.plannedDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]">
+                            <div className="min-w-0 mr-2">
+                              <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
+                              {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
+                            </div>
+                            <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-400/70" : "text-white/30"}`}>
+                              {daysUntil === 0 ? "Today" : `${daysUntil}d`}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center rounded-lg bg-white/[0.02] py-4 text-xs text-white/20">
+                      No upcoming deadlines
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center h-full text-xs text-white/20">
-                  No upcoming or overdue milestones
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* ── E. Projects Table ── */}
-      <div className="overflow-hidden rounded-xl border border-border/20 bg-card/40">
+      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-orange-500/12 p-2">
@@ -520,7 +524,7 @@ export default async function ClientDetailPage({
       </div>
 
       {/* ── F. Invoices Table ── */}
-      <div className="overflow-hidden rounded-xl border border-border/20 bg-card/40">
+      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-white/[0.06] p-2">
@@ -611,7 +615,9 @@ export default async function ClientDetailPage({
       </div>
 
       {/* ── Notes ── */}
-      <NotesSection entityType="CLIENT" entityId={client.id} notes={serializeForClient(notes)} />
+      <div id="notes-section" className="scroll-mt-6">
+        <NotesSection entityType="CLIENT" entityId={client.id} notes={serializeForClient(notes)} />
+      </div>
 
       {/* ── G. Footer Info ── */}
       {(client.billingAddress || client.notes) && (
@@ -630,6 +636,14 @@ export default async function ClientDetailPage({
           )}
         </div>
       )}
+
+      <div className="h-16" />
+
+      <ClientFloatingActions
+        client={serializeForClient(client)}
+        countries={countries}
+        notesCount={notes.length}
+      />
     </div>
   );
 }

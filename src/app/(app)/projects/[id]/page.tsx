@@ -24,6 +24,7 @@ import { serializeForClient } from "@/lib/serialize";
 import { InvoiceSheet } from "@/components/common/invoice-sheet";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { NotesSection } from "@/components/common/notes-section";
+import { FloatingActions } from "@/components/projects/floating-actions";
 
 function getLifecycleStep(status: string): number {
   if (status === "CLOSED") return 2;
@@ -220,14 +221,7 @@ export default async function ProjectDetailPage({
               </Link>
             </div>
           </div>
-          <div className="flex items-center gap-2.5">
-            <ProjectStatusActions projectId={project.id} currentStatus={project.status} />
-            <ProjectSheet
-              project={serializeForClient(project)}
-              projectManagers={projectManagers}
-              clients={clients}
-            />
-          </div>
+          <div className="flex items-center gap-2.5" />
         </div>
 
         {/* Alerts */}
@@ -346,7 +340,7 @@ export default async function ProjectDetailPage({
       </div>
 
       {/* ── Milestones table ── */}
-      <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
+      <div id="milestones-section" className="overflow-hidden rounded-xl border border-border/25 bg-card/50 scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-white/[0.06] p-2">
@@ -427,13 +421,11 @@ export default async function ProjectDetailPage({
           </div>
         )}
 
-        {project.status === "ACTIVE" && (
-          <MilestoneForm projectId={project.id} />
-        )}
+        <MilestoneForm projectId={project.id} />
       </div>
 
       {/* ── Invoices table ── */}
-      <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
+      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/25 bg-card/50 scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-white/[0.06] p-2">
@@ -554,7 +546,20 @@ export default async function ProjectDetailPage({
       </div>
 
       {/* ── Notes ── */}
-      <NotesSection entityType="PROJECT" entityId={project.id} notes={serializeForClient(notes)} />
+      <div id="notes-section" className="scroll-mt-6">
+        <NotesSection entityType="PROJECT" entityId={project.id} notes={serializeForClient(notes)} />
+      </div>
+
+      {/* Bottom spacer for floating bar */}
+      <div className="h-16" />
+
+      {/* Floating Action Bar */}
+      <FloatingActions
+        project={serializeForClient(project)}
+        projectManagers={projectManagers}
+        clients={clients}
+        notesCount={notes.length}
+      />
     </div>
   );
 }
