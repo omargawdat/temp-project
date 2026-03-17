@@ -49,15 +49,15 @@ export function BillingRingChart({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative h-36 w-36">
+      <div className="relative h-28 w-28">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={48}
-              outerRadius={66}
+              innerRadius={36}
+              outerRadius={52}
               paddingAngle={2}
               dataKey="value"
               strokeWidth={0}
@@ -69,11 +69,11 @@ export function BillingRingChart({
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-foreground">{collectedPct}%</span>
+          <span className="text-lg font-bold text-foreground">{collectedPct}%</span>
           <span className="text-[10px] text-muted-foreground/50">collected</span>
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-4 text-xs">
+      <div className="mt-2 flex items-center gap-3 text-xs">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
           <span className="text-muted-foreground/60">Collected</span>

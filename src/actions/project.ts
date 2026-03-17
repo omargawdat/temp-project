@@ -9,8 +9,12 @@ import {
   parseDate,
   parseEnum,
   validateDateRange,
+  ValidationError,
 } from "@/lib/validation";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
+import { MAX_PHOTO_SIZE_BYTES, ALLOWED_IMAGE_TYPES } from "@/lib/constants";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 const INVOICING_METHODS = ["PORTAL", "EMAIL"] as const;
 
@@ -87,6 +91,42 @@ export async function updateProjectStatus(
   });
 }
 
+async function handleProjectImage(
+  formData: FormData,
+  existingImageUrl: string | null,
+): Promise<string | null> {
+  const file = formData.get("image") as File | null;
+
+  if (!file || file.size === 0) {
+    return existingImageUrl;
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new ValidationError(
+      `Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}.`,
+    );
+  }
+
+  if (file.size > MAX_PHOTO_SIZE_BYTES) {
+    const maxMB = MAX_PHOTO_SIZE_BYTES / (1024 * 1024);
+    throw new ValidationError(`Image exceeds the maximum size of ${maxMB}MB.`);
+  }
+
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+  const ext = file.name.split(".").pop() || "jpg";
+  const filename = `project-${Date.now()}.${ext}`;
+  const filepath = path.join(process.cwd(), "public", "images", "projects", filename);
+
+  try {
+    await writeFile(filepath, buffer);
+  } catch {
+    throw new ValidationError("Failed to save image. Please try again.");
+  }
+
+  return `/images/projects/${filename}`;
+}
+
 function validateProjectData(formData: FormData) {
   const name = parseRequiredString(formData, "name");
   const clientId = parseRequiredString(formData, "clientId");
@@ -124,6 +164,7 @@ export async function createProject(
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
     const data = validateProjectData(formData);
+    const imageUrl = await handleProjectImage(formData, null);
 
     const existing = await prisma.project.findUnique({
       where: { contractNumber: data.contractNumber },
@@ -135,6 +176,7 @@ export async function createProject(
     const project = await prisma.project.create({
       data: {
         ...data,
+        imageUrl,
         status: "ACTIVE",
       },
     });
@@ -151,6 +193,13 @@ export async function updateProject(
   return withErrorHandling(async () => {
     const data = validateProjectData(formData);
 
+    const current = await prisma.project.findUnique({ where: { id } });
+    if (!current) {
+      return { success: false, error: "Project not found." };
+    }
+
+    const imageUrl = await handleProjectImage(formData, current.imageUrl);
+
     const existing = await prisma.project.findFirst({
       where: { contractNumber: data.contractNumber, id: { not: id } },
     });
@@ -160,7 +209,7 @@ export async function updateProject(
 
     await prisma.project.update({
       where: { id },
-      data,
+      data: { ...data, imageUrl },
     });
 
     revalidateEntity("projects", id);

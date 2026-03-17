@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ListChecks, SearchX } from "lucide-react";
-import { SortableHeader } from "@/components/milestones/sortable-header";
+import { SortableHeader } from "@/components/toolbar/sortable-header";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { StatusBadge } from "@/components/common/status-badge";
@@ -23,6 +23,9 @@ export default async function MilestonesPage({
     q: typeof params.q === "string" ? params.q : undefined,
     status: typeof params.status === "string" ? params.status : undefined,
     project: typeof params.project === "string" ? params.project : undefined,
+    deliveryNote: typeof params.deliveryNote === "string" ? params.deliveryNote : undefined,
+    dateFrom: typeof params.dateFrom === "string" ? params.dateFrom : undefined,
+    dateTo: typeof params.dateTo === "string" ? params.dateTo : undefined,
   };
   const sortParams = {
     sort: typeof params.sort === "string" ? params.sort : undefined,
@@ -36,7 +39,7 @@ export default async function MilestonesPage({
   const [milestones, allProjects, totalCount] = await Promise.all([
     prisma.milestone.findMany({ where, orderBy, include: { project: true } }),
     prisma.project.findMany({
-      select: { id: true, name: true },
+      select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.milestone.count(),
@@ -63,7 +66,7 @@ export default async function MilestonesPage({
 
       {/* Toolbar */}
       <MilestonesToolbar
-        projects={allProjects}
+        projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
         resultCount={milestones.length}
       />
 
@@ -87,11 +90,11 @@ export default async function MilestonesPage({
       {/* Table */}
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">
         <div className="grid grid-cols-[1fr_200px_90px_100px_140px_120px] gap-x-4 border-b border-border/20 bg-white/[0.02] px-6 py-3">
-          <SortableHeader label="Milestone" field="name" />
-          <SortableHeader label="Project" field="project" />
-          <SortableHeader label="Value" field="value" align="right" />
-          <SortableHeader label="Date" field="plannedDate" />
-          <SortableHeader label="Status" field="status" />
+          <SortableHeader label="Milestone" field="name" basePath="/milestones" defaultSort="plannedDate" />
+          <SortableHeader label="Project" field="project" basePath="/milestones" defaultSort="plannedDate" />
+          <SortableHeader label="Value" field="value" align="right" basePath="/milestones" defaultSort="plannedDate" />
+          <SortableHeader label="Date" field="plannedDate" basePath="/milestones" defaultSort="plannedDate" />
+          <SortableHeader label="Status" field="status" basePath="/milestones" defaultSort="plannedDate" />
           <span className="text-muted-foreground/50 text-center text-[11px] font-semibold tracking-wider uppercase whitespace-nowrap">Delivery Note</span>
         </div>
 

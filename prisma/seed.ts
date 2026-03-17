@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  // Clean in dependency order
+  await prisma.note.deleteMany();
   await prisma.payment.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.deliveryNote.deleteMany();
@@ -10,57 +12,118 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.projectManager.deleteMany();
   await prisma.client.deleteMany();
+  await prisma.country.deleteMany();
 
-  // Clients
-  const client1 = await prisma.client.create({
-    data: {
-      name: "TechCorp Ltd",
-      code: "TC-001",
-      country: "Saudi Arabia",
-      sector: "PRIVATE",
-      primaryContact: "John Smith",
-      financeContact: "Jane Doe",
-      email: "projects@techcorp.com",
-      phone: "+966 11 456 7890",
-      billingAddress: "King Fahd Road, Riyadh 12211, Saudi Arabia",
-      portalName: "TechCorp Vendor Portal",
-      portalLink: "https://vendors.techcorp.com",
-    },
-  });
+  // ─── Countries (9) — Gulf focus ────────────────────────────────
 
-  const client2 = await prisma.client.create({
-    data: {
-      name: "FinanceHub Inc",
-      code: "FH-001",
-      country: "United Arab Emirates",
-      sector: "PRIVATE",
-      primaryContact: "Ali Hassan",
-      financeContact: "Fatima Al-Sayed",
-      email: "procurement@financehub.ae",
-      phone: "+971 4 555 6789",
-      billingAddress: "DIFC Gate Village, Dubai, UAE",
-    },
-  });
+  const countriesData = [
+    { name: "Saudi Arabia", code: "SA", flag: "/images/flags/sa.png" },
+    { name: "UAE", code: "AE", flag: "/images/flags/ae.png" },
+    { name: "Qatar", code: "QA", flag: "/images/flags/qa.png" },
+    { name: "Kuwait", code: "KW", flag: "/images/flags/kw.png" },
+    { name: "Bahrain", code: "BH", flag: "/images/flags/bh.png" },
+    { name: "Oman", code: "OM", flag: "/images/flags/om.png" },
+    { name: "Egypt", code: "EG", flag: "/images/flags/eg.png" },
+    { name: "Jordan", code: "JO", flag: "/images/flags/jo.png" },
+    { name: "Iraq", code: "IQ", flag: "/images/flags/iq.png" },
+  ];
 
-  const client3 = await prisma.client.create({
+  const countries: Record<string, { id: string }> = {};
+  for (const c of countriesData) {
+    const country = await prisma.country.create({ data: c });
+    countries[c.code] = country;
+  }
+
+  // ─── Clients (5) ──────────────────────────────────────────────
+
+  const stc = await prisma.client.create({
     data: {
-      name: "GlobalRetail Corp",
-      code: "GR-001",
-      country: "Saudi Arabia",
+      name: "Saudi Telecom (STC)",
+      imageUrl: "/images/clients/stc.png",
+      code: "STC-001",
+      countryId: countries["SA"].id,
       sector: "SEMI_GOVERNMENT",
-      primaryContact: "Mohammed Al-Rashid",
-      financeContact: "Sara Ahmed",
-      email: "it@globalretail.sa",
-      phone: "+966 12 345 6789",
-      billingAddress: "Jeddah Corniche, Jeddah 21452, Saudi Arabia",
-      portalName: "ADEO",
-      portalLink: "https://adeo.globalretail.sa",
-      notes: "Preferred payment method: wire transfer",
+      primaryContact: "Khalid Al-Otaibi",
+      financeContact: "Noura Al-Harbi",
+      email: "vendor.relations@stc.com.sa",
+      phone: "+966 11 218 0000",
+      billingAddress: "King Fahd Road, Al Muruj, Riyadh 12283, Saudi Arabia",
+      portalName: "STC Vendor Portal",
+      portalLink: "https://vendors.stc.com.sa",
     },
   });
 
-  // Project Managers
-  const pm1 = await prisma.projectManager.create({
+  const enbd = await prisma.client.create({
+    data: {
+      name: "Emirates NBD",
+      imageUrl: "/images/clients/enbd.png",
+      code: "ENBD-001",
+      countryId: countries["AE"].id,
+      sector: "PRIVATE",
+      primaryContact: "Rashed Al-Maktoum",
+      financeContact: "Aisha Kazim",
+      email: "procurement@emiratesnbd.com",
+      phone: "+971 4 316 0000",
+      billingAddress: "Baniyas Road, Deira, Dubai, UAE",
+      portalName: "Ariba",
+      portalLink: "https://ariba.emiratesnbd.com",
+    },
+  });
+
+  const neom = await prisma.client.create({
+    data: {
+      name: "NEOM",
+      imageUrl: "/images/clients/neom.png",
+      code: "NEOM-001",
+      countryId: countries["SA"].id,
+      sector: "GOVERNMENT",
+      primaryContact: "Faisal Al-Ruwaily",
+      financeContact: "Maha Al-Zahrani",
+      email: "tech.procurement@neom.com",
+      phone: "+966 14 800 0000",
+      billingAddress: "NEOM, Tabuk Province, Saudi Arabia",
+      portalName: "NEOM Procurement",
+      portalLink: "https://procurement.neom.com",
+      notes: "Requires monthly progress reports attached to each invoice",
+    },
+  });
+
+  const careem = await prisma.client.create({
+    data: {
+      name: "Careem Technologies",
+      imageUrl: "/images/clients/careem.png",
+      code: "CRM-001",
+      countryId: countries["AE"].id,
+      sector: "PRIVATE",
+      primaryContact: "Youssef El-Naggar",
+      financeContact: "Dina Hossam",
+      email: "tech.ops@careem.com",
+      phone: "+971 4 456 1200",
+      billingAddress: "Building 5, Dubai Internet City, Dubai, UAE",
+    },
+  });
+
+  const mof = await prisma.client.create({
+    data: {
+      name: "Ministry of Finance",
+      imageUrl: "/images/clients/mof.png",
+      code: "MOF-001",
+      countryId: countries["SA"].id,
+      sector: "GOVERNMENT",
+      primaryContact: "Abdullah Al-Qahtani",
+      financeContact: "Hind Al-Shammari",
+      email: "it.projects@mof.gov.sa",
+      phone: "+966 11 405 0000",
+      billingAddress: "King Abdulaziz Road, Riyadh 11177, Saudi Arabia",
+      portalName: "Etimad",
+      portalLink: "https://etimad.sa",
+      notes: "All invoices must reference Etimad PO number",
+    },
+  });
+
+  // ─── Project Managers (4) ─────────────────────────────────────
+
+  const sarah = await prisma.projectManager.create({
     data: {
       name: "Sarah Johnson",
       email: "sarah.johnson@company.com",
@@ -71,7 +134,7 @@ async function main() {
     },
   });
 
-  const pm2 = await prisma.projectManager.create({
+  const omar = await prisma.projectManager.create({
     data: {
       name: "Omar Gawdat",
       email: "omar.gawdat@company.com",
@@ -82,62 +145,163 @@ async function main() {
     },
   });
 
-  await prisma.projectManager.create({
+  const ahmed = await prisma.projectManager.create({
     data: {
       name: "Ahmed Al-Rashid",
       email: "ahmed.rashid@company.com",
       phone: "+971 50 555 1234",
       title: "Technical Project Manager",
-      photoUrl: null,
+      photoUrl:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
     },
   });
 
-  // Project 1
-  const project1 = await prisma.project.create({
+  const fatima = await prisma.projectManager.create({
     data: {
-      name: "E-Commerce Platform Redesign",
-      clientId: client1.id,
-      contractNumber: "TC-2026-001",
-      contractValue: 150000,
-      currency: "USD",
-      startDate: new Date("2026-01-15"),
+      name: "Fatima Al-Sayed",
+      email: "fatima.alsayed@company.com",
+      phone: "+971 55 678 9012",
+      title: "Delivery Manager",
+      photoUrl:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+    },
+  });
+
+  // ─── Projects (6) ─────────────────────────────────────────────
+
+  const stcProject = await prisma.project.create({
+    data: {
+      name: "STC Digital Platform",
+      imageUrl: "/images/projects/stc-digital.jpg",
+      clientId: stc.id,
+      contractNumber: "STC-2025-DIG-001",
+      contractValue: 850000,
+      currency: "SAR",
+      startDate: new Date("2025-06-01"),
       endDate: new Date("2026-06-30"),
-      projectManagerId: pm1.id,
+      projectManagerId: sarah.id,
       paymentTerms: "Net 30",
       clientInvoicingMethod: "PORTAL",
       status: "ACTIVE",
     },
   });
 
-  const milestone1a = await prisma.milestone.create({
+  const enbdMobile = await prisma.project.create({
     data: {
-      projectId: project1.id,
-      name: "Requirements & Design",
-      value: 30000,
-      plannedDate: new Date("2026-02-15"),
+      name: "ENBD Mobile Banking",
+      imageUrl: "/images/projects/enbd-mobile.jpg",
+      clientId: enbd.id,
+      contractNumber: "ENBD-2025-MOB-042",
+      contractValue: 1200000,
+      currency: "AED",
+      startDate: new Date("2025-09-01"),
+      endDate: new Date("2026-09-30"),
+      projectManagerId: omar.id,
+      paymentTerms: "Net 45",
+      clientInvoicingMethod: "EMAIL",
+      status: "ACTIVE",
+    },
+  });
+
+  const neomProject = await prisma.project.create({
+    data: {
+      name: "NEOM Smart City Portal",
+      imageUrl: "/images/projects/neom-smart.jpg",
+      clientId: neom.id,
+      contractNumber: "NEOM-2025-SCP-007",
+      contractValue: 2500000,
+      currency: "SAR",
+      startDate: new Date("2025-04-01"),
+      endDate: new Date("2026-12-31"),
+      projectManagerId: ahmed.id,
+      paymentTerms: "Net 60",
+      clientInvoicingMethod: "PORTAL",
+      status: "ON_HOLD",
+    },
+  });
+
+  const careemProject = await prisma.project.create({
+    data: {
+      name: "Careem Fleet Management",
+      imageUrl: "/images/projects/careem-fleet.jpg",
+      clientId: careem.id,
+      contractNumber: "CRM-2025-FLT-015",
+      contractValue: 600000,
+      currency: "AED",
+      startDate: new Date("2025-08-01"),
+      endDate: new Date("2026-04-30"),
+      projectManagerId: fatima.id,
+      paymentTerms: "Net 30",
+      clientInvoicingMethod: "EMAIL",
+      status: "ACTIVE",
+    },
+  });
+
+  const mofProject = await prisma.project.create({
+    data: {
+      name: "MOF Budget System",
+      imageUrl: "/images/projects/mof-budget.jpg",
+      clientId: mof.id,
+      contractNumber: "MOF-2025-BDG-003",
+      contractValue: 450000,
+      currency: "SAR",
+      startDate: new Date("2025-01-15"),
+      endDate: new Date("2025-10-31"),
+      projectManagerId: sarah.id,
+      paymentTerms: "Net 30",
+      clientInvoicingMethod: "PORTAL",
+      status: "CLOSED",
+    },
+  });
+
+  const enbdRewards = await prisma.project.create({
+    data: {
+      name: "ENBD Card Rewards",
+      imageUrl: "/images/projects/enbd-rewards.jpg",
+      clientId: enbd.id,
+      contractNumber: "ENBD-2025-RWD-088",
+      contractValue: 320000,
+      currency: "USD",
+      startDate: new Date("2025-10-01"),
+      endDate: new Date("2026-05-31"),
+      projectManagerId: omar.id,
+      paymentTerms: "Net 45",
+      clientInvoicingMethod: "EMAIL",
+      status: "ACTIVE",
+    },
+  });
+
+  // ─── Milestones ───────────────────────────────────────────────
+
+  // STC Digital Platform (ACTIVE, 4 milestones)
+  const stcRequirements = await prisma.milestone.create({
+    data: {
+      projectId: stcProject.id,
+      name: "Requirements & Analysis",
+      value: 170000,
+      plannedDate: new Date("2025-08-15"),
+      status: "INVOICED",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  const stcDesign = await prisma.milestone.create({
+    data: {
+      projectId: stcProject.id,
+      name: "UI/UX Design",
+      value: 127500,
+      plannedDate: new Date("2025-11-01"),
       status: "COMPLETED",
       requiresDeliveryNote: true,
     },
   });
 
-  await prisma.deliveryNote.create({
+  const stcBackend = await prisma.milestone.create({
     data: {
-      milestoneId: milestone1a.id,
-      description: "Requirements document and UI/UX designs",
-      workDelivered:
-        "Complete requirements specification, wireframes, and high-fidelity mockups for all pages",
-      status: "SIGNED",
-      sentDate: new Date("2026-02-14"),
-      signedDate: new Date("2026-02-16"),
-    },
-  });
-
-  await prisma.milestone.create({
-    data: {
-      projectId: project1.id,
-      name: "Frontend Development",
-      value: 52500,
-      plannedDate: new Date("2026-04-01"),
+      projectId: stcProject.id,
+      name: "Backend Development",
+      value: 340000,
+      plannedDate: new Date("2026-03-31"),
       status: "IN_PROGRESS",
       requiresDeliveryNote: true,
     },
@@ -145,10 +309,214 @@ async function main() {
 
   await prisma.milestone.create({
     data: {
-      projectId: project1.id,
-      name: "Backend API & Integration",
-      value: 45000,
+      projectId: stcProject.id,
+      name: "Testing & Deployment",
+      value: 212500,
+      plannedDate: new Date("2026-06-30"),
+      status: "NOT_STARTED",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  // ENBD Mobile Banking (ACTIVE, 3 milestones)
+  const enbdArchitecture = await prisma.milestone.create({
+    data: {
+      projectId: enbdMobile.id,
+      name: "Architecture & Setup",
+      value: 300000,
+      plannedDate: new Date("2025-12-15"),
+      status: "INVOICED",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  const enbdCoreFeatures = await prisma.milestone.create({
+    data: {
+      projectId: enbdMobile.id,
+      name: "Core Features",
+      value: 540000,
       plannedDate: new Date("2026-05-15"),
+      status: "READY_FOR_INVOICING",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: enbdMobile.id,
+      name: "QA & Launch",
+      value: 360000,
+      plannedDate: new Date("2026-09-30"),
+      status: "NOT_STARTED",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  // NEOM Smart City Portal (ON_HOLD, 3 milestones)
+  const neomDiscovery = await prisma.milestone.create({
+    data: {
+      projectId: neomProject.id,
+      name: "Discovery Phase",
+      value: 500000,
+      plannedDate: new Date("2025-07-31"),
+      status: "COMPLETED",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: neomProject.id,
+      name: "Platform Core",
+      value: 1250000,
+      plannedDate: new Date("2026-02-28"), // Past date — overdue
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: neomProject.id,
+      name: "Integration Layer",
+      value: 750000,
+      plannedDate: new Date("2026-12-31"),
+      status: "NOT_STARTED",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  // Careem Fleet Management (ACTIVE, 3 milestones)
+  const careemDashboard = await prisma.milestone.create({
+    data: {
+      projectId: careemProject.id,
+      name: "Fleet Dashboard",
+      value: 180000,
+      plannedDate: new Date("2025-11-30"),
+      status: "COMPLETED",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: careemProject.id,
+      name: "API Integrations",
+      value: 240000,
+      plannedDate: new Date("2026-02-28"),
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: careemProject.id,
+      name: "Reporting Module",
+      value: 180000,
+      plannedDate: new Date("2026-04-05"),
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  // MOF Budget System (CLOSED, 2 milestones)
+  const mofSystemDev = await prisma.milestone.create({
+    data: {
+      projectId: mofProject.id,
+      name: "System Development",
+      value: 270000,
+      plannedDate: new Date("2025-06-30"),
+      status: "INVOICED",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  const mofTraining = await prisma.milestone.create({
+    data: {
+      projectId: mofProject.id,
+      name: "Training & Handover",
+      value: 180000,
+      plannedDate: new Date("2025-10-31"),
+      status: "INVOICED",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  // ENBD Card Rewards (ACTIVE, 2 milestones)
+  const enbdRewardsEngine = await prisma.milestone.create({
+    data: {
+      projectId: enbdRewards.id,
+      name: "Rewards Engine",
+      value: 192000,
+      plannedDate: new Date("2026-01-31"), // Past date — overdue (completed late)
+      status: "COMPLETED",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: enbdRewards.id,
+      name: "Admin Portal",
+      value: 128000,
+      plannedDate: new Date("2026-03-28"),
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  // Additional milestones with upcoming deadlines (next 30 days from ~2026-03-17)
+  await prisma.milestone.create({
+    data: {
+      projectId: enbdMobile.id,
+      name: "Security Audit",
+      value: 120000,
+      plannedDate: new Date("2026-03-20"),
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: true,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: stcProject.id,
+      name: "API Documentation",
+      value: 85000,
+      plannedDate: new Date("2026-03-24"),
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: careemProject.id,
+      name: "Driver App v2",
+      value: 95000,
+      plannedDate: new Date("2026-03-19"),
+      status: "IN_PROGRESS",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: enbdMobile.id,
+      name: "Performance Testing",
+      value: 80000,
+      plannedDate: new Date("2026-04-02"),
+      status: "NOT_STARTED",
+      requiresDeliveryNote: false,
+    },
+  });
+
+  await prisma.milestone.create({
+    data: {
+      projectId: stcProject.id,
+      name: "Data Migration",
+      value: 110000,
+      plannedDate: new Date("2026-04-10"),
       status: "NOT_STARTED",
       requiresDeliveryNote: true,
     },
@@ -156,147 +524,274 @@ async function main() {
 
   await prisma.milestone.create({
     data: {
-      projectId: project1.id,
-      name: "Testing & Launch",
-      value: 22500,
-      plannedDate: new Date("2026-06-30"),
-      status: "NOT_STARTED",
+      projectId: enbdRewards.id,
+      name: "Partner Integration",
+      value: 75000,
+      plannedDate: new Date("2026-03-22"),
+      status: "IN_PROGRESS",
       requiresDeliveryNote: false,
     },
   });
 
-  // Invoice for milestone1a
-  const invoice1a = await prisma.invoice.create({
-    data: {
-      invoiceNumber: "INV-2026-003",
-      amount: 30000,
-      vatAmount: 4500,
-      totalPayable: 34500,
-      status: "SUBMITTED",
-      submittedDate: new Date("2026-02-20"),
-      paymentDueDate: new Date("2026-03-22"),
-    },
-  });
-  await prisma.milestone.update({
-    where: { id: milestone1a.id },
-    data: { invoiceId: invoice1a.id, status: "INVOICED" },
-  });
+  // ─── Delivery Notes ───────────────────────────────────────────
 
-  // Project 2
-  await prisma.project.create({
-    data: {
-      name: "Mobile Banking App",
-      clientId: client2.id,
-      contractNumber: "FH-2026-042",
-      contractValue: 280000,
-      currency: "USD",
-      startDate: new Date("2026-02-01"),
-      endDate: new Date("2026-09-30"),
-      projectManagerId: pm2.id,
-      paymentTerms: "Net 45",
-      clientInvoicingMethod: "EMAIL",
-      status: "ACTIVE",
-      milestones: {
-        create: [
-          {
-            name: "Discovery & Architecture",
-            value: 56000,
-            plannedDate: new Date("2026-03-15"),
-            status: "READY_FOR_INVOICING",
-            requiresDeliveryNote: false,
-          },
-          {
-            name: "Core Features Development",
-            value: 112000,
-            plannedDate: new Date("2026-06-15"),
-            status: "NOT_STARTED",
-            requiresDeliveryNote: true,
-          },
-        ],
-      },
-    },
-  });
-
-  // Project 3
-  const project3 = await prisma.project.create({
-    data: {
-      name: "CRM Data Migration",
-      clientId: client3.id,
-      contractNumber: "GR-2025-089",
-      contractValue: 75000,
-      currency: "EUR",
-      startDate: new Date("2025-09-01"),
-      endDate: new Date("2025-12-31"),
-      projectManagerId: pm1.id,
-      paymentTerms: "Net 30",
-      clientInvoicingMethod: "PORTAL",
-      status: "CLOSED",
-    },
-  });
-
-  const milestone3a = await prisma.milestone.create({
-    data: {
-      projectId: project3.id,
-      name: "Data Mapping & Migration Scripts",
-      value: 37500,
-      plannedDate: new Date("2025-10-31"),
-      status: "INVOICED",
-      requiresDeliveryNote: true,
-    },
-  });
-
+  // STC Requirements: SIGNED
   await prisma.deliveryNote.create({
     data: {
-      milestoneId: milestone3a.id,
-      description: "Data migration scripts and mapping documentation",
+      milestoneId: stcRequirements.id,
+      description: "Requirements & analysis deliverables for STC Digital Platform",
       workDelivered:
-        "ETL pipelines, data mapping sheets, migration scripts for all 12 data entities",
+        "Complete business requirements document (BRD), functional specification, system architecture diagrams, and stakeholder sign-off matrix",
       status: "SIGNED",
-      sentDate: new Date("2025-10-30"),
+      sentDate: new Date("2025-08-12"),
+      signedDate: new Date("2025-08-15"),
+    },
+  });
+
+  // STC UI/UX: SIGNED
+  await prisma.deliveryNote.create({
+    data: {
+      milestoneId: stcDesign.id,
+      description: "UI/UX design deliverables for STC Digital Platform",
+      workDelivered:
+        "High-fidelity mockups for 42 screens, design system with component library, interactive prototype, and usability test report",
+      status: "SIGNED",
+      sentDate: new Date("2025-10-28"),
       signedDate: new Date("2025-11-01"),
     },
   });
 
-  const milestone3b = await prisma.milestone.create({
+  // STC Backend: DRAFT (in progress, DN created but not sent)
+  await prisma.deliveryNote.create({
     data: {
-      projectId: project3.id,
-      name: "Validation & Go-Live Support",
-      value: 37500,
-      plannedDate: new Date("2025-12-31"),
-      status: "INVOICED",
-      requiresDeliveryNote: false,
+      milestoneId: stcBackend.id,
+      description: "Backend development deliverables for STC Digital Platform",
+      workDelivered:
+        "API documentation, microservices deployment, database migration scripts",
+      status: "DRAFT",
     },
   });
 
-  // Invoice covering BOTH milestones from project 3 (many-to-one demo)
-  const invoice3 = await prisma.invoice.create({
+  // ENBD Core Features: SIGNED
+  await prisma.deliveryNote.create({
+    data: {
+      milestoneId: enbdCoreFeatures.id,
+      description: "Core features delivery for ENBD Mobile Banking",
+      workDelivered:
+        "Account management module, fund transfer engine, bill payment integration, push notification service, and biometric authentication",
+      status: "SIGNED",
+      sentDate: new Date("2026-03-01"),
+      signedDate: new Date("2026-03-05"),
+    },
+  });
+
+  // NEOM Discovery: SENT (not signed — shows pending state)
+  await prisma.deliveryNote.create({
+    data: {
+      milestoneId: neomDiscovery.id,
+      description: "Discovery phase deliverables for NEOM Smart City Portal",
+      workDelivered:
+        "Market analysis report, technology stack recommendation, infrastructure sizing document, and project roadmap with risk register",
+      status: "SENT",
+      sentDate: new Date("2025-07-28"),
+    },
+  });
+
+  // Careem Fleet Dashboard: SIGNED
+  await prisma.deliveryNote.create({
+    data: {
+      milestoneId: careemDashboard.id,
+      description: "Fleet dashboard deliverables for Careem",
+      workDelivered:
+        "Real-time fleet tracking dashboard, driver assignment module, vehicle status monitoring, and geofencing alerts system",
+      status: "SIGNED",
+      sentDate: new Date("2025-11-25"),
+      signedDate: new Date("2025-11-28"),
+    },
+  });
+
+  // MOF System Dev: SIGNED
+  await prisma.deliveryNote.create({
+    data: {
+      milestoneId: mofSystemDev.id,
+      description: "System development deliverables for MOF Budget System",
+      workDelivered:
+        "Budget planning module, approval workflow engine, departmental allocation system, and audit trail reporting",
+      status: "SIGNED",
+      sentDate: new Date("2025-06-25"),
+      signedDate: new Date("2025-06-29"),
+    },
+  });
+
+  // ─── Invoices ─────────────────────────────────────────────────
+
+  // INV-2025-001: MOF System Dev + Training → PAID (multi-milestone invoice)
+  const inv2025001 = await prisma.invoice.create({
     data: {
       invoiceNumber: "INV-2025-001",
-      amount: 75000,
-      vatAmount: 11250,
-      totalPayable: 86250,
+      amount: 450000,
+      vatAmount: 67500,
+      totalPayable: 517500,
       status: "PAID",
-      submittedDate: new Date("2025-11-02"),
-      paymentDueDate: new Date("2025-12-02"),
+      submittedDate: new Date("2025-07-05"),
+      paymentDueDate: new Date("2025-08-04"),
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: mofSystemDev.id },
+    data: { invoiceId: inv2025001.id },
+  });
+  await prisma.milestone.update({
+    where: { id: mofTraining.id },
+    data: { invoiceId: inv2025001.id },
+  });
+
+  // INV-2025-002: STC Requirements → PAID
+  const inv2025002 = await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2025-002",
+      amount: 170000,
+      vatAmount: 25500,
+      totalPayable: 195500,
+      status: "PAID",
+      submittedDate: new Date("2025-08-20"),
+      paymentDueDate: new Date("2025-09-19"),
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: stcRequirements.id },
+    data: { invoiceId: inv2025002.id },
+  });
+
+  // INV-2026-001: STC UI/UX → APPROVED
+  const inv2026001 = await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2026-001",
+      amount: 127500,
+      vatAmount: 19125,
+      totalPayable: 146625,
+      status: "APPROVED",
+      submittedDate: new Date("2026-01-10"),
+      paymentDueDate: new Date("2026-02-09"),
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: stcDesign.id },
+    data: { invoiceId: inv2026001.id, status: "INVOICED" },
+  });
+
+  // INV-2026-002: ENBD Architecture → SUBMITTED
+  const inv2026002 = await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2026-002",
+      amount: 300000,
+      vatAmount: 15000,
+      totalPayable: 315000,
+      status: "SUBMITTED",
+      submittedDate: new Date("2026-01-20"),
+      paymentDueDate: new Date("2026-03-06"),
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: enbdArchitecture.id },
+    data: { invoiceId: inv2026002.id },
+  });
+
+  // INV-2026-003: Careem Fleet Dashboard → UNDER_REVIEW
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2026-003",
+      amount: 180000,
+      vatAmount: 9000,
+      totalPayable: 189000,
+      status: "UNDER_REVIEW",
+      submittedDate: new Date("2026-02-01"),
+      paymentDueDate: new Date("2026-03-03"),
+      milestones: {
+        connect: { id: careemDashboard.id },
+      },
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: careemDashboard.id },
+    data: { status: "INVOICED" },
+  });
+
+  // INV-2026-004: ENBD Rewards Engine → DRAFT
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2026-004",
+      amount: 192000,
+      vatAmount: 0,
+      totalPayable: 192000,
+      status: "DRAFT",
+      milestones: {
+        connect: { id: enbdRewardsEngine.id },
+      },
+    },
+  });
+  await prisma.milestone.update({
+    where: { id: enbdRewardsEngine.id },
+    data: { status: "READY_FOR_INVOICING" },
+  });
+
+  // INV-2026-005: Rejected example (NEOM Discovery attempt)
+  await prisma.invoice.create({
+    data: {
+      invoiceNumber: "INV-2026-005",
+      amount: 500000,
+      vatAmount: 75000,
+      totalPayable: 575000,
+      status: "REJECTED",
+      submittedDate: new Date("2025-08-10"),
+      paymentDueDate: new Date("2025-10-09"),
     },
   });
 
-  // Link both milestones to the same invoice
-  await prisma.milestone.updateMany({
-    where: { id: { in: [milestone3a.id, milestone3b.id] } },
-    data: { invoiceId: invoice3.id },
-  });
+  // ─── Payments ─────────────────────────────────────────────────
 
+  // INV-2025-001 (PAID): 2 partial payments
   await prisma.payment.create({
     data: {
-      invoiceId: invoice3.id,
-      amount: 86250,
-      receivedDate: new Date("2025-11-28"),
-      reference: "WIRE-TRF-20251128-001",
+      invoiceId: inv2025001.id,
+      amount: 300000,
+      receivedDate: new Date("2025-08-01"),
+      reference: "ETIMAD-TRF-20250801-001",
+    },
+  });
+  await prisma.payment.create({
+    data: {
+      invoiceId: inv2025001.id,
+      amount: 217500,
+      receivedDate: new Date("2025-08-20"),
+      reference: "ETIMAD-TRF-20250820-002",
     },
   });
 
-  // Company Settings
+  // INV-2025-002 (PAID): 1 full payment
+  await prisma.payment.create({
+    data: {
+      invoiceId: inv2025002.id,
+      amount: 195500,
+      receivedDate: new Date("2025-09-15"),
+      reference: "STC-VP-PAY-20250915-001",
+    },
+  });
+
+  // ─── Notes ─────────────────────────────────────────────────────
+
+  await prisma.note.createMany({
+    data: [
+      { entityType: "CLIENT", entityId: stc.id, createdBy: "Omar Gawdat", content: "Preferred communication language is Arabic. All official documents must be in both Arabic and English." },
+      { entityType: "CLIENT", entityId: stc.id, createdBy: "Sarah Johnson", content: "Annual contract renewal discussion scheduled for Q4 2026. Prepare updated rate card." },
+      { entityType: "CLIENT", entityId: careem.id, createdBy: "Fatima Al-Sayed", content: "Finance team prefers invoices submitted by the 25th of each month to align with their payment cycle." },
+      { entityType: "PROJECT", entityId: neomProject.id, createdBy: "Ahmed Al-Rashid", content: "Project on hold pending revised scope from client. Expected to resume after board approval in April 2026." },
+      { entityType: "PROJECT", entityId: stcProject.id, createdBy: "Sarah Johnson", content: "Client requested biweekly demo sessions starting from the backend development phase." },
+    ],
+  });
+
+  // ─── Company Settings ─────────────────────────────────────────
+
   await prisma.companySettings.upsert({
     where: { id: "default" },
     update: {},
@@ -314,18 +809,20 @@ async function main() {
       bankAccount: "SA0380000000608010167519",
       bankIban: "SA0380000000608010167519",
       bankSwift: "NCBKSAJE",
-      invoiceFooter: "Thank you for your business. Payment is due within the agreed terms.",
+      invoiceFooter:
+        "Thank you for your business. Payment is due within the agreed terms.",
     },
   });
 
   console.log("Seed data created successfully!");
-  console.log("  - 3 clients");
-  console.log("  - 3 project managers");
-  console.log("  - 3 projects");
-  console.log("  - 7 milestones");
-  console.log("  - 2 delivery notes");
-  console.log("  - 2 invoices (1 covers 2 milestones)");
-  console.log("  - 1 payment");
+  console.log("  - 9 countries (Gulf focus)");
+  console.log("  - 5 clients (GOVERNMENT, PRIVATE, SEMI_GOVERNMENT)");
+  console.log("  - 4 project managers");
+  console.log("  - 6 projects (ACTIVE, ON_HOLD, CLOSED)");
+  console.log("  - 17 milestones (all 5 statuses covered)");
+  console.log("  - 7 delivery notes (DRAFT, SENT, SIGNED)");
+  console.log("  - 7 invoices (all 6 statuses covered)");
+  console.log("  - 3 payments (partial + full)");
 }
 
 main()

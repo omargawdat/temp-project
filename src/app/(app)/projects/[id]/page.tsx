@@ -23,6 +23,7 @@ import { ProjectStatusActions } from "@/components/common/project-status-actions
 import { serializeForClient } from "@/lib/serialize";
 import { InvoiceSheet } from "@/components/common/invoice-sheet";
 import { sumUniqueInvoices } from "@/lib/financial";
+import { NotesSection } from "@/components/common/notes-section";
 
 function getLifecycleStep(status: string): number {
   if (status === "CLOSED") return 2;
@@ -37,7 +38,7 @@ export default async function ProjectDetailPage({
 }) {
   const { id } = await params;
 
-  const [project, projectManagers, clients] = await Promise.all([
+  const [project, projectManagers, clients, notes] = await Promise.all([
     prisma.project.findUnique({
       where: { id },
       include: {
@@ -54,8 +55,12 @@ export default async function ProjectDetailPage({
       orderBy: { name: "asc" },
     }),
     prisma.client.findMany({
-      select: { id: true, name: true },
+      select: { id: true, name: true, imageUrl: true },
       orderBy: { name: "asc" },
+    }),
+    prisma.note.findMany({
+      where: { entityType: "PROJECT", entityId: id },
+      orderBy: { createdAt: "desc" },
     }),
   ]);
 
@@ -159,14 +164,32 @@ export default async function ProjectDetailPage({
   return (
     <div className="space-y-6">
       {/* ── Hero header ── */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/25 bg-gradient-to-br from-card via-card to-teal-500/[0.03] p-6 pb-5">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-teal-500/[0.04] blur-3xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-border/25 bg-card p-6 pb-5">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/[0.02] blur-3xl" />
 
         <div className="relative flex items-start justify-between">
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">{project.name}</h1>
-              <StatusBadge status={project.status} />
+            <div className="flex items-center gap-4">
+              {(project.imageUrl || project.client.imageUrl) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={(project.imageUrl ?? project.client.imageUrl)!}
+                  alt={project.name}
+                  className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-white/10"
+                />
+              ) : (
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] ring-1 ring-white/[0.08]">
+                  <span className="text-lg font-bold text-foreground/70">
+                    {project.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-3xl font-bold tracking-tight text-foreground">{project.name}</h1>
+                  <StatusBadge status={project.status} />
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-5 text-base">
               <div className="flex items-center gap-1.5">
@@ -182,14 +205,14 @@ export default async function ProjectDetailPage({
               <div className="h-4 w-px bg-border/20" />
               <Link
                 href={`/project-managers/${project.projectManager.id}`}
-                className="flex items-center gap-2 transition-colors hover:text-teal-400"
+                className="flex items-center gap-2 transition-colors hover:text-foreground/70"
               >
                 <span className="text-muted-foreground/50">PM:</span>
                 {project.projectManager.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={project.projectManager.photoUrl} alt="" className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10" />
                 ) : (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-500/15 text-[9px] font-bold text-teal-400 ring-1 ring-teal-500/20">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.08] text-[9px] font-bold text-foreground/60 ring-1 ring-white/[0.08]">
                     {pmInitials}
                   </div>
                 )}
@@ -213,8 +236,8 @@ export default async function ProjectDetailPage({
             {alerts.map((alert, i) => (
               <div key={i} className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium ${
                 alert.type === "warning"
-                  ? "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/15"
-                  : "bg-teal-500/10 text-teal-400 ring-1 ring-teal-500/15"
+                  ? "bg-amber-500/10 text-amber-400/80 ring-1 ring-amber-500/10"
+                  : "bg-white/[0.04] text-muted-foreground ring-1 ring-white/[0.06]"
               }`}>
                 {alert.type === "warning" ? <AlertTriangle className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
                 {alert.message}
@@ -234,13 +257,13 @@ export default async function ProjectDetailPage({
                     s.done
                       ? "bg-muted-foreground/15"
                       : s.current
-                        ? "bg-teal-500/20 ring-1 ring-teal-500/30"
+                        ? "bg-foreground/10 ring-1 ring-foreground/15"
                         : "bg-white/[0.04]"
                   }`}>
                     {s.done ? (
                       <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground/50" />
                     ) : (
-                      <s.icon className={`h-3.5 w-3.5 ${s.current ? "text-teal-400" : "text-muted-foreground/25"}`} />
+                      <s.icon className={`h-3.5 w-3.5 ${s.current ? "text-foreground/70" : "text-muted-foreground/25"}`} />
                     )}
                   </div>
                   <span className={`text-base font-semibold whitespace-nowrap ${
@@ -290,10 +313,10 @@ export default async function ProjectDetailPage({
               <span className="text-base font-bold tabular-nums text-foreground">{formatCurrency(billedAmount)} <span className="text-muted-foreground/40 font-normal text-sm">/ {contractValueFormatted}</span></span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-              <div className={`h-full rounded-full transition-all ${isOverbilled ? "bg-red-500/80" : "bg-amber-500/80"}`} style={{ width: `${billedPercent}%` }} />
+              <div className={`h-full rounded-full transition-all ${isOverbilled ? "bg-red-500/60" : "bg-foreground/25"}`} style={{ width: `${billedPercent}%` }} />
             </div>
             <div className="mt-1 flex justify-between text-sm">
-              <span className={`font-medium ${isOverbilled ? "text-red-400" : "text-amber-400/70"}`}>{billedPercent}%</span>
+              <span className={`font-medium ${isOverbilled ? "text-red-400/70" : "text-muted-foreground/60"}`}>{billedPercent}%</span>
               {isOverbilled ? (
                 <span className="font-medium text-red-400">{formatAmount(billedAmount - contractValue)} over-billed</span>
               ) : (
@@ -310,12 +333,12 @@ export default async function ProjectDetailPage({
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
               <div className="relative h-full" style={{ width: `${billedPercent}%` }}>
-                <div className="absolute inset-0 rounded-full bg-amber-500/15" />
-                <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80 transition-all" style={{ width: billedAmount > 0 ? `${Math.round((collectedAmount / billedAmount) * 100)}%` : "0%" }} />
+                <div className="absolute inset-0 rounded-full bg-foreground/10" />
+                <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/50 transition-all" style={{ width: billedAmount > 0 ? `${Math.round((collectedAmount / billedAmount) * 100)}%` : "0%" }} />
               </div>
             </div>
             <div className="mt-1 flex justify-between text-sm">
-              <span className="font-medium text-emerald-400/70">{collectedPercent}%</span>
+              <span className="font-medium text-muted-foreground/60">{collectedPercent}%</span>
               <span className="text-muted-foreground/50">{(billedAmount - collectedAmount).toLocaleString()} outstanding</span>
             </div>
           </div>
@@ -326,8 +349,8 @@ export default async function ProjectDetailPage({
       <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
         <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-lg bg-teal-500/12 p-2">
-              <Target className="h-4 w-4 text-teal-400" />
+            <div className="rounded-lg bg-white/[0.06] p-2">
+              <Target className="h-4 w-4 text-muted-foreground/60" />
             </div>
             <span className="text-lg font-bold text-foreground">Milestones</span>
             <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
@@ -352,12 +375,12 @@ export default async function ProjectDetailPage({
               {project.milestones.map((m, idx) => (
                 <tr
                   key={m.id}
-                  className={`group transition-colors hover:bg-teal-500/[0.04] ${
+                  className={`group transition-colors hover:bg-white/[0.03] ${
                     idx < project.milestones.length - 1 ? "border-b border-border/10" : ""
                   }`}
                 >
                   <td className="px-6 py-4">
-                    <Link href={`/milestones/${m.id}`} className="text-base font-semibold text-foreground hover:text-teal-400 transition-colors">
+                    <Link href={`/milestones/${m.id}`} className="text-base font-semibold text-foreground hover:text-foreground/70 transition-colors">
                       {m.name}
                     </Link>
                   </td>
@@ -413,8 +436,8 @@ export default async function ProjectDetailPage({
       <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
         <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-lg bg-teal-500/12 p-2">
-              <Receipt className="h-4 w-4 text-teal-400" />
+            <div className="rounded-lg bg-white/[0.06] p-2">
+              <Receipt className="h-4 w-4 text-muted-foreground/60" />
             </div>
             <span className="text-lg font-bold text-foreground">Invoices</span>
             <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
@@ -453,17 +476,17 @@ export default async function ProjectDetailPage({
                   return (
                     <tr
                       key={inv.id}
-                      className={`group transition-colors hover:bg-teal-500/[0.04] ${
+                      className={`group transition-colors hover:bg-white/[0.03] ${
                         idx < invoices.length - 1 ? "border-b border-border/10" : ""
                       }`}
                     >
                       <td className="px-6 py-4">
-                        <span className="font-mono text-sm font-semibold text-teal-400">{inv.invoiceNumber}</span>
+                        <span className="font-mono text-sm font-semibold text-foreground/80">{inv.invoiceNumber}</span>
                       </td>
-                      <td className="px-4 py-4 text-sm text-muted-foreground/70">
+                      <td className="px-4 py-4 text-sm text-foreground/80" title={inv.milestoneNames.join(", ")}>
                         {inv.milestoneNames[0]}
                         {inv.milestoneNames.length > 1 && (
-                          <span className="ml-1 text-muted-foreground/40">+{inv.milestoneNames.length - 1}</span>
+                          <span className="ml-1 text-muted-foreground/60">+{inv.milestoneNames.length - 1}</span>
                         )}
                       </td>
                       <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground/85">
@@ -492,7 +515,7 @@ export default async function ProjectDetailPage({
                           href={`/api/invoices/${inv.id}/pdf`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/50 transition-colors hover:bg-white/[0.06] hover:text-teal-400"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground/50 transition-colors hover:bg-white/[0.06] hover:text-foreground/70"
                         >
                           <Download className="h-4 w-4" />
                         </a>
@@ -529,6 +552,9 @@ export default async function ProjectDetailPage({
           </div>
         )}
       </div>
+
+      {/* ── Notes ── */}
+      <NotesSection entityType="PROJECT" entityId={project.id} notes={serializeForClient(notes)} />
     </div>
   );
 }

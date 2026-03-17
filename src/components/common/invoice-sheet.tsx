@@ -13,7 +13,16 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import type { ActionResult } from "@/types";
-import { Receipt, Loader2, CheckCircle2, Download, Lock } from "lucide-react";
+import {
+  Receipt,
+  Loader2,
+  CheckCircle2,
+  Download,
+  Lock,
+  Target,
+  Percent,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MilestoneItem {
   id: string;
@@ -51,7 +60,7 @@ export function InvoiceSheet({
     return amount.toLocaleString("en-US", {
       style: "currency",
       currency,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 0,
     });
   }
 
@@ -101,6 +110,8 @@ export function InvoiceSheet({
     });
   }
 
+  const hasSelection = selectedIds.size > 0;
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <button
@@ -111,27 +122,27 @@ export function InvoiceSheet({
         Create Invoice
       </button>
 
-      <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
+      <SheetContent side="right" className="sm:max-w-lg overflow-y-auto p-0">
         {createdInvoiceId ? (
-          <>
+          <div className="p-6">
             <SheetHeader>
               <SheetTitle>Invoice Created</SheetTitle>
               <SheetDescription>Your invoice has been created successfully.</SheetDescription>
             </SheetHeader>
-            <div className="px-4 pb-6 space-y-5">
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="mb-4 rounded-full bg-emerald-500/15 p-4">
-                  <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+            <div className="mt-6 space-y-5">
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="mb-4 rounded-full bg-emerald-500/15 p-5">
+                  <CheckCircle2 className="h-10 w-10 text-emerald-400" />
                 </div>
-                <p className="text-lg font-bold text-foreground">Invoice Created</p>
-                <p className="mt-1 text-sm text-muted-foreground">Total: {formatCur(total)}</p>
+                <p className="text-xl font-bold text-foreground">Invoice Created</p>
+                <p className="mt-2 text-2xl font-bold tabular-nums text-foreground/80">{formatCur(total)}</p>
               </div>
               <div className="flex gap-3">
                 <a
                   href={`/api/invoices/${createdInvoiceId}/pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-lg border-0 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/25"
+                  className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl border-0 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-500/25"
                 >
                   <Download className="h-4 w-4" />
                   Download PDF
@@ -144,35 +155,51 @@ export function InvoiceSheet({
                     setError(null);
                     setOpen(false);
                   }}
-                  className="flex-1 rounded-lg border border-border/25 px-5 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-white/[0.04]"
+                  className="flex-1 rounded-xl border border-border/25 px-5 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-white/[0.04]"
                 >
                   Close
                 </button>
               </div>
             </div>
-          </>
+          </div>
         ) : (
-          <>
-            <SheetHeader>
-              <SheetTitle>Create Invoice</SheetTitle>
-              <SheetDescription>Select milestones, set VAT %. Amount is auto-calculated.</SheetDescription>
-            </SheetHeader>
+          <form onSubmit={handleSubmit} className="flex h-full flex-col">
+            {/* Header */}
+            <div className="border-b border-border/15 px-6 py-6">
+              <div className="flex items-center gap-4">
+                <div className="rounded-xl bg-teal-500/10 p-2.5">
+                  <Receipt className="h-5 w-5 text-teal-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-foreground">Create Invoice</h2>
+                  <p className="text-xs text-muted-foreground/50">Select milestones and configure VAT</p>
+                </div>
+              </div>
+            </div>
 
-            <form onSubmit={handleSubmit} className="px-4 pb-6 space-y-5">
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
               {/* Milestone selection */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-semibold text-foreground">Milestones</label>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-muted-foreground/40" />
+                    <span className="text-sm font-semibold text-foreground">Milestones</span>
+                    <span className="rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground/50">
+                      {selectedIds.size}/{eligibleMilestones.length}
+                    </span>
+                  </div>
                   {hasEligible && (
                     <button
                       type="button"
                       onClick={toggleAll}
-                      className="text-xs font-medium text-teal-400 hover:text-teal-300 transition-colors"
+                      className="text-[11px] font-semibold text-teal-400 hover:text-teal-300 transition-colors"
                     >
                       {selectedIds.size === eligibleMilestones.length ? "Deselect all" : "Select all"}
                     </button>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   {milestones.map((m) => {
                     const isSelected = selectedIds.has(m.id);
@@ -180,31 +207,56 @@ export function InvoiceSheet({
                     return (
                       <label
                         key={m.id}
-                        className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-all ${
+                        className={cn(
+                          "group flex items-center gap-3.5 rounded-xl px-4 py-4 transition-all",
                           isInvoiced
-                            ? "cursor-not-allowed border-border/10 bg-white/[0.01] opacity-50"
+                            ? "cursor-not-allowed opacity-60"
                             : isSelected
-                              ? "cursor-pointer border-teal-500/30 bg-teal-500/5"
-                              : "cursor-pointer border-border/20 bg-white/[0.02] hover:border-border/40"
-                        }`}
+                              ? "cursor-pointer bg-teal-500/8 ring-1 ring-teal-500/25"
+                              : "cursor-pointer hover:bg-white/[0.03]",
+                        )}
                       >
+                        <div
+                          className={cn(
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all",
+                            isInvoiced
+                              ? "border-white/10 bg-white/[0.03]"
+                              : isSelected
+                                ? "border-teal-500 bg-teal-500"
+                                : "border-white/15 group-hover:border-white/25",
+                          )}
+                        >
+                          {isSelected && (
+                            <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          {isInvoiced && <Lock className="h-2.5 w-2.5 text-white/30" />}
+                        </div>
                         <input
                           type="checkbox"
                           checked={isSelected}
                           disabled={isInvoiced}
                           onChange={() => toggleMilestone(m.id)}
-                          className="h-4 w-4 rounded border-border bg-input accent-teal-500 disabled:opacity-40"
+                          className="sr-only"
                         />
                         <div className="flex-1 min-w-0">
-                          <span className={`text-sm font-medium ${isInvoiced ? "text-muted-foreground/50" : "text-foreground"}`}>{m.name}</span>
+                          <span className={cn(
+                            "text-sm font-medium",
+                            isInvoiced ? "text-muted-foreground/60" : "text-foreground",
+                          )}>
+                            {m.name}
+                          </span>
                         </div>
                         {isInvoiced ? (
-                          <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground/40">
-                            <Lock className="h-3 w-3" />
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
                             Invoiced
                           </span>
                         ) : (
-                          <span className="text-sm font-semibold tabular-nums text-foreground/80">
+                          <span className={cn(
+                            "font-mono text-sm font-semibold tabular-nums transition-colors",
+                            isSelected ? "text-teal-400" : "text-foreground/60",
+                          )}>
                             {formatCur(Number(m.value))}
                           </span>
                         )}
@@ -214,58 +266,89 @@ export function InvoiceSheet({
                 </div>
               </div>
 
-              {/* Subtotal */}
-              <div className="flex items-center justify-between rounded-lg bg-white/[0.03] px-4 py-3 border border-border/10">
-                <span className="text-sm text-muted-foreground">Subtotal</span>
-                <span className="text-lg font-bold tabular-nums text-foreground">{formatCur(subtotal)}</span>
-              </div>
-
-              {/* VAT % */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-foreground">VAT Percentage</label>
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1">
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      value={vatPercent}
-                      onChange={(e) => setVatPercent(e.target.value)}
-                      className="h-10 pr-8 tabular-nums"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground/50">%</span>
-                  </div>
-                  <span className="text-sm tabular-nums text-muted-foreground/60">= {formatCur(vatAmount)}</span>
+              {/* Financial breakdown */}
+              <div className="rounded-xl border border-border/15 bg-white/[0.02] overflow-hidden">
+                {/* Subtotal */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
+                  <span className="text-sm text-muted-foreground/60">Subtotal</span>
+                  <span className={cn(
+                    "text-lg font-bold tabular-nums transition-colors",
+                    hasSelection ? "text-foreground" : "text-muted-foreground/30",
+                  )}>
+                    {formatCur(subtotal)}
+                  </span>
                 </div>
-              </div>
 
-              {/* Total */}
-              <div className="flex items-center justify-between rounded-lg bg-teal-500/5 px-4 py-3 border border-teal-500/15">
-                <span className="text-sm font-semibold text-teal-400">Total Payable</span>
-                <span className="text-xl font-bold tabular-nums text-foreground">{formatCur(total)}</span>
+                {/* VAT row */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
+                  <div className="flex items-center gap-2">
+                    <Percent className="h-3.5 w-3.5 text-muted-foreground/40" />
+                    <span className="text-sm text-muted-foreground/60">VAT</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative w-16">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={vatPercent}
+                        onChange={(e) => setVatPercent(e.target.value)}
+                        className="h-8 pr-6 text-right text-xs tabular-nums border-border/20 bg-white/[0.03]"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/40">%</span>
+                    </div>
+                    <span className={cn(
+                      "text-sm font-semibold tabular-nums min-w-[60px] text-right transition-colors",
+                      hasSelection ? "text-foreground/70" : "text-muted-foreground/30",
+                    )}>
+                      {formatCur(vatAmount)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Total */}
+                <div className="flex items-center justify-between px-5 py-5 bg-teal-500/[0.04]">
+                  <span className="text-sm font-bold text-teal-400">Total Payable</span>
+                  <span className={cn(
+                    "text-xl font-bold tabular-nums transition-colors",
+                    hasSelection ? "text-foreground" : "text-muted-foreground/30",
+                  )}>
+                    {formatCur(total)}
+                  </span>
+                </div>
               </div>
 
               {/* Error */}
               {error && (
-                <p className="text-sm font-medium text-red-400">{error}</p>
+                <div className="flex items-center gap-2 rounded-xl bg-red-500/8 px-4 py-3 ring-1 ring-red-500/15">
+                  <div className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                  <p className="text-sm font-medium text-red-400">{error}</p>
+                </div>
               )}
+            </div>
 
-              {/* Submit */}
+            {/* Sticky footer */}
+            <div className="border-t border-border/15 bg-card/95 px-6 py-5 backdrop-blur-sm">
               <Button
                 type="submit"
-                disabled={isPending || selectedIds.size === 0}
-                className="w-full h-11 bg-gradient-to-r from-teal-600 to-teal-500 text-sm font-semibold text-white shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400 disabled:opacity-50"
+                disabled={isPending || !hasSelection}
+                className={cn(
+                  "w-full h-12 rounded-xl text-sm font-bold transition-all",
+                  hasSelection
+                    ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400"
+                    : "bg-white/[0.06] text-muted-foreground/30 shadow-none",
+                )}
               >
                 {isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  <Receipt className="mr-2 h-4 w-4" />
                 )}
-                {isPending ? "Creating…" : `Create Invoice — ${formatCur(total)}`}
+                {isPending ? "Creating…" : hasSelection ? `Create Invoice — ${formatCur(total)}` : "Select milestones to continue"}
               </Button>
-            </form>
-          </>
+            </div>
+          </form>
         )}
       </SheetContent>
     </Sheet>

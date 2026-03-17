@@ -1,31 +1,59 @@
 import Link from "next/link";
-import { FileText, DollarSign, CheckCircle, Clock } from "lucide-react";
+import { FileText, SearchX } from "lucide-react";
+import { SortableHeader } from "@/components/toolbar/sortable-header";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { StatusBadge } from "@/components/common/status-badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { InvoicesToolbar } from "@/components/invoices/invoices-toolbar";
+import {
+  buildInvoiceWhere,
+  buildInvoiceOrderBy,
+  hasActiveInvoiceFilters,
+} from "@/lib/invoice-queries";
 
-export default async function InvoicesPage() {
-  const invoices = await prisma.invoice.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      milestones: {
-        include: { project: true },
+export default async function InvoicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const filterParams = {
+    q: typeof params.q === "string" ? params.q : undefined,
+    status: typeof params.status === "string" ? params.status : undefined,
+    project: typeof params.project === "string" ? params.project : undefined,
+    dateFrom: typeof params.dateFrom === "string" ? params.dateFrom : undefined,
+    dateTo: typeof params.dateTo === "string" ? params.dateTo : undefined,
+  };
+  const sortParams = {
+    sort: typeof params.sort === "string" ? params.sort : undefined,
+    dir: typeof params.dir === "string" ? params.dir : undefined,
+  };
+
+  const where = buildInvoiceWhere(filterParams);
+  const orderBy = buildInvoiceOrderBy(sortParams);
+  const filtersActive = hasActiveInvoiceFilters(filterParams);
+
+  const [invoices, allProjects] = await Promise.all([
+    prisma.invoice.findMany({
+      where,
+      orderBy,
+      include: {
+        milestones: {
+          include: { project: true },
+        },
       },
-    },
-  });
-
-  const totalAmount = invoices.reduce(
-    (sum, inv) => sum + Number(inv.totalPayable),
-    0,
-  );
-  const paidAmount = invoices
-    .filter((inv) => inv.status === "PAID")
-    .reduce((sum, inv) => sum + Number(inv.totalPayable), 0);
-  const pendingAmount = invoices
-    .filter((inv) =>
-      ["DRAFT", "SUBMITTED", "UNDER_REVIEW", "APPROVED"].includes(inv.status),
-    )
-    .reduce((sum, inv) => sum + Number(inv.totalPayable), 0);
+    }),
+    prisma.project.findMany({
+      select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <div>
@@ -35,107 +63,38 @@ export default async function InvoicesPage() {
         breadcrumbs={[]}
       />
 
-      {/* Summary Cards */}
-      {invoices.length > 0 && (
-        <div className="mb-8 grid gap-5 sm:grid-cols-3">
-          <div className="accent-indigo card-hover bg-card rounded-xl p-6 shadow-lg shadow-black/20">
-            <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-teal-500/10 p-3">
-                <DollarSign
-                  className="h-5 w-5 text-teal-400"
-                  strokeWidth={1.8}
-                />
-              </div>
-              <div>
-                <p className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
-                  Total Invoiced
-                </p>
-                <p className="text-foreground mt-1 text-2xl font-bold tracking-tight">
-                  $
-                  {totalAmount.toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="accent-emerald card-hover bg-card rounded-xl p-6 shadow-lg shadow-black/20">
-            <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-emerald-500/10 p-3">
-                <CheckCircle
-                  className="h-5 w-5 text-emerald-400"
-                  strokeWidth={1.8}
-                />
-              </div>
-              <div>
-                <p className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
-                  Paid
-                </p>
-                <p className="text-foreground mt-1 text-2xl font-bold tracking-tight">
-                  $
-                  {paidAmount.toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="accent-amber card-hover bg-card rounded-xl p-6 shadow-lg shadow-black/20">
-            <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-amber-500/10 p-3">
-                <Clock className="h-5 w-5 text-amber-400" strokeWidth={1.8} />
-              </div>
-              <div>
-                <p className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
-                  Pending
-                </p>
-                <p className="text-foreground mt-1 text-2xl font-bold tracking-tight">
-                  $
-                  {pendingAmount.toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Toolbar */}
+      <InvoicesToolbar
+        projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
+        resultCount={invoices.length}
+      />
 
       {/* Table */}
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">
-        <div className="border-border/50 bg-accent/50 grid grid-cols-[120px_1fr_150px_100px_80px_110px_110px_110px] gap-0 border-b px-6 py-3.5">
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
-            Invoice #
-          </span>
+        <div className="border-border/50 bg-accent/50 grid grid-cols-[110px_1fr_1fr_110px_70px_110px_130px_100px] gap-4 border-b px-6 py-3.5">
+          <SortableHeader label="Invoice #" field="invoiceNumber" basePath="/invoices" defaultSort="createdAt" />
           <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
             Project
           </span>
           <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
             Milestone
           </span>
-          <span className="text-muted-foreground text-right text-[11px] font-bold tracking-wider uppercase">
-            Amount
-          </span>
+          <SortableHeader label="Amount" field="amount" align="right" basePath="/invoices" defaultSort="createdAt" />
           <span className="text-muted-foreground text-right text-[11px] font-bold tracking-wider uppercase">
             VAT
           </span>
-          <span className="text-muted-foreground text-right text-[11px] font-bold tracking-wider uppercase">
-            Total
-          </span>
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
-            Status
-          </span>
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
-            Due Date
-          </span>
+          <SortableHeader label="Total" field="totalPayable" align="right" basePath="/invoices" defaultSort="createdAt" />
+          <SortableHeader label="Status" field="status" basePath="/invoices" defaultSort="createdAt" />
+          <SortableHeader label="Due Date" field="paymentDueDate" basePath="/invoices" defaultSort="createdAt" />
         </div>
 
         <div className="divide-border/30 divide-y">
           {invoices.map((invoice) => (
-            <Link
+            <a
               key={invoice.id}
-              href={`/projects/${invoice.milestones[0]?.projectId}`}
-              className="table-row-hover grid grid-cols-[120px_1fr_150px_100px_80px_110px_110px_110px] items-center gap-0 px-6 py-4"
+              href={`/api/invoices/${invoice.id}/pdf`}
+              download={`Invoice-${invoice.invoiceNumber}.pdf`}
+              className="table-row-hover grid grid-cols-[110px_1fr_1fr_110px_70px_110px_130px_100px] items-center gap-4 px-6 py-4"
             >
               <span className="font-mono text-xs font-bold text-teal-400">
                 {invoice.invoiceNumber}
@@ -143,11 +102,24 @@ export default async function InvoicesPage() {
               <span className="text-foreground truncate text-sm">
                 {invoice.milestones[0]?.project.name ?? "—"}
               </span>
-              <span className="text-muted-foreground truncate text-xs">
-                {invoice.milestones.length === 1
-                  ? invoice.milestones[0].name
-                  : `${invoice.milestones[0]?.name} (+${invoice.milestones.length - 1})`}
-              </span>
+              {invoice.milestones.length > 1 ? (
+                <Tooltip>
+                  <TooltipTrigger className="text-muted-foreground truncate text-xs text-left">
+                    {`${invoice.milestones[0]?.name} (+${invoice.milestones.length - 1})`}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="flex flex-col gap-1">
+                      {invoice.milestones.map((m) => (
+                        <span key={m.id}>{m.name}</span>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <span className="text-muted-foreground truncate text-xs">
+                  {invoice.milestones[0]?.name ?? "—"}
+                </span>
+              )}
               <span className="text-foreground text-right font-mono text-sm">
                 $
                 {Number(invoice.amount).toLocaleString("en-US", {
@@ -181,23 +153,36 @@ export default async function InvoicesPage() {
                     )
                   : "—"}
               </span>
-            </Link>
+            </a>
           ))}
         </div>
 
         {invoices.length === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
-            <div className="rounded-2xl bg-teal-500/10 p-4">
-              <FileText className="h-8 w-8 text-teal-400" />
+            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
+              {filtersActive ? (
+                <SearchX className="h-8 w-8 text-amber-400" />
+              ) : (
+                <FileText className="h-8 w-8 text-teal-400" />
+              )}
             </div>
             <div className="text-center">
               <p className="text-foreground text-base font-semibold">
-                No invoices yet
+                {filtersActive ? "No invoices match your filters" : "No invoices yet"}
               </p>
               <p className="text-muted-foreground mt-1 text-sm">
-                Invoices will appear here once milestones are invoiced.
+                {filtersActive
+                  ? "Try adjusting your search or filters."
+                  : "Invoices will appear here once milestones are invoiced."}
               </p>
             </div>
+            {filtersActive && (
+              <Link href="/invoices">
+                <Button variant="outline" size="sm">
+                  Clear filters
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </div>

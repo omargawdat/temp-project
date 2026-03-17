@@ -21,7 +21,7 @@ interface ProjectSheetProps {
     title?: string | null;
     photoUrl?: string | null;
   }[];
-  clients: { id: string; name: string }[];
+  clients: { id: string; name: string; imageUrl?: string | null }[];
   project?: Project;
   trigger?: "button" | "icon";
 }
@@ -69,17 +69,13 @@ export function ProjectSheet({
         side="right"
         className="sm:max-w-2xl overflow-y-auto"
       >
-        <SheetHeader>
-          <SheetTitle>
-            {isEdit ? "Edit Project" : "New Project"}
-          </SheetTitle>
-          <SheetDescription>
-            {isEdit
-              ? `Editing ${project.name}`
-              : "Register a new project from a signed contract"}
-          </SheetDescription>
-        </SheetHeader>
-        <div className="px-4 pb-6">
+        {!isEdit && (
+          <SheetHeader>
+            <SheetTitle>New Project</SheetTitle>
+            <SheetDescription>Register a new project from a signed contract</SheetDescription>
+          </SheetHeader>
+        )}
+        <div className={`px-4 pb-6 ${isEdit ? "pt-6" : ""}`}>
           <ProjectForm
             project={project}
             projectManagers={projectManagers}

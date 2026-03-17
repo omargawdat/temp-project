@@ -51,11 +51,24 @@ enum ClientSector {
 
 // ─── Models ─────────────────────────────────────────────────────
 
+model Country {
+  id   String @id @default(cuid())
+  name String @unique
+  code String @unique
+  flag String
+
+  clients Client[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Client {
   id              String       @id @default(cuid())
   name            String
+  imageUrl        String?
   code            String       @unique
-  country         String
+  countryId       String
   sector          ClientSector
   primaryContact  String
   financeContact  String
@@ -66,10 +79,13 @@ model Client {
   portalLink      String?
   notes           String?
 
+  country  Country   @relation(fields: [countryId], references: [id])
   projects Project[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([countryId])
 }
 
 model ProjectManager {
@@ -89,6 +105,7 @@ model ProjectManager {
 model Project {
   id                    String                @id @default(cuid())
   name                  String
+  imageUrl              String?
   clientId              String
   contractNumber        String                @unique
   contractValue         Decimal
@@ -200,4 +217,17 @@ model Payment {
   createdAt DateTime @default(now())
 
   @@index([invoiceId])
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  content    String
+  createdBy  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([entityType, entityId])
 }

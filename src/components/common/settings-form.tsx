@@ -8,23 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import type { CompanySettings } from "@prisma/client";
 import type { ActionResult } from "@/types";
-import { Building2, CreditCard, FileText, Loader2, Check } from "lucide-react";
+import { Building2, CreditCard, FileText, Loader2 } from "lucide-react";
 
 export function SettingsForm({ settings }: { settings: CompanySettings | null }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   function handleSubmit(formData: FormData) {
     setError(null);
-    setSuccess(false);
     startTransition(async () => {
       const result: ActionResult = await updateCompanySettings(formData);
       if (result.success) {
-        setSuccess(true);
+        setIsDirty(false);
         router.refresh();
-        setTimeout(() => setSuccess(false), 2000);
       } else {
         setError(result.error ?? "Something went wrong.");
       }
@@ -32,7 +30,7 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
   }
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form action={handleSubmit} className="space-y-6" onChange={() => setIsDirty(true)}>
       {/* Company Info */}
       <div className="rounded-xl border border-border/20 bg-card/40 p-6">
         <div className="flex items-center gap-2.5 mb-5">
@@ -88,18 +86,20 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
 
       {error && <p className="text-sm font-medium text-red-400">{error}</p>}
 
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="btn-gradient border-0 px-6 py-2.5 font-semibold text-white shadow-lg shadow-teal-500/25"
-      >
-        {isPending ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : success ? (
-          <Check className="mr-2 h-4 w-4" />
-        ) : null}
-        {isPending ? "Saving…" : success ? "Saved" : "Save Settings"}
-      </Button>
+      <div className="sticky bottom-0 -mx-6 -mb-6 border-t border-border/20 bg-background/95 px-6 py-4 backdrop-blur-sm">
+        <Button
+          type="submit"
+          disabled={isPending || !isDirty}
+          className={`w-full border-0 px-6 py-2.5 font-semibold transition-all ${
+            isDirty
+              ? "btn-gradient text-white shadow-lg shadow-teal-500/25"
+              : "bg-white/[0.06] text-muted-foreground/40 shadow-none"
+          }`}
+        >
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isPending ? "Saving…" : "Save Settings"}
+        </Button>
+      </div>
     </form>
   );
 }

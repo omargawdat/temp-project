@@ -9,6 +9,7 @@ interface ProjectDatePickerProps {
   label: string;
   defaultValue?: string;
   compact?: boolean;
+  onValueChange?: () => void;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -26,7 +27,7 @@ const CALENDAR_HEIGHT = 330;
 const CALENDAR_WIDTH = 280;
 const GAP = 6;
 
-export function ProjectDatePicker({ name, label, defaultValue, compact }: ProjectDatePickerProps) {
+export function ProjectDatePicker({ name, label, defaultValue, compact, onValueChange }: ProjectDatePickerProps) {
   const initial = defaultValue ? new Date(defaultValue) : null;
   const [selected, setSelected] = useState<Date | null>(initial);
   const [open, setOpen] = useState(false);
@@ -86,6 +87,7 @@ export function ProjectDatePicker({ name, label, defaultValue, compact }: Projec
     const d = new Date(viewYear, viewMonth, day);
     setSelected(d);
     setOpen(false);
+    onValueChange?.();
   }
 
   const formValue = selected ? selected.toISOString().split("T")[0] : "";
@@ -160,14 +162,14 @@ export function ProjectDatePicker({ name, label, defaultValue, compact }: Projec
         <div className="mt-2 flex items-center justify-between border-t border-border/30 pt-2">
           <button
             type="button"
-            onClick={() => { setSelected(new Date()); setOpen(false); }}
+            onClick={() => { setSelected(new Date()); setOpen(false); onValueChange?.(); }}
             className="text-[11px] font-medium text-teal-400 transition-colors hover:text-teal-300"
           >
             Today
           </button>
           <button
             type="button"
-            onClick={() => { setSelected(null); setOpen(false); }}
+            onClick={() => { setSelected(null); setOpen(false); onValueChange?.(); }}
             className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Clear

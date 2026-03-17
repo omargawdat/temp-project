@@ -1,16 +1,45 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { SchemaProjectCard } from "@/components/ui/schema-project-card";
 import { ProjectSheet } from "@/components/common/project-sheet";
-import { FolderKanban } from "lucide-react";
+import { FolderKanban, SearchX } from "lucide-react";
 import { sumUniqueInvoices } from "@/lib/financial";
+import { Button } from "@/components/ui/button";
+import { ProjectsToolbar } from "@/components/projects/projects-toolbar";
+import {
+  buildProjectWhere,
+  buildProjectOrderBy,
+  hasActiveProjectFilters,
+} from "@/lib/project-queries";
 
-export default async function ProjectsPage() {
-  const [projects, projectManagers, clients] = await Promise.all([
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const filterParams = {
+    q: typeof params.q === "string" ? params.q : undefined,
+    status: typeof params.status === "string" ? params.status : undefined,
+    client: typeof params.client === "string" ? params.client : undefined,
+    pm: typeof params.pm === "string" ? params.pm : undefined,
+  };
+  const sortParams = {
+    sort: typeof params.sort === "string" ? params.sort : undefined,
+    dir: typeof params.dir === "string" ? params.dir : undefined,
+  };
+
+  const where = buildProjectWhere(filterParams);
+  const orderBy = buildProjectOrderBy(sortParams);
+  const filtersActive = hasActiveProjectFilters(filterParams);
+
+  const [projects, projectManagers, clients, totalCount] = await Promise.all([
     prisma.project.findMany({
-      orderBy: { updatedAt: "desc" },
+      where,
+      orderBy,
       include: {
-        client: { select: { name: true } },
+        client: { select: { name: true, imageUrl: true } },
         projectManager: { select: { name: true, photoUrl: true } },
         milestones: {
           select: { status: true, value: true, invoice: { select: { id: true, totalPayable: true, status: true } } },
@@ -18,24 +47,31 @@ export default async function ProjectsPage() {
       },
     }),
     prisma.projectManager.findMany({
-      select: { id: true, name: true, title: true, photoUrl: true },
+      select: { id: true, name: true, title: true, photoUrl: true, _count: { select: { projects: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.client.findMany({
-      select: { id: true, name: true },
+      select: { id: true, name: true, imageUrl: true, _count: { select: { projects: true } } },
       orderBy: { name: "asc" },
     }),
+    prisma.project.count(),
   ]);
 
   return (
     <div>
       <PageHeader
         title="Projects"
-        description={`${projects.length} project${projects.length !== 1 ? "s" : ""} across all clients`}
+        description={`${totalCount} project${totalCount !== 1 ? "s" : ""} across all clients`}
         breadcrumbs={[]}
       >
         <ProjectSheet projectManagers={projectManagers} clients={clients} />
       </PageHeader>
+
+      <ProjectsToolbar
+        clients={clients.map((c) => ({ id: c.id, name: c.name, imageUrl: c.imageUrl, count: c._count.projects }))}
+        projectManagers={projectManagers.map((pm) => ({ id: pm.id, name: pm.name, imageUrl: pm.photoUrl, count: pm._count.projects }))}
+        resultCount={projects.length}
+      />
 
       {projects.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -48,12 +84,16 @@ export default async function ProjectsPage() {
             ).length;
             const billedAmount = sumUniqueInvoices(project.milestones);
             const collectedAmount = sumUniqueInvoices(project.milestones, "PAID");
+            const invoiceCount = new Set(
+              project.milestones.map((m) => m.invoice?.id).filter(Boolean),
+            ).size;
 
             return (
               <SchemaProjectCard
                 key={project.id}
                 id={project.id}
                 name={project.name}
+                imageUrl={project.imageUrl ?? project.client.imageUrl}
                 clientName={project.client.name}
                 contractNumber={project.contractNumber}
                 contractValue={Number(project.contractValue)}
@@ -65,6 +105,7 @@ export default async function ProjectsPage() {
                 status={project.status}
                 milestonesCompleted={completed}
                 milestonesTotal={project.milestones.length}
+                invoiceCount={invoiceCount}
                 billedAmount={billedAmount}
                 collectedAmount={collectedAmount}
                 colorIndex={i}
@@ -74,18 +115,32 @@ export default async function ProjectsPage() {
         </div>
       ) : (
         <div className="border-border/50 bg-card flex flex-col items-center gap-4 rounded-2xl border py-20 shadow-lg shadow-black/10">
-          <div className="rounded-2xl bg-teal-500/10 p-4">
-            <FolderKanban className="h-8 w-8 text-teal-400" />
+          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
+            {filtersActive ? (
+              <SearchX className="h-8 w-8 text-amber-400" />
+            ) : (
+              <FolderKanban className="h-8 w-8 text-teal-400" />
+            )}
           </div>
           <div className="text-center">
             <p className="text-foreground text-base font-semibold">
-              No projects yet
+              {filtersActive ? "No projects match your filters" : "No projects yet"}
             </p>
             <p className="text-muted-foreground mt-1 text-sm">
-              Create your first project to start tracking deliveries.
+              {filtersActive
+                ? "Try adjusting your search or filters."
+                : "Create your first project to start tracking deliveries."}
             </p>
           </div>
-          <ProjectSheet projectManagers={projectManagers} clients={clients} />
+          {filtersActive ? (
+            <Link href="/projects">
+              <Button variant="outline" size="sm">
+                Clear filters
+              </Button>
+            </Link>
+          ) : (
+            <ProjectSheet projectManagers={projectManagers} clients={clients} />
+          )}
         </div>
       )}
     </div>

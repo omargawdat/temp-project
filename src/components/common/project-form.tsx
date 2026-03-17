@@ -28,19 +28,32 @@ import {
   Handshake,
   BadgeCheck,
   Settings,
+  ImagePlus,
+  X,
+  ChevronDown,
+  Search,
+  Check,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-function SubmitButton({ isEdit }: { isEdit: boolean }) {
+function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }) {
   const { pending } = useFormStatus();
+  const enabled = isDirty || !isEdit;
   return (
-    <Button
-      type="submit"
-      disabled={pending}
-      className="w-full rounded-md bg-gradient-to-r from-teal-600 to-teal-500 py-4.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-teal-600/25 transition-all hover:from-teal-500 hover:to-teal-400 hover:shadow-teal-500/30 active:scale-[0.99]"
-    >
-      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {pending ? "Saving…" : isEdit ? "Update Project" : "Register Project"}
-    </Button>
+    <div className="sticky bottom-0 -mx-6 -mb-6 border-t border-border/20 bg-card/95 px-6 py-4 backdrop-blur-sm">
+      <Button
+        type="submit"
+        disabled={pending || !enabled}
+        className={`w-full rounded-md py-4.5 text-sm font-semibold tracking-wide transition-all active:scale-[0.99] ${
+          enabled
+            ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400 hover:shadow-teal-500/30"
+            : "bg-white/[0.06] text-muted-foreground/40 shadow-none"
+        }`}
+      >
+        {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {pending ? "Saving…" : isEdit ? "Update Project" : "Register Project"}
+      </Button>
+    </div>
   );
 }
 
@@ -84,10 +97,36 @@ export function ProjectForm({
 }: {
   project?: Project;
   projectManagers: { id: string; name: string; title?: string | null; photoUrl?: string | null }[];
-  clients: { id: string; name: string }[];
+  clients: { id: string; name: string; imageUrl?: string | null }[];
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!project;
+  const [isDirty, setIsDirty] = React.useState(false);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(
+    project?.imageUrl ?? null,
+  );
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Client selector state
+  const [clientOpen, setClientOpen] = React.useState(false);
+  const [clientSearch, setClientSearch] = React.useState("");
+  const [selectedClientId, setSelectedClientId] = React.useState(project?.clientId ?? "");
+  const clientRef = React.useRef<HTMLDivElement>(null);
+  const selectedClient = clients.find((c) => c.id === selectedClientId);
+  const filteredClients = clientSearch
+    ? clients.filter((c) => c.name.toLowerCase().includes(clientSearch.toLowerCase()))
+    : clients;
+
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (clientRef.current && !clientRef.current.contains(e.target as Node)) {
+        setClientOpen(false);
+        setClientSearch("");
+      }
+    }
+    if (clientOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [clientOpen]);
 
   async function handleAction(
     _prevState: ActionResult<{ id: string }> | null,
@@ -111,7 +150,7 @@ export function ProjectForm({
     "flex h-10 w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} className="space-y-6" onChange={() => setIsDirty(true)}>
       {/* Error */}
       {state && !state.success && (
         <motion.div
@@ -134,19 +173,146 @@ export function ProjectForm({
           step={1}
         />
         <div className="space-y-4">
+          {/* Project Image */}
+          <div>
+            <label className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+              <ImagePlus className="h-4 w-4 text-muted-foreground" />
+              Project Image
+              <span className="text-muted-foreground/40 text-xs font-normal">(optional)</span>
+            </label>
+            <div className="flex items-center gap-4">
+              {imagePreview ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imagePreview}
+                    alt="Project"
+                    className="h-20 w-20 rounded-xl object-cover ring-1 ring-white/10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview(null);
+                      if (imageInputRef.current) imageInputRef.current.value = "";
+                      setIsDirty(true);
+                    }}
+                    className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-white transition-colors hover:bg-red-500"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-teal-400/50"
+                >
+                  <ImagePlus className="h-6 w-6" />
+                </button>
+              )}
+              <input
+                ref={imageInputRef}
+                type="file"
+                name="image"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImagePreview(URL.createObjectURL(file));
+                    setIsDirty(true);
+                  }
+                }}
+              />
+              <div className="text-[11px] text-muted-foreground/40 leading-relaxed">
+                <p>Upload a cover image for this project.</p>
+                <p>JPG, PNG or WebP. Max 5MB.</p>
+              </div>
+            </div>
+          </div>
+
           <FieldWrapper icon={Building2} label="Client" htmlFor="clientId">
-            <select
-              id="clientId"
-              name="clientId"
-              defaultValue={project?.clientId ?? ""}
-              required
-              className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 text-sm text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="" disabled>Select a client</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            <input type="hidden" name="clientId" value={selectedClientId} required />
+            <div className="relative" ref={clientRef}>
+              <button
+                type="button"
+                onClick={() => { setClientOpen(!clientOpen); setClientSearch(""); }}
+                className={cn(
+                  "flex h-10 w-full items-center justify-between rounded-md border px-3 text-sm transition-colors",
+                  clientOpen
+                    ? "border-teal-500/40 ring-2 ring-teal-500/20"
+                    : "border-border hover:border-border/80",
+                  selectedClient ? "text-foreground" : "text-muted-foreground/50",
+                )}
+              >
+                <span className="flex items-center gap-2 truncate">
+                  {selectedClient?.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={selectedClient.imageUrl} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-white/10" />
+                  )}
+                  {selectedClient?.name ?? "Select a client"}
+                </span>
+                <ChevronDown className={cn("h-4 w-4 text-muted-foreground/40 transition-transform", clientOpen && "rotate-180")} />
+              </button>
+
+              {clientOpen && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden rounded-xl border border-border/50 bg-card shadow-2xl shadow-black/40">
+                  {/* Search */}
+                  <div className="border-b border-border/20 p-2">
+                    <div className="flex items-center gap-2 rounded-lg bg-background/60 px-3 py-2">
+                      <Search className="h-3.5 w-3.5 text-muted-foreground/40" />
+                      <input
+                        type="text"
+                        placeholder="Search clients..."
+                        value={clientSearch}
+                        onChange={(e) => setClientSearch(e.target.value)}
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/30 outline-none"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {/* Options */}
+                  <div className="max-h-[200px] overflow-y-auto p-1.5">
+                    {filteredClients.map((c) => {
+                      const isActive = c.id === selectedClientId;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedClientId(c.id);
+                            setClientOpen(false);
+                            setClientSearch("");
+                            setIsDirty(true);
+                          }}
+                          className={cn(
+                            "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
+                            isActive
+                              ? "bg-teal-500/10 text-teal-400"
+                              : "text-foreground/80 hover:bg-white/[0.04]",
+                          )}
+                        >
+                          {c.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={c.imageUrl} alt="" className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-white/10" />
+                          ) : (
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-[9px] font-bold text-muted-foreground/50">
+                              {c.name.charAt(0)}
+                            </div>
+                          )}
+                          <span className="flex-1 truncate font-medium">{c.name}</span>
+                          {isActive && <Check className="h-3.5 w-3.5 shrink-0 text-teal-400" />}
+                        </button>
+                      );
+                    })}
+                    {filteredClients.length === 0 && (
+                      <p className="py-4 text-center text-xs text-muted-foreground/40">No clients found</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </FieldWrapper>
           <FieldWrapper icon={FileText} label="Project Name" htmlFor="name">
             <Input id="name" name="name" placeholder="E-Commerce Platform Redesign" defaultValue={project?.name ?? ""} className="h-10" required />
@@ -200,11 +366,11 @@ export function ProjectForm({
         </div>
         <div className="mt-4">
           <FieldWrapper icon={Coins} label="Currency" htmlFor="currency">
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {CURRENCIES.map((c) => (
                 <label
                   key={c.code}
-                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2.5 text-sm transition-all has-[:checked]:border-teal-500/50 has-[:checked]:bg-teal-500/10 has-[:checked]:text-teal-400"
+                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-teal-500/50 has-[:checked]:bg-teal-500/10 has-[:checked]:text-teal-400"
                 >
                   <input
                     type="radio"
@@ -313,11 +479,13 @@ export function ProjectForm({
             name="startDate"
             label="Start Date"
             defaultValue={project?.startDate ? toDateInputValue(project.startDate) : undefined}
+            onValueChange={() => setIsDirty(true)}
           />
           <ProjectDatePicker
             name="endDate"
             label="End Date"
             defaultValue={project?.endDate ? toDateInputValue(project.endDate) : undefined}
+            onValueChange={() => setIsDirty(true)}
           />
         </div>
           {isEdit && (
@@ -325,7 +493,7 @@ export function ProjectForm({
           )}
       </div>
 
-      <SubmitButton isEdit={isEdit} />
+      <SubmitButton isEdit={isEdit} isDirty={isDirty} />
     </form>
   );
 }

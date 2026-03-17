@@ -1,12 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { buildMilestoneWhere, buildMilestoneOrderBy } from "@/lib/milestone-queries";
-
-function escapeCSV(val: string): string {
-  if (val.includes(",") || val.includes('"') || val.includes("\n")) {
-    return `"${val.replace(/"/g, '""')}"`;
-  }
-  return val;
-}
+import { buildExportResponse } from "@/lib/export-utils";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,11 +8,15 @@ export async function GET(request: Request) {
     q: searchParams.get("q") ?? undefined,
     status: searchParams.get("status") ?? undefined,
     project: searchParams.get("project") ?? undefined,
+    deliveryNote: searchParams.get("deliveryNote") ?? undefined,
+    dateFrom: searchParams.get("dateFrom") ?? undefined,
+    dateTo: searchParams.get("dateTo") ?? undefined,
   };
   const sortParams = {
     sort: searchParams.get("sort") ?? undefined,
     dir: searchParams.get("dir") ?? undefined,
   };
+  const format = searchParams.get("format") ?? "csv";
 
   const where = buildMilestoneWhere(params);
   const orderBy = buildMilestoneOrderBy(sortParams);
@@ -26,27 +24,19 @@ export async function GET(request: Request) {
   const milestones = await prisma.milestone.findMany({
     where,
     orderBy,
-    include: { project: { select: { name: true, client: { select: { name: true } } } } },
+    include: { project: { select: { name: true, currency: true, client: { select: { name: true } } } } },
   });
 
-  const headers = ["Milestone", "Project", "Client", "Value", "Planned Date", "Status", "DN Required"];
-  const rows = milestones.map((m) => [
-    escapeCSV(m.name),
-    escapeCSV(m.project.name),
-    escapeCSV(m.project.client.name),
-    Number(m.value).toString(),
-    new Date(m.plannedDate).toISOString().split("T")[0],
-    m.status.replace(/_/g, " "),
-    m.requiresDeliveryNote ? "Yes" : "No",
-  ]);
+  const records = milestones.map((m) => ({
+    Milestone: m.name,
+    Project: m.project.name,
+    Client: m.project.client.name,
+    Value: Number(m.value),
+    Currency: m.project.currency,
+    "Planned Date": new Date(m.plannedDate).toISOString().split("T")[0],
+    Status: m.status.replace(/_/g, " "),
+    "DN Required": m.requiresDeliveryNote ? "Yes" : "No",
+  }));
 
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-  const date = new Date().toISOString().slice(0, 10);
-
-  return new Response(csv, {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="milestones-${date}.csv"`,
-    },
-  });
+  return buildExportResponse(records, format, "milestones");
 }

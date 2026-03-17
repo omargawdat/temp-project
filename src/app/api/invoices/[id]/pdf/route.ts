@@ -70,7 +70,7 @@ export async function GET(
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="Invoice-${invoice.invoiceNumber}.pdf"`,
+      "Content-Disposition": `attachment; filename="Invoice-${invoice.invoiceNumber}.pdf"`,
     },
   });
 }

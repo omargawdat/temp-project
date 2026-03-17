@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid,
   FolderKanban,
+  Building2,
   ListChecks,
   Receipt,
   Users2,
+  Globe,
   Settings,
   LogOut,
   ChevronLeft,
@@ -18,10 +20,12 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutGrid, color: "#2dd4bf" },
+  { href: "/clients", label: "Clients", icon: Building2, color: "#f97316" },
   { href: "/projects", label: "Projects", icon: FolderKanban, color: "#60a5fa" },
   { href: "/milestones", label: "Milestones", icon: ListChecks, color: "#fbbf24" },
   { href: "/invoices", label: "Invoices", icon: Receipt, color: "#f472b6" },
   { href: "/project-managers", label: "Team", icon: Users2, color: "#a78bfa" },
+  { href: "/countries", label: "Countries", icon: Globe, color: "#06b6d4" },
 ];
 
 export function Sidebar() {

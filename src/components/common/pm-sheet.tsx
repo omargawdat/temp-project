@@ -56,17 +56,13 @@ export function PMSheet({ pm, variant = "create" }: PMSheetProps) {
       )}
 
       <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>
-            {isEdit ? "Edit Team Member" : "Add Team Member"}
-          </SheetTitle>
-          <SheetDescription>
-            {isEdit
-              ? `Editing ${pm.name}`
-              : "Add a new project manager to the team"}
-          </SheetDescription>
-        </SheetHeader>
-        <div className="px-4 pb-6">
+        {!isEdit && (
+          <SheetHeader>
+            <SheetTitle>Add Team Member</SheetTitle>
+            <SheetDescription>Add a new project manager to the team</SheetDescription>
+          </SheetHeader>
+        )}
+        <div className={`px-4 pb-6 ${isEdit ? "pt-6" : ""}`}>
           <ProjectManagerForm
             pm={isEdit ? pm : undefined}
             onSuccess={handleSuccess}

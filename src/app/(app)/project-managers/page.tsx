@@ -2,88 +2,67 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { PMSheet } from "@/components/common/pm-sheet";
-import { Users, AlertTriangle } from "lucide-react";
-import { sumUniqueInvoices } from "@/lib/financial";
+import { Users, SearchX } from "lucide-react";
+import { SortableHeader } from "@/components/toolbar/sortable-header";
+import { PMToolbar } from "@/components/project-managers/pm-toolbar";
+import { computePMStats } from "@/lib/pm-stats";
+import { buildPMWhere, sortPMStats, hasActivePMFilters } from "@/lib/pm-queries";
+import { Button } from "@/components/ui/button";
+import { OverdueAlert } from "@/components/project-managers/overdue-alert";
 
-export default async function ProjectManagersPage() {
-  const managers = await prisma.projectManager.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      projects: {
-        include: {
-          milestones: {
-            include: {
-              invoice: { select: { id: true, status: true, totalPayable: true } },
+export default async function ProjectManagersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const filterParams = {
+    q: typeof params.q === "string" ? params.q : undefined,
+  };
+  const sortParams = {
+    sort: typeof params.sort === "string" ? params.sort : undefined,
+    dir: typeof params.dir === "string" ? params.dir : undefined,
+  };
+
+  const where = buildPMWhere(filterParams);
+  const filtersActive = hasActivePMFilters(filterParams);
+
+  const [managers, totalCount] = await Promise.all([
+    prisma.projectManager.findMany({
+      where,
+      include: {
+        projects: {
+          include: {
+            milestones: {
+              include: {
+                invoice: { select: { id: true, status: true, totalPayable: true } },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+    prisma.projectManager.count(),
+  ]);
 
   const now = new Date();
 
-  const pmStats = managers.map((pm) => {
-    const totalProjects = pm.projects.length;
-    const activeProjects = pm.projects.filter((p) => p.status === "ACTIVE").length;
-    const allMilestones = pm.projects.flatMap((p) => p.milestones);
-    const totalMilestones = allMilestones.length;
-    const completedMilestones = allMilestones.filter(
-      (m) => m.status === "COMPLETED" || m.status === "READY_FOR_INVOICING" || m.status === "INVOICED",
-    ).length;
-    const inProgressMilestones = allMilestones.filter((m) => m.status === "IN_PROGRESS").length;
-    const overdueMilestones = allMilestones.filter(
-      (m) =>
-        m.status !== "COMPLETED" &&
-        m.status !== "READY_FOR_INVOICING" &&
-        m.status !== "INVOICED" &&
-        new Date(m.plannedDate) < now,
-    ).length;
-    const completionPct = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
-
-    // Next deadline
-    const upcoming = allMilestones
-      .filter(
-        (m) =>
-          m.status !== "COMPLETED" &&
-          m.status !== "READY_FOR_INVOICING" &&
-          m.status !== "INVOICED" &&
-          new Date(m.plannedDate) >= now,
-      )
-      .sort((a, b) => new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime());
-    const nextDeadline = upcoming[0]?.plannedDate ?? null;
-
-    const portfolioValue = pm.projects.reduce((sum, p) => sum + Number(p.contractValue), 0);
-    const billed = sumUniqueInvoices(allMilestones);
-    const billedPct = portfolioValue > 0 ? Math.round((billed / portfolioValue) * 100) : 0;
-
-    return {
-      ...pm,
-      totalProjects,
-      activeProjects,
-      totalMilestones,
-      completedMilestones,
-      inProgressMilestones,
-      overdueMilestones,
-      completionPct,
-      nextDeadline,
-      portfolioValue,
-      billed,
-      billedPct,
-    };
-  });
+  const pmStats = computePMStats(managers);
+  const sortedStats = sortPMStats(pmStats, sortParams);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Team"
-        description={`${managers.length} project manager${managers.length !== 1 ? "s" : ""}`}
+        description={`${totalCount} project manager${totalCount !== 1 ? "s" : ""}`}
         breadcrumbs={[]}
       >
         <PMSheet />
       </PageHeader>
 
-      {managers.length > 0 ? (
+      <PMToolbar resultCount={sortedStats.length} />
+
+      {sortedStats.length > 0 ? (
         <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
           <table className="w-full" style={{ tableLayout: "fixed" }}>
             <colgroup>
@@ -96,16 +75,28 @@ export default async function ProjectManagersPage() {
             </colgroup>
             <thead>
               <tr className="border-b border-border/15">
-                <th className="px-6 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">Manager</th>
-                <th className="px-4 py-3.5 text-center text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">Projects</th>
-                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">Milestones</th>
-                <th className="px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">Next Deadline</th>
-                <th className="px-4 py-3.5 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">Portfolio</th>
-                <th className="px-4 py-3.5 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">Billed</th>
+                <th className="px-6 py-3.5 text-left">
+                  <SortableHeader label="Manager" field="name" basePath="/project-managers" defaultSort="name" />
+                </th>
+                <th className="px-4 py-3.5 text-center">
+                  <SortableHeader label="Projects" field="projects" align="center" basePath="/project-managers" defaultSort="name" />
+                </th>
+                <th className="px-4 py-3.5 text-left">
+                  <SortableHeader label="Milestones" field="milestones" basePath="/project-managers" defaultSort="name" />
+                </th>
+                <th className="px-4 py-3.5 text-left">
+                  <SortableHeader label="Next Deadline" field="nextDeadline" basePath="/project-managers" defaultSort="name" />
+                </th>
+                <th className="px-4 py-3.5 text-right">
+                  <SortableHeader label="Portfolio" field="portfolio" align="right" basePath="/project-managers" defaultSort="name" />
+                </th>
+                <th className="px-4 py-3.5 text-right">
+                  <SortableHeader label="Billed" field="billed" align="right" basePath="/project-managers" defaultSort="name" />
+                </th>
               </tr>
             </thead>
             <tbody>
-              {pmStats.map((pm, idx) => {
+              {sortedStats.map((pm, idx) => {
                 const initials = pm.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
                 // Next deadline formatting
@@ -126,7 +117,7 @@ export default async function ProjectManagersPage() {
                   <tr
                     key={pm.id}
                     className={`group transition-colors hover:bg-teal-500/[0.03] ${
-                      idx < pmStats.length - 1 ? "border-b border-border/10" : ""
+                      idx < sortedStats.length - 1 ? "border-b border-border/10" : ""
                     }`}
                   >
                     {/* Manager */}
@@ -149,10 +140,16 @@ export default async function ProjectManagersPage() {
 
                     {/* Projects */}
                     <td className="px-4 py-4 text-center">
-                      <span className="text-sm font-bold text-foreground">{pm.totalProjects}</span>
-                      {pm.activeProjects > 0 && (
-                        <span className="ml-1 text-xs text-emerald-400/70">({pm.activeProjects})</span>
-                      )}
+                      <div className="flex flex-col items-center gap-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-bold text-foreground">{pm.totalProjects}</span>
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground/50">total</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-bold text-emerald-400">{pm.activeProjects}</span>
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground/50">active</span>
+                        </div>
+                      </div>
                     </td>
 
                     {/* Milestones completion */}
@@ -163,10 +160,7 @@ export default async function ProjectManagersPage() {
                         </div>
                         <span className="text-sm tabular-nums text-foreground/70">{pm.completedMilestones}/{pm.totalMilestones}</span>
                         {pm.overdueMilestones > 0 && (
-                          <span className="flex items-center gap-1 text-xs font-medium text-red-400">
-                            <AlertTriangle className="h-3 w-3" />
-                            {pm.overdueMilestones}
-                          </span>
+                          <OverdueAlert count={pm.overdueMilestones} details={pm.overdueMilestoneDetails} />
                         )}
                       </div>
                     </td>
@@ -201,14 +195,32 @@ export default async function ProjectManagersPage() {
         </div>
       ) : (
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card/40 py-20">
-          <div className="rounded-2xl bg-teal-500/10 p-4">
-            <Users className="h-8 w-8 text-teal-400" />
+          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
+            {filtersActive ? (
+              <SearchX className="h-8 w-8 text-amber-400" />
+            ) : (
+              <Users className="h-8 w-8 text-teal-400" />
+            )}
           </div>
           <div className="text-center">
-            <p className="text-base font-semibold text-foreground">No project managers yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">Add your first PM to start assigning projects.</p>
+            <p className="text-base font-semibold text-foreground">
+              {filtersActive ? "No managers match your search" : "No project managers yet"}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {filtersActive
+                ? "Try adjusting your search term."
+                : "Add your first PM to start assigning projects."}
+            </p>
           </div>
-          <PMSheet />
+          {filtersActive ? (
+            <Link href="/project-managers">
+              <Button variant="outline" size="sm">
+                Clear search
+              </Button>
+            </Link>
+          ) : (
+            <PMSheet />
+          )}
         </div>
       )}
     </div>

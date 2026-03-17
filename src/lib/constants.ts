@@ -3,7 +3,6 @@ export const CURRENCIES = [
   { code: "AED", flag: "🇦🇪" },
   { code: "QAR", flag: "🇶🇦" },
   { code: "KWD", flag: "🇰🇼" },
-  { code: "BHD", flag: "🇧🇭" },
   { code: "OMR", flag: "🇴🇲" },
   { code: "USD", flag: "🇺🇸" },
 ] as const;

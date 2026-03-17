@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Check, Search } from "lucide-react";
+import { ChevronDown, Check, Search, FolderKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -48,18 +48,19 @@ export function ToolbarProjectFilter({
         variant="outline"
         size="sm"
         className={cn(
-          "h-8 gap-1.5 text-xs font-medium",
+          "h-10 gap-2 px-4 text-sm font-medium",
           value.length > 0 && "border-teal-500/30 text-teal-400",
         )}
         onClick={() => setOpen(!open)}
       >
+        <FolderKanban className="h-3.5 w-3.5 text-muted-foreground/50" />
         Project
         {value.length > 0 && (
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-500/15 px-1 text-[10px] font-bold text-teal-400">
             {value.length}
           </span>
         )}
-        <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
       </Button>
 
       {open && (

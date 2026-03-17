@@ -4,6 +4,9 @@ interface MilestoneFilterParams {
   q?: string;
   status?: string;
   project?: string;
+  deliveryNote?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 interface MilestoneSortParams {
@@ -36,6 +39,25 @@ export function buildMilestoneWhere(
     conditions.push({ projectId: { in: projectFilter } });
   }
 
+  // Delivery note filter
+  if (params.deliveryNote === "required") {
+    conditions.push({ requiresDeliveryNote: true });
+  } else if (params.deliveryNote === "not_required") {
+    conditions.push({ requiresDeliveryNote: false });
+  }
+
+  // Date range filter
+  if (params.dateFrom || params.dateTo) {
+    const dateCondition: Record<string, Date> = {};
+    if (params.dateFrom) {
+      dateCondition.gte = new Date(params.dateFrom + "T00:00:00");
+    }
+    if (params.dateTo) {
+      dateCondition.lte = new Date(params.dateTo + "T23:59:59");
+    }
+    conditions.push({ plannedDate: dateCondition });
+  }
+
   return conditions.length > 0 ? { AND: conditions } : {};
 }
 
@@ -59,5 +81,5 @@ export function buildMilestoneOrderBy(
 }
 
 export function hasActiveFilters(params: MilestoneFilterParams): boolean {
-  return !!(params.q?.trim() || params.status || params.project);
+  return !!(params.q?.trim() || params.status || params.project || params.deliveryNote || params.dateFrom || params.dateTo);
 }

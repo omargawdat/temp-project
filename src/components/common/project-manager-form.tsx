@@ -24,17 +24,24 @@ import {
   X,
 } from "lucide-react";
 
-function SubmitButton({ isEdit }: { isEdit: boolean }) {
+function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }) {
   const { pending } = useFormStatus();
+  const enabled = isDirty || !isEdit;
   return (
-    <Button
-      type="submit"
-      disabled={pending}
-      className="btn-gradient w-full border-0 py-3 font-semibold text-white shadow-lg shadow-teal-500/25"
-    >
-      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {pending ? "Saving…" : isEdit ? "Update" : "Add Team Member"}
-    </Button>
+    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border/20 bg-card/95 px-4 py-4 backdrop-blur-sm">
+      <Button
+        type="submit"
+        disabled={pending || !enabled}
+        className={`w-full border-0 py-3 font-semibold transition-all ${
+          enabled
+            ? "btn-gradient text-white shadow-lg shadow-teal-500/25"
+            : "bg-white/[0.06] text-muted-foreground/40 shadow-none"
+        }`}
+      >
+        {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {pending ? "Saving…" : isEdit ? "Update" : "Add Team Member"}
+      </Button>
+    </div>
   );
 }
 
@@ -114,6 +121,7 @@ export function ProjectManagerForm({
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!pm;
+  const [isDirty, setIsDirty] = React.useState(false);
 
   async function handleAction(
     _prevState: ActionResult<{ id: string }> | null,
@@ -134,7 +142,7 @@ export function ProjectManagerForm({
   }, [state, onSuccess]);
 
   return (
-    <form key={pm?.id ?? "new"} action={formAction} className="space-y-5">
+    <form key={pm?.id ?? "new"} action={formAction} className="space-y-5" onChange={() => setIsDirty(true)}>
       {state && !state.success && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -193,7 +201,7 @@ export function ProjectManagerForm({
         </FieldWrapper>
       </div>
 
-      <SubmitButton isEdit={isEdit} />
+      <SubmitButton isEdit={isEdit} isDirty={isDirty} />
     </form>
   );
 }

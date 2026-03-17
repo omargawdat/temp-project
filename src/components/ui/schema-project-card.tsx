@@ -2,13 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Calendar, ArrowUpRight, Hash, Target } from "lucide-react";
+import { Calendar, ArrowUpRight, Hash, Target, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/common/status-badge";
 
 interface SchemaProjectCardProps {
   id: string;
   name: string;
+  imageUrl?: string | null;
   clientName: string;
   contractNumber: string;
   contractValue: number;
@@ -20,6 +21,7 @@ interface SchemaProjectCardProps {
   status: string;
   milestonesCompleted: number;
   milestonesTotal: number;
+  invoiceCount: number;
   billedAmount: number;
   collectedAmount: number;
   colorIndex: number;
@@ -37,6 +39,7 @@ function fmt(amount: number, currency: string) {
 export function SchemaProjectCard({
   id,
   name,
+  imageUrl,
   clientName,
   contractNumber,
   contractValue,
@@ -48,6 +51,7 @@ export function SchemaProjectCard({
   status,
   milestonesCompleted,
   milestonesTotal,
+  invoiceCount,
   billedAmount,
   collectedAmount,
   colorIndex,
@@ -93,19 +97,32 @@ export function SchemaProjectCard({
       <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[70%] -translate-x-1/2 rounded-full bg-teal-500/[0.04] blur-3xl" />
 
       <div className="relative p-6">
-        {/* Row 1: Status + Contract # */}
-        <div className="flex items-center justify-between">
-          <StatusBadge status={status} />
-          <span className="font-mono text-[10px] tracking-wide text-white/25">
-            {contractNumber}
-          </span>
+        {/* Row 1: Icon + Name + Status */}
+        <div className="flex items-start gap-3">
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt={name}
+              className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-white/10"
+            />
+          ) : (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500/20 to-teal-500/5 ring-1 ring-teal-500/20">
+              <span className="text-sm font-bold text-teal-400">
+                {name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-[17px] font-bold leading-snug tracking-tight text-white/95 transition-colors group-hover:text-white truncate">
+                {name}
+              </h3>
+              <StatusBadge status={status} />
+            </div>
+            <p className="mt-1 text-[13px] text-white/35 truncate">{clientName}</p>
+          </div>
         </div>
-
-        {/* Row 2: Name + Client */}
-        <h3 className="mt-4 text-[17px] font-bold leading-snug tracking-tight text-white/95 transition-colors group-hover:text-white">
-          {name}
-        </h3>
-        <p className="mt-1 text-[13px] text-white/35">{clientName}</p>
 
         {/* Row 3: Financial grid */}
         <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-white/[0.04]">
@@ -150,29 +167,33 @@ export function SchemaProjectCard({
               />
             </div>
           </div>
-          {outstanding > 0 && (
-            <p className="mt-1.5 text-right text-[10px] tabular-nums text-white/20">
-              {fmt(outstanding, currency)} outstanding
-            </p>
-          )}
         </div>
 
         {/* Divider */}
         <div className="my-4 h-px bg-white/[0.05]" />
 
-        {/* Row 5: Milestones */}
-        <div className="flex items-center gap-3">
+        {/* Row 5: Milestones + Invoices */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Target className="h-3.5 w-3.5 text-white/20" />
             <span className="text-[12px] text-white/40">Milestones</span>
           </div>
-          <div className="flex flex-1 items-center gap-2.5">
-            <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.04]">
-              <div
-                className="h-full rounded-full bg-teal-500/70 transition-all duration-700"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
+          <div className="flex items-center gap-2">
+            {milestonesTotal > 0 ? (
+              <div className="flex items-center gap-1">
+                {Array.from({ length: milestonesTotal }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "h-2 w-2 rounded-full transition-colors",
+                      idx < milestonesCompleted
+                        ? "bg-teal-400"
+                        : "bg-white/[0.08]",
+                    )}
+                  />
+                ))}
+              </div>
+            ) : null}
             <span className="text-[12px] font-semibold tabular-nums text-white/50">
               {milestonesCompleted}
               <span className="text-white/20">/{milestonesTotal}</span>
@@ -180,10 +201,22 @@ export function SchemaProjectCard({
           </div>
         </div>
 
+        <div className="mt-2 flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Receipt className="h-3.5 w-3.5 text-white/20" />
+            <span className="text-[12px] text-white/40">Invoices</span>
+          </div>
+          <span className="text-[12px] font-semibold tabular-nums text-white/50">
+            {invoiceCount}
+          </span>
+        </div>
+
         {/* Row 6: Footer */}
         <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 text-[11px] text-white/25">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-3 text-[11px] text-white/25 overflow-hidden">
+            <span className="shrink-0 truncate max-w-[100px] font-mono text-[10px] tracking-wide text-white/20">{contractNumber}</span>
+            <div className="h-3 w-px shrink-0 bg-white/[0.06]" />
+            <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
               <Calendar className="h-3 w-3" />
               <span>{fmtDate(startDate)} — {fmtDate(endDate)}</span>
             </div>
