@@ -22,9 +22,9 @@ export function SectionHeader({
     <div className={`flex items-center justify-between ${className ?? ""}`}>
       <div className="flex items-center gap-2">
         {Icon && <Icon className={`h-3.5 w-3.5 ${iconColor}`} />}
-        <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">
+        <h2 className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">
           {title}
-        </span>
+        </h2>
         {count != null && (
           <span className="rounded-full bg-white/[0.06] px-1.5 py-px text-[11px] font-bold tabular-nums text-white/40">
             {count}

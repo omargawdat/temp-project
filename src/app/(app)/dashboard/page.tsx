@@ -25,7 +25,7 @@ import {
   isCompleted,
   isOverdue,
 } from "@/lib/milestones";
-import { getInitials, safePercent } from "@/lib/format";
+import { getInitials, safePercent, addToCurrency, formatMultiCurrency, sumCurrencyTotals, type CurrencyTotals } from "@/lib/format";
 import {
   CashFlowFunnelChart,
   DashboardBillingRing,
@@ -96,9 +96,21 @@ export default async function DashboardPage() {
   const allMilestones = allProjects.flatMap((p) => p.milestones);
   const totalMilestones = allMilestones.length;
 
-  const portfolioValue = allProjects.reduce((s, p) => s + Number(p.contractValue), 0);
-  const totalBilled = sumUniqueInvoices(allMilestones);
-  const totalCollected = sumUniqueInvoices(allMilestones, "PAID");
+  // Group financials by currency
+  const portfolioByCurrency: CurrencyTotals = {};
+  const billedByCurrency: CurrencyTotals = {};
+  const collectedByCurrency: CurrencyTotals = {};
+  for (const p of allProjects) {
+    addToCurrency(portfolioByCurrency, p.currency, Number(p.contractValue));
+    const projMsWithCurrency = p.milestones.map((m) => ({ ...m, _currency: p.currency }));
+    const projBilled = sumUniqueInvoices(projMsWithCurrency);
+    const projCollected = sumUniqueInvoices(projMsWithCurrency, "PAID");
+    addToCurrency(billedByCurrency, p.currency, projBilled);
+    addToCurrency(collectedByCurrency, p.currency, projCollected);
+  }
+  const portfolioValue = sumCurrencyTotals(portfolioByCurrency);
+  const totalBilled = sumCurrencyTotals(billedByCurrency);
+  const totalCollected = sumCurrencyTotals(collectedByCurrency);
   const outstandingAmount = totalBilled - totalCollected;
   const unbilledAmount = portfolioValue - totalBilled;
   const billedPct = safePercent(totalBilled, portfolioValue);
@@ -106,24 +118,24 @@ export default async function DashboardPage() {
 
   // Overdue milestones
   const overdueMilestones = allProjects.flatMap((p) =>
-    filterOverdue(p.milestones).map((m) => ({
+    filterOverdue(p.milestones, now).map((m) => ({
       id: m.id,
       name: m.name,
       projectName: p.name,
       projectId: p.id,
-      daysOverdue: daysDifference(m.plannedDate),
+      daysOverdue: daysDifference(m.plannedDate, now),
     })),
   ).sort((a, b) => b.daysOverdue - a.daysOverdue);
 
   // Upcoming milestones (30 days)
   const upcomingMilestones = allProjects.flatMap((p) =>
-    filterUpcoming(p.milestones).map((m) => ({
+    filterUpcoming(p.milestones, 30, now).map((m) => ({
       id: m.id,
       name: m.name,
       projectName: p.name,
       projectId: p.id,
       plannedDate: m.plannedDate,
-      daysUntil: -daysDifference(m.plannedDate),
+      daysUntil: -daysDifference(m.plannedDate, now),
     })),
   ).sort((a, b) => a.daysUntil - b.daysUntil);
 
@@ -254,7 +266,7 @@ export default async function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Portfolio</span>
             </div>
           </div>
-          <p className="text-xl font-bold tracking-tight text-white tabular-nums">${portfolioValue.toLocaleString()}</p>
+          <p className="text-xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
           <p className="mt-1 text-xs text-white/35">{totalProjects} projects</p>
         </div>
 
@@ -270,7 +282,7 @@ export default async function DashboardPage() {
             </div>
             <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-bold tabular-nums text-amber-400/80">{billedPct}%</span>
           </div>
-          <p className="text-xl font-bold tracking-tight text-white tabular-nums">${totalBilled.toLocaleString()}</p>
+          <p className="text-xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
           <p className="mt-1 text-xs text-white/35">of portfolio</p>
         </div>
 
@@ -286,7 +298,7 @@ export default async function DashboardPage() {
             </div>
             <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[11px] font-bold tabular-nums text-emerald-400/80">{collectedPct}%</span>
           </div>
-          <p className="text-xl font-bold tracking-tight text-white tabular-nums">${totalCollected.toLocaleString()}</p>
+          <p className="text-xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
           <p className="mt-1 text-xs text-white/35">of portfolio</p>
         </div>
 
@@ -338,17 +350,17 @@ export default async function DashboardPage() {
           <div className="mt-3 flex items-center justify-center gap-6">
             <div className="text-center">
               <p className="text-xs text-white/35">Portfolio</p>
-              <p className="text-xs font-bold tabular-nums text-teal-400/80">${portfolioValue.toLocaleString()}</p>
+              <p className="text-xs font-bold tabular-nums text-teal-400/80">{formatMultiCurrency(portfolioByCurrency)}</p>
             </div>
             <div className="h-4 w-px bg-white/[0.06]" />
             <div className="text-center">
               <p className="text-xs text-white/35">Billed</p>
-              <p className="text-xs font-bold tabular-nums text-amber-400/80">${totalBilled.toLocaleString()}</p>
+              <p className="text-xs font-bold tabular-nums text-amber-400/80">{formatMultiCurrency(billedByCurrency)}</p>
             </div>
             <div className="h-4 w-px bg-white/[0.06]" />
             <div className="text-center">
               <p className="text-xs text-white/35">Collected</p>
-              <p className="text-xs font-bold tabular-nums text-emerald-400/80">${totalCollected.toLocaleString()}</p>
+              <p className="text-xs font-bold tabular-nums text-emerald-400/80">{formatMultiCurrency(collectedByCurrency)}</p>
             </div>
           </div>
         </div>
@@ -419,7 +431,7 @@ export default async function DashboardPage() {
                   <p className="text-xs text-white/35">{inv.milestones[0]?.project.name ?? "—"}</p>
                 </div>
                 <span className="shrink-0 text-[11px] font-bold tabular-nums text-red-400/70">
-                  {daysDifference(inv.paymentDueDate!)}d past due
+                  {inv.paymentDueDate ? `${daysDifference(inv.paymentDueDate)}d past due` : "—"}
                 </span>
               </div>
             ))}
@@ -537,7 +549,7 @@ export default async function DashboardPage() {
                 >
                   {pm.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={pm.photoUrl} alt="" className="h-7 w-7 rounded-full object-cover ring-1 ring-white/10" />
+                    <img src={pm.photoUrl} alt={pm.name} className="h-7 w-7 rounded-full object-cover ring-1 ring-white/10" />
                   ) : (
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.08] text-[9px] font-bold text-white/50 ring-1 ring-white/[0.06]">
                       {initials}
@@ -581,13 +593,13 @@ export default async function DashboardPage() {
               View all →
             </Link>
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Recent projects">
             <thead>
               <tr className="border-b border-white/[0.03]">
-                <th className="px-5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Project</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Client</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Progress</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Status</th>
+                <th scope="col" className="px-5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Project</th>
+                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Client</th>
+                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Progress</th>
+                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -628,14 +640,14 @@ export default async function DashboardPage() {
               View all →
             </Link>
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Recent invoices">
             <thead>
               <tr className="border-b border-white/[0.03]">
-                <th className="px-5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Invoice</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Project</th>
-                <th className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-white/25">Amount</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Status</th>
-                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Due</th>
+                <th scope="col" className="px-5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Invoice</th>
+                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Project</th>
+                <th scope="col" className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-white/25">Amount</th>
+                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Status</th>
+                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-white/25">Due</th>
               </tr>
             </thead>
             <tbody>
@@ -648,7 +660,7 @@ export default async function DashboardPage() {
                     </td>
                     <td className="px-4 py-2.5 text-xs text-white/35">{inv.milestones[0]?.project.name ?? "—"}</td>
                     <td className="px-4 py-2.5 text-right font-mono text-[11px] font-medium tabular-nums text-white/60">
-                      ${Number(inv.totalPayable).toLocaleString()}
+                      {Number(inv.totalPayable).toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </td>
                     <td className="px-4 py-2.5"><StatusBadge status={inv.status} /></td>
                     <td className="px-4 py-2.5">

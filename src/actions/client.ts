@@ -2,63 +2,36 @@
 
 import { prisma } from "@/lib/prisma";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import {
-  parseRequiredString,
-  parseOptionalString,
-  parseEnum,
-  validateEmail,
-  ValidationError,
-} from "@/lib/validation";
 import { handleImageUpload } from "@/lib/image-upload";
 import type { ActionResult } from "@/types";
-
-function parseClientFields(formData: FormData) {
-  const name = parseRequiredString(formData, "name");
-  const code = parseRequiredString(formData, "code");
-  const sector = parseEnum(formData, "sector", [
-    "GOVERNMENT",
-    "PRIVATE",
-    "SEMI_GOVERNMENT",
-  ] as const);
-  const countryId = parseRequiredString(formData, "countryId");
-  const primaryContact = parseRequiredString(formData, "primaryContact");
-  const financeContact = parseRequiredString(formData, "financeContact");
-  const email = parseRequiredString(formData, "email");
-  validateEmail(email);
-  const phone = parseRequiredString(formData, "phone");
-  const billingAddress = parseRequiredString(formData, "billingAddress");
-  const portalName = parseOptionalString(formData, "portalName");
-  const portalLink = parseOptionalString(formData, "portalLink");
-  const notes = parseOptionalString(formData, "notes");
-
-  return {
-    name,
-    code,
-    sector,
-    countryId,
-    primaryContact,
-    financeContact,
-    email,
-    phone,
-    billingAddress,
-    portalName,
-    portalLink,
-    notes,
-  };
-}
+import { clientFormSchema } from "@/schemas/client";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 export async function createClient(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const fields = parseClientFields(formData);
+    const result = clientFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const fields = result.data;
     const imageUrl = await handleImageUpload(formData, "image", "clients");
 
     const existing = await prisma.client.findUnique({
       where: { code: fields.code },
     });
     if (existing) {
-      throw new ValidationError("A client with this code already exists.");
+      return {
+        success: false,
+        error: "A client with this code already exists.",
+        fieldErrors: { code: ["A client with this code already exists."] },
+      };
     }
 
     const client = await prisma.client.create({
@@ -75,9 +48,20 @@ export async function updateClient(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const fields = parseClientFields(formData);
+    const result = clientFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const fields = result.data;
     const current = await prisma.client.findUnique({ where: { id } });
-    if (!current) throw new ValidationError("Client not found.");
+    if (!current) {
+      return { success: false, error: "Client not found." };
+    }
 
     const imageUrl = await handleImageUpload(formData, "image", "clients", current.imageUrl);
 
@@ -85,9 +69,11 @@ export async function updateClient(
       where: { code: fields.code, id: { not: id } },
     });
     if (existing) {
-      throw new ValidationError(
-        "Another client with this code already exists.",
-      );
+      return {
+        success: false,
+        error: "Another client with this code already exists.",
+        fieldErrors: { code: ["Another client with this code already exists."] },
+      };
     }
 
     await prisma.client.update({

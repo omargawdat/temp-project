@@ -121,20 +121,23 @@ export default async function InvoicesPage({
                 </span>
               )}
               <span className="text-foreground text-right font-mono text-sm">
-                $
                 {Number(invoice.amount).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: invoice.milestones[0]?.project.currency ?? "USD",
                   minimumFractionDigits: 2,
                 })}
               </span>
               <span className="text-muted-foreground text-right font-mono text-xs">
-                $
                 {Number(invoice.vatAmount).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: invoice.milestones[0]?.project.currency ?? "USD",
                   minimumFractionDigits: 0,
                 })}
               </span>
               <span className="text-foreground text-right font-mono text-sm font-bold">
-                $
                 {Number(invoice.totalPayable).toLocaleString("en-US", {
+                  style: "currency",
+                  currency: invoice.milestones[0]?.project.currency ?? "USD",
                   minimumFractionDigits: 2,
                 })}
               </span>

@@ -170,7 +170,7 @@ export default async function ProjectDetailPage({
                 <span className="text-muted-foreground/50">PM:</span>
                 {project.projectManager.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={project.projectManager.photoUrl} alt="" className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10" />
+                  <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10" />
                 ) : (
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.08] text-[9px] font-bold text-foreground/60 ring-1 ring-white/[0.08]">
                     {pmInitials}
@@ -344,7 +344,7 @@ export default async function ProjectDetailPage({
                     </Link>
                   </td>
                   <td className="px-4 py-4 text-right font-mono text-base font-semibold tabular-nums text-foreground/85">
-                    ${Number(m.value).toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                    {formatCurrency(Number(m.value), project.currency)}
                   </td>
                   <td className="px-4 py-4 text-base text-muted-foreground/70">
                     {formatDate(m.plannedDate, "short")}

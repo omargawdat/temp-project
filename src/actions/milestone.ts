@@ -3,22 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import type { ActionResult } from "@/types";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import {
-  parseRequiredString,
-  parseDecimal,
-  parseDate,
-  parseBoolean,
-  ValidationError,
-} from "@/lib/validation";
+import { ValidationError } from "@/lib/validation";
 import { recalculateProjectStatus } from "./project";
-
-const MILESTONE_TRANSITIONS: Record<string, string[]> = {
-  NOT_STARTED: ["IN_PROGRESS"],
-  IN_PROGRESS: ["COMPLETED"],
-  COMPLETED: ["READY_FOR_INVOICING"],
-  READY_FOR_INVOICING: [], // INVOICED is set automatically by createInvoice
-  INVOICED: [],
-};
+import { MilestoneStatus } from "@prisma/client";
+import { MILESTONE_TRANSITIONS } from "@/schemas/transitions";
+import { milestoneFormSchema, milestoneUpdateSchema } from "@/schemas/milestone";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 function validateMilestoneValueWithinContract(
   newValue: number,
@@ -37,16 +27,16 @@ export async function createMilestone(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const projectId = parseRequiredString(formData, "projectId");
-    const name = parseRequiredString(formData, "name");
-    const value = parseDecimal(formData, "value");
-    const plannedDate = parseDate(formData, "plannedDate");
-    const requiresDeliveryNote = parseBoolean(formData, "requiresDeliveryNote");
-
-    // Value must be positive
-    if (Number(value) <= 0) {
-      throw new ValidationError("Milestone value must be greater than zero.");
+    const result = milestoneFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
     }
+
+    const { projectId, name, value, plannedDate, requiresDeliveryNote } = result.data;
 
     const project = await prisma.project.findUnique({
       where: { id: projectId },
@@ -68,9 +58,11 @@ export async function createMilestone(
     const projectStart = new Date(project.startDate);
     const projectEnd = new Date(project.endDate);
     if (plannedDate < projectStart || plannedDate > projectEnd) {
-      throw new ValidationError(
-        `Planned date must be between ${projectStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${projectEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`,
-      );
+      return {
+        success: false,
+        error: `Planned date must be between ${projectStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${projectEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`,
+        fieldErrors: { plannedDate: [`Planned date must be within the project timeline.`] },
+      };
     }
 
     const existingTotal = project.milestones.reduce(
@@ -106,15 +98,16 @@ export async function updateMilestone(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const name = parseRequiredString(formData, "name");
-    const value = parseDecimal(formData, "value");
-    const plannedDate = parseDate(formData, "plannedDate");
-    const requiresDeliveryNote = parseBoolean(formData, "requiresDeliveryNote");
-
-    // Value must be positive
-    if (Number(value) <= 0) {
-      throw new ValidationError("Milestone value must be greater than zero.");
+    const result = milestoneUpdateSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
     }
+
+    const { name, value, plannedDate, requiresDeliveryNote } = result.data;
 
     const milestone = await prisma.milestone.findUnique({
       where: { id },
@@ -133,9 +126,11 @@ export async function updateMilestone(
     const projectStart = new Date(milestone.project.startDate);
     const projectEnd = new Date(milestone.project.endDate);
     if (plannedDate < projectStart || plannedDate > projectEnd) {
-      throw new ValidationError(
-        `Planned date must be between ${projectStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${projectEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`,
-      );
+      return {
+        success: false,
+        error: `Planned date must be between ${projectStart.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} and ${projectEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`,
+        fieldErrors: { plannedDate: [`Planned date must be within the project timeline.`] },
+      };
     }
 
     const otherMilestonesTotal = milestone.project.milestones
@@ -166,7 +161,7 @@ export async function updateMilestone(
 
 export async function updateMilestoneStatus(
   id: string,
-  newStatus: string,
+  newStatus: MilestoneStatus,
 ): Promise<ActionResult> {
   return withErrorHandling(async () => {
     const milestone = await prisma.milestone.findUnique({
@@ -178,8 +173,7 @@ export async function updateMilestoneStatus(
       return { success: false, error: "Milestone not found." };
     }
 
-    // Validate transition is allowed
-    const allowedTransitions = MILESTONE_TRANSITIONS[milestone.status] ?? [];
+    const allowedTransitions = MILESTONE_TRANSITIONS[milestone.status];
     if (!allowedTransitions.includes(newStatus)) {
       return {
         success: false,
@@ -187,8 +181,7 @@ export async function updateMilestoneStatus(
       };
     }
 
-    // If moving to READY_FOR_INVOICING, check delivery note requirement
-    if (newStatus === "READY_FOR_INVOICING" && milestone.requiresDeliveryNote) {
+    if (newStatus === MilestoneStatus.READY_FOR_INVOICING && milestone.requiresDeliveryNote) {
       if (!milestone.deliveryNote || milestone.deliveryNote.status !== "SIGNED") {
         return {
           success: false,
@@ -200,7 +193,7 @@ export async function updateMilestoneStatus(
 
     await prisma.milestone.update({
       where: { id },
-      data: { status: newStatus as "IN_PROGRESS" | "COMPLETED" | "READY_FOR_INVOICING" },
+      data: { status: newStatus },
     });
 
     revalidateEntity("projects", milestone.projectId);

@@ -28,7 +28,7 @@ export function ClientFloatingActions({ client, countries, notesCount = 0 }: Cli
 
   return (
     <>
-      <FloatingActionBar actions={actions} />
+      {!editOpen && <FloatingActionBar actions={actions} />}
 
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
         <SheetContent side="right" className="sm:max-w-2xl overflow-y-auto">

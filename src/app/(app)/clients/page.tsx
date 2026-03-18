@@ -15,7 +15,7 @@ import {
   hasActiveClientFilters,
 } from "@/lib/client-queries";
 import { filterOverdue, daysDifference } from "@/lib/milestones";
-import { getInitials, safePercent, formatCurrency } from "@/lib/format";
+import { getInitials, safePercent, formatMultiCurrency, addToCurrency, type CurrencyTotals } from "@/lib/format";
 import { SECTOR_STYLES, DEFAULT_STATUS_STYLE, formatSector } from "@/lib/status-config";
 
 export default async function ClientsPage({
@@ -101,12 +101,12 @@ export default async function ClientsPage({
             const billedAmount = sumUniqueInvoices(allMilestones);
             const collectedAmount = sumUniqueInvoices(allMilestones, "PAID");
 
-            // Sum contract values (use first currency found for display)
-            const totalContractValue = client.projects.reduce(
-              (sum, p) => sum + Number(p.contractValue),
-              0,
-            );
-            const currency = client.projects[0]?.currency ?? "USD";
+            // Sum contract values grouped by currency
+            const contractByCurrency: CurrencyTotals = {};
+            for (const p of client.projects) {
+              addToCurrency(contractByCurrency, p.currency, Number(p.contractValue));
+            }
+            const totalContractValue = Object.values(contractByCurrency).reduce((s, v) => s + v, 0);
 
             const billedPct = safePercent(billedAmount, totalContractValue);
             const collectedPct = safePercent(collectedAmount, totalContractValue);
@@ -200,7 +200,7 @@ export default async function ClientsPage({
                         Contract Value
                       </p>
                       <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
-                        {formatCurrency(totalContractValue, currency)}
+                        {formatMultiCurrency(contractByCurrency)}
                       </p>
                     </div>
                   </div>

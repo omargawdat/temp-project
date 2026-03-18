@@ -2,11 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { parseRequiredString, ValidationError } from "@/lib/validation";
+import { ValidationError } from "@/lib/validation";
 import { MAX_PHOTO_SIZE_BYTES, ALLOWED_IMAGE_TYPES } from "@/lib/constants";
 import type { ActionResult } from "@/types";
 import { writeFile } from "fs/promises";
 import path from "path";
+import { countryFormSchema } from "@/schemas/country";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 async function handleFlagUpload(
   formData: FormData,
@@ -32,7 +34,12 @@ async function handleFlagUpload(
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-  const ext = file.name.split(".").pop() || "png";
+  const MIME_TO_EXT: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+  const ext = MIME_TO_EXT[file.type] ?? "png";
   const filename = `flag-${Date.now()}.${ext}`;
   const filepath = path.join(process.cwd(), "public", "images", "flags", filename);
 
@@ -50,18 +57,34 @@ export async function createCountry(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const name = parseRequiredString(formData, "name");
-    const code = parseRequiredString(formData, "code");
+    const result = countryFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const { name, code } = result.data;
     const flag = await handleFlagUpload(formData, null);
 
     const existingName = await prisma.country.findUnique({ where: { name } });
     if (existingName) {
-      throw new ValidationError("A country with this name already exists.");
+      return {
+        success: false,
+        error: "A country with this name already exists.",
+        fieldErrors: { name: ["A country with this name already exists."] },
+      };
     }
 
     const existingCode = await prisma.country.findUnique({ where: { code } });
     if (existingCode) {
-      throw new ValidationError("A country with this code already exists.");
+      return {
+        success: false,
+        error: "A country with this code already exists.",
+        fieldErrors: { code: ["A country with this code already exists."] },
+      };
     }
 
     const country = await prisma.country.create({
@@ -78,24 +101,42 @@ export async function updateCountry(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const name = parseRequiredString(formData, "name");
-    const code = parseRequiredString(formData, "code");
+    const result = countryFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
 
+    const { name, code } = result.data;
     const current = await prisma.country.findUnique({ where: { id } });
-    const flag = await handleFlagUpload(formData, current?.flag ?? null);
+    if (!current) {
+      return { success: false, error: "Country not found." };
+    }
+    const flag = await handleFlagUpload(formData, current.flag);
 
     const existingName = await prisma.country.findFirst({
       where: { name, id: { not: id } },
     });
     if (existingName) {
-      throw new ValidationError("Another country with this name already exists.");
+      return {
+        success: false,
+        error: "Another country with this name already exists.",
+        fieldErrors: { name: ["Another country with this name already exists."] },
+      };
     }
 
     const existingCode = await prisma.country.findFirst({
       where: { code, id: { not: id } },
     });
     if (existingCode) {
-      throw new ValidationError("Another country with this code already exists.");
+      return {
+        success: false,
+        error: "Another country with this code already exists.",
+        fieldErrors: { code: ["Another country with this code already exists."] },
+      };
     }
 
     await prisma.country.update({
@@ -116,13 +157,14 @@ export async function deleteCountry(id: string): Promise<ActionResult> {
     });
 
     if (!country) {
-      throw new ValidationError("Country not found.");
+      return { success: false, error: "Country not found." };
     }
 
     if (country._count.clients > 0) {
-      throw new ValidationError(
-        `Cannot delete. ${country.name} is referenced by ${country._count.clients} client(s).`,
-      );
+      return {
+        success: false,
+        error: `Cannot delete. ${country.name} is referenced by ${country._count.clients} client(s).`,
+      };
     }
 
     await prisma.country.delete({ where: { id } });

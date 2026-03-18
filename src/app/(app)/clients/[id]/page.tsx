@@ -25,7 +25,7 @@ import { BillingRingChart } from "@/components/common/pm-charts";
 import { ClientSheet } from "@/components/common/client-sheet";
 import { sumUniqueInvoices, deduplicateInvoices } from "@/lib/financial";
 import { filterOverdue, filterUpcoming, countCompleted, completionPercent, daysDifference } from "@/lib/milestones";
-import { getInitials, safePercent, formatDate } from "@/lib/format";
+import { getInitials, safePercent, formatDate, formatCurrency, formatMultiCurrency, addToCurrency, sumCurrencyTotals, type CurrencyTotals } from "@/lib/format";
 import { serializeForClient } from "@/lib/serialize";
 import { NotesSection } from "@/components/common/notes-section";
 import { ClientFloatingActions } from "@/components/clients/floating-actions";
@@ -83,9 +83,19 @@ export default async function ClientDetailPage({
   const overdueMilestones = filterOverdue(allMilestones);
   const completionRate = completionPercent(allMilestones);
 
-  const totalContractValue = client.projects.reduce((sum, p) => sum + Number(p.contractValue), 0);
-  const totalInvoiced = sumUniqueInvoices(allMilestones);
-  const totalPaid = sumUniqueInvoices(allMilestones, "PAID");
+  const portfolioByCurrency: CurrencyTotals = {};
+  const billedByCurrency: CurrencyTotals = {};
+  const collectedByCurrency: CurrencyTotals = {};
+  for (const p of client.projects) {
+    addToCurrency(portfolioByCurrency, p.currency, Number(p.contractValue));
+    const projBilled = sumUniqueInvoices(p.milestones);
+    const projCollected = sumUniqueInvoices(p.milestones, "PAID");
+    addToCurrency(billedByCurrency, p.currency, projBilled);
+    addToCurrency(collectedByCurrency, p.currency, projCollected);
+  }
+  const totalContractValue = sumCurrencyTotals(portfolioByCurrency);
+  const totalInvoiced = sumCurrencyTotals(billedByCurrency);
+  const totalPaid = sumCurrencyTotals(collectedByCurrency);
   const billingPercent = safePercent(totalInvoiced, totalContractValue);
   const collectionPercent = safePercent(totalPaid, totalInvoiced);
 
@@ -198,7 +208,7 @@ export default async function ClientDetailPage({
                 <Briefcase className="h-3.5 w-3.5 text-orange-400/70" />
                 <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Portfolio</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">${totalContractValue.toLocaleString()}</p>
+              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm tabular-nums text-white/35">{totalProjects} projects</span>
                 <span className="h-1 w-1 rounded-full bg-white/15" />
@@ -216,11 +226,11 @@ export default async function ClientDetailPage({
                 </div>
                 <span className="rounded-full bg-amber-400/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-400/80">{billingPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">${totalInvoiced.toLocaleString()}</p>
+              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500/50 to-amber-400" style={{ width: `${billingPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-amber-400/50">${(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
+              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
             </div>
 
             {/* Collected */}
@@ -233,11 +243,11 @@ export default async function ClientDetailPage({
                 </div>
                 <span className="rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-400/80">{collectionPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">${totalPaid.toLocaleString()}</p>
+              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                 <div className="h-full rounded-full bg-gradient-to-r from-emerald-500/50 to-emerald-400" style={{ width: `${collectionPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-emerald-400/50">${(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
+              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
             </div>
 
             {/* Ring Chart */}
@@ -411,7 +421,7 @@ export default async function ClientDetailPage({
                       <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-[15px] font-semibold text-foreground hover:text-orange-400 transition-colors">
                         {project.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={project.imageUrl} alt="" className="h-7 w-7 rounded-lg object-cover ring-1 ring-white/10 shrink-0" />
+                          <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-white/10 shrink-0" />
                         ) : (
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-[10px] font-bold text-orange-400 ring-1 ring-orange-500/20 shrink-0">
                             {project.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
@@ -424,7 +434,7 @@ export default async function ClientDetailPage({
                       <Link href={`/project-managers/${project.projectManager.id}`} className="flex items-center gap-2 transition-colors hover:text-foreground/70">
                         {project.projectManager.photoUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={project.projectManager.photoUrl} alt="" className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10" />
+                          <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10" />
                         ) : (
                           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.08] text-[9px] font-bold text-foreground/60 ring-1 ring-white/[0.08]">
                             {pmInitials}
@@ -441,7 +451,7 @@ export default async function ClientDetailPage({
                       })}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="font-mono text-sm tabular-nums text-foreground/70">${projBilled.toLocaleString()}</span>
+                      <span className="font-mono text-sm tabular-nums text-foreground/70">{formatCurrency(projBilled, project.currency)}</span>
                       <span className="ml-1 text-xs text-muted-foreground/40">({billedPct}%)</span>
                     </td>
                     <td className="px-4 py-4">
@@ -525,7 +535,7 @@ export default async function ClientDetailPage({
                         )}
                       </td>
                       <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground">
-                        ${Number(inv.totalPayable).toLocaleString()}
+                        {Number(inv.totalPayable).toLocaleString()}
                       </td>
                       <td className="px-4 py-4">
                         <StatusBadge status={inv.status} />
@@ -548,7 +558,7 @@ export default async function ClientDetailPage({
                 <tr className="border-t border-border/20 bg-white/[0.02]">
                   <td className="px-6 py-3.5 text-sm font-bold text-foreground" colSpan={3}>Total</td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-foreground">
-                    ${invoiceTotalPayable.toLocaleString()}
+                    {invoiceTotalPayable.toLocaleString()}
                   </td>
                   <td colSpan={2} />
                 </tr>

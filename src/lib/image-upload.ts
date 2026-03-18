@@ -45,13 +45,16 @@ export async function handleImageUpload(
     throw new ValidationError("Failed to save image. Please try again.");
   }
 
-  // Delete old file if it exists and is a local path
-  if (existingUrl && existingUrl.startsWith("/")) {
-    const oldPath = path.join(process.cwd(), "public", existingUrl);
-    try {
-      await unlink(oldPath);
-    } catch {
-      // Ignore errors when deleting old file (may not exist)
+  // Delete old file if it exists and is a local image path
+  if (existingUrl && existingUrl.startsWith("/images/")) {
+    const oldPath = path.resolve(process.cwd(), "public", existingUrl.slice(1));
+    const publicDir = path.resolve(process.cwd(), "public", "images");
+    if (oldPath.startsWith(publicDir)) {
+      try {
+        await unlink(oldPath);
+      } catch {
+        // Ignore errors when deleting old file (may not exist)
+      }
     }
   }
 

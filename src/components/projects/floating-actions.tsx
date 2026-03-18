@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { ProjectForm } from "@/components/common/project-form";
 import { FloatingActionBar, scrollToSection, type FloatingAction } from "@/components/common/floating-action-bar";
 import { updateProjectStatus } from "@/actions/project";
-import type { Project } from "@prisma/client";
+import { type Project, ProjectStatus } from "@prisma/client";
 import type { Serialized } from "@/lib/serialize";
 
 interface FloatingActionsProps {
@@ -27,7 +27,7 @@ export function FloatingActions({
   const [editOpen, setEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  function handleStatusChange(target: string) {
+  function handleStatusChange(target: ProjectStatus) {
     startTransition(async () => {
       const result = await updateProjectStatus(project.id, target);
       if (result.success) router.refresh();
@@ -50,7 +50,7 @@ export function FloatingActions({
 
   return (
     <>
-      <FloatingActionBar actions={actions} />
+      {!editOpen && <FloatingActionBar actions={actions} />}
 
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
         <SheetContent side="right" className="sm:max-w-2xl overflow-y-auto">
@@ -76,16 +76,16 @@ function getStatusActions(status: string) {
   switch (status) {
     case "ACTIVE":
       return [
-        { label: "Hold", icon: Pause, target: "ON_HOLD", variant: "warning" },
-        { label: "Close", icon: Lock, target: "CLOSED", variant: "danger" },
+        { label: "Hold", icon: Pause, target: ProjectStatus.ON_HOLD, variant: "warning" },
+        { label: "Close", icon: Lock, target: ProjectStatus.CLOSED, variant: "danger" },
       ];
     case "ON_HOLD":
       return [
-        { label: "Resume", icon: Play, target: "ACTIVE", variant: "primary" },
+        { label: "Resume", icon: Play, target: ProjectStatus.ACTIVE, variant: "primary" },
       ];
     case "CLOSED":
       return [
-        { label: "Reopen", icon: RotateCcw, target: "ACTIVE", variant: "primary" },
+        { label: "Reopen", icon: RotateCcw, target: ProjectStatus.ACTIVE, variant: "primary" },
       ];
     default:
       return [];

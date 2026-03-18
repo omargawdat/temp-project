@@ -3,12 +3,13 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateProjectStatus } from "@/actions/project";
+import { ProjectStatus } from "@prisma/client";
 import { Pause, Play, Lock, RotateCcw } from "lucide-react";
 
 interface StatusAction {
   label: string;
   icon: React.ElementType;
-  target: string;
+  target: ProjectStatus;
   bg: string;
   text: string;
   border: string;
@@ -21,7 +22,7 @@ const ACTIONS: Record<string, StatusAction[]> = {
     {
       label: "Put on Hold",
       icon: Pause,
-      target: "ON_HOLD",
+      target: ProjectStatus.ON_HOLD,
       bg: "bg-amber-500/10",
       text: "text-amber-400",
       border: "border-amber-500/25",
@@ -31,7 +32,7 @@ const ACTIONS: Record<string, StatusAction[]> = {
     {
       label: "Close Project",
       icon: Lock,
-      target: "CLOSED",
+      target: ProjectStatus.CLOSED,
       bg: "bg-white/[0.04]",
       text: "text-white/50",
       border: "border-white/10",
@@ -43,7 +44,7 @@ const ACTIONS: Record<string, StatusAction[]> = {
     {
       label: "Resume Project",
       icon: Play,
-      target: "ACTIVE",
+      target: ProjectStatus.ACTIVE,
       bg: "bg-emerald-500/10",
       text: "text-emerald-400",
       border: "border-emerald-500/25",
@@ -55,7 +56,7 @@ const ACTIONS: Record<string, StatusAction[]> = {
     {
       label: "Reopen",
       icon: RotateCcw,
-      target: "ACTIVE",
+      target: ProjectStatus.ACTIVE,
       bg: "bg-teal-500/10",
       text: "text-teal-400",
       border: "border-teal-500/25",
@@ -78,7 +79,7 @@ export function ProjectStatusActions({
 
   if (actions.length === 0) return null;
 
-  function handleAction(target: string) {
+  function handleAction(target: ProjectStatus) {
     startTransition(async () => {
       const result = await updateProjectStatus(projectId, target);
       if (result.success) {

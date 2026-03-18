@@ -136,6 +136,9 @@ export function ProjectManagerForm({
 
   const [state, formAction] = useActionState(handleAction, null);
 
+  const fieldError = (field: string) =>
+    state && !state.success ? state.fieldErrors?.[field]?.[0] : undefined;
+
   React.useEffect(() => {
     if (state?.success && state.data?.id) {
       onSuccess?.(state.data.id);
@@ -160,7 +163,7 @@ export function ProjectManagerForm({
 
       {/* Fields */}
       <div className="grid gap-4">
-        <FieldWrapper icon={User} label="Full Name" htmlFor="name">
+        <FieldWrapper icon={User} label="Full Name" htmlFor="name" error={fieldError("name")}>
           <Input
             id="name"
             name="name"
@@ -170,7 +173,7 @@ export function ProjectManagerForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={Briefcase} label="Job Title" htmlFor="title">
+        <FieldWrapper icon={Briefcase} label="Job Title" htmlFor="title" error={fieldError("title")}>
           <Input
             id="title"
             name="title"
@@ -179,7 +182,7 @@ export function ProjectManagerForm({
             className="h-10"
           />
         </FieldWrapper>
-        <FieldWrapper icon={Mail} label="Email" htmlFor="email">
+        <FieldWrapper icon={Mail} label="Email" htmlFor="email" error={fieldError("email")}>
           <Input
             id="email"
             name="email"
@@ -190,7 +193,7 @@ export function ProjectManagerForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={Phone} label="Phone" htmlFor="phone">
+        <FieldWrapper icon={Phone} label="Phone" htmlFor="phone" error={fieldError("phone")}>
           <Input
             id="phone"
             name="phone"

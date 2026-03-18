@@ -2,16 +2,30 @@
 
 import { prisma } from "@/lib/prisma";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { parseRequiredString } from "@/lib/validation";
 import type { ActionResult } from "@/types";
 import { revalidatePath } from "next/cache";
+import { noteFormSchema, noteEntitySchema } from "@/schemas/note";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 function revalidateParent(entityType: string, entityId: string) {
   if (entityType === "CLIENT") {
     revalidatePath(`/clients/${entityId}`);
   } else if (entityType === "PROJECT") {
     revalidatePath(`/projects/${entityId}`);
+  } else if (entityType === "PROJECT_MANAGER") {
+    revalidatePath(`/project-managers/${entityId}`);
   }
+}
+
+async function validateEntityExists(entityType: string, entityId: string): Promise<boolean> {
+  if (entityType === "CLIENT") {
+    return !!(await prisma.client.findUnique({ where: { id: entityId }, select: { id: true } }));
+  } else if (entityType === "PROJECT") {
+    return !!(await prisma.project.findUnique({ where: { id: entityId }, select: { id: true } }));
+  } else if (entityType === "PROJECT_MANAGER") {
+    return !!(await prisma.projectManager.findUnique({ where: { id: entityId }, select: { id: true } }));
+  }
+  return false;
 }
 
 export async function createNote(
@@ -20,15 +34,38 @@ export async function createNote(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const content = parseRequiredString(formData, "content");
-    const createdBy = parseRequiredString(formData, "createdBy");
-    const noteType = formData.get("noteType")?.toString() || "GENERAL";
+    const entityResult = noteEntitySchema.safeParse({ entityType, entityId });
+    if (!entityResult.success) {
+      return {
+        success: false,
+        error: "Invalid entity reference.",
+        fieldErrors: zodErrorToFieldErrors(entityResult.error),
+      };
+    }
+
+    const exists = await validateEntityExists(entityResult.data.entityType, entityResult.data.entityId);
+    if (!exists) {
+      return { success: false, error: "The referenced entity does not exist." };
+    }
+
+    const result = noteFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
 
     const note = await prisma.note.create({
-      data: { entityType, entityId, content, createdBy, noteType },
+      data: {
+        entityType: entityResult.data.entityType,
+        entityId: entityResult.data.entityId,
+        ...result.data,
+      },
     });
 
-    revalidateParent(entityType, entityId);
+    revalidateParent(entityResult.data.entityType, entityResult.data.entityId);
     return { success: true, data: { id: note.id } };
   });
 }
@@ -38,7 +75,15 @@ export async function updateNote(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const content = parseRequiredString(formData, "content");
+    const raw = formDataToObject(formData);
+    const content = typeof raw.content === "string" ? raw.content.trim() : "";
+    if (!content) {
+      return {
+        success: false,
+        error: "Content is required.",
+        fieldErrors: { content: ["Content is required."] },
+      };
+    }
 
     const note = await prisma.note.update({
       where: { id },
@@ -54,7 +99,7 @@ export async function deleteNote(id: string): Promise<ActionResult> {
   return withErrorHandling(async () => {
     const note = await prisma.note.findUnique({ where: { id } });
     if (!note) {
-      return { success: true, data: undefined };
+      return { success: false, error: "Note not found." };
     }
 
     await prisma.note.delete({ where: { id } });

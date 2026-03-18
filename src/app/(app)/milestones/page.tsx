@@ -83,9 +83,10 @@ export default async function MilestonesPage({
                 {milestone.project.name}
               </span>
               <span className="text-foreground text-right font-mono text-[15px] font-semibold">
-                $
                 {Number(milestone.value).toLocaleString("en-US", {
-                  minimumFractionDigits: 0,
+                  style: "currency",
+                  currency: milestone.project.currency,
+                  maximumFractionDigits: 0,
                 })}
               </span>
               <span className="text-muted-foreground text-sm">

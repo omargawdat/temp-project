@@ -118,7 +118,7 @@ export function ToolbarMultiSelect({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={item.imageUrl}
-                        alt=""
+                        alt={item.name}
                         className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-white/10"
                       />
                     ) : (

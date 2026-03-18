@@ -1,6 +1,6 @@
 import { sumUniqueInvoices } from "@/lib/financial";
 import { countCompleted, completionPercent, filterOverdue, filterUpcoming, daysDifference } from "@/lib/milestones";
-import { safePercent } from "@/lib/format";
+import { safePercent, addToCurrency, type CurrencyTotals } from "@/lib/format";
 
 type DecimalLike = number | string | { toString(): string };
 
@@ -18,6 +18,7 @@ type PMWithProjects = {
     name: string;
     status: string;
     contractValue: DecimalLike;
+    currency: string;
     milestones: {
       name: string;
       status: string;
@@ -45,7 +46,9 @@ export type PMStats = PMWithProjects & {
   completionPct: number;
   nextDeadline: Date | null;
   portfolioValue: number;
+  portfolioByCurrency: CurrencyTotals;
   billed: number;
+  billedByCurrency: CurrencyTotals;
   billedPct: number;
 };
 
@@ -75,8 +78,15 @@ export function computePMStats(managers: PMWithProjects[]): PMStats[] {
       .sort((a, b) => new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime());
     const nextDeadline = upcoming[0]?.plannedDate ?? null;
 
-    const portfolioValue = pm.projects.reduce((sum, p) => sum + Number(p.contractValue), 0);
-    const billed = sumUniqueInvoices(allMilestones);
+    const portfolioByCurrency: CurrencyTotals = {};
+    const billedByCurrency: CurrencyTotals = {};
+    for (const p of pm.projects) {
+      addToCurrency(portfolioByCurrency, p.currency, Number(p.contractValue));
+      const projBilled = sumUniqueInvoices(p.milestones);
+      addToCurrency(billedByCurrency, p.currency, projBilled);
+    }
+    const portfolioValue = Object.values(portfolioByCurrency).reduce((s, v) => s + v, 0);
+    const billed = Object.values(billedByCurrency).reduce((s, v) => s + v, 0);
     const billedPct = safePercent(billed, portfolioValue);
 
     return {
@@ -91,7 +101,9 @@ export function computePMStats(managers: PMWithProjects[]): PMStats[] {
       completionPct,
       nextDeadline,
       portfolioValue,
+      portfolioByCurrency,
       billed,
+      billedByCurrency,
       billedPct,
     };
   });

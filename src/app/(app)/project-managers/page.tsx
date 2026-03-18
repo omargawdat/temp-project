@@ -9,6 +9,7 @@ import { computePMStats } from "@/lib/pm-stats";
 import { buildPMWhere, sortPMStats, hasActivePMFilters } from "@/lib/pm-queries";
 import { Button } from "@/components/ui/button";
 import { OverdueAlert } from "@/components/project-managers/overdue-alert";
+import { formatMultiCurrency } from "@/lib/format";
 
 export default async function ProjectManagersPage({
   searchParams,
@@ -125,7 +126,7 @@ export default async function ProjectManagersPage({
                       <Link href={`/project-managers/${pm.id}`} className="flex items-center gap-3">
                         {pm.photoUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={pm.photoUrl} alt="" className="h-9 w-9 rounded-full object-cover ring-2 ring-border/20" />
+                          <img src={pm.photoUrl} alt={pm.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-border/20" />
                         ) : (
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-500/20 to-cyan-500/20 text-xs font-bold text-teal-400 ring-2 ring-border/20">
                             {initials}
@@ -172,13 +173,13 @@ export default async function ProjectManagersPage({
 
                     {/* Portfolio */}
                     <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-bold tabular-nums text-foreground">${pm.portfolioValue.toLocaleString()}</span>
+                      <span className="text-sm font-bold tabular-nums text-foreground">{formatMultiCurrency(pm.portfolioByCurrency)}</span>
                     </td>
 
                     {/* Billed */}
                     <td className="px-4 py-4 text-right">
                       <div className="flex flex-col items-end gap-1">
-                        <span className="text-sm font-bold tabular-nums text-foreground/90">${pm.billed.toLocaleString()}</span>
+                        <span className="text-sm font-bold tabular-nums text-foreground/90">{formatMultiCurrency(pm.billedByCurrency)}</span>
                         <div className="flex items-center gap-1.5">
                           <div className="h-1.5 w-12 overflow-hidden rounded-full bg-amber-500/10">
                             <div className="h-full rounded-full bg-amber-500/70 transition-all" style={{ width: `${pm.billedPct}%` }} />

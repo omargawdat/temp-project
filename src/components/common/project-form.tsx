@@ -41,7 +41,7 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
   const { pending } = useFormStatus();
   const enabled = isDirty || !isEdit;
   return (
-    <div className="sticky bottom-0 -mx-6 -mb-6 border-t border-border/20 bg-card/95 px-6 py-4 backdrop-blur-sm">
+    <div className="sticky bottom-0 -mx-4 -mb-6 border-t border-border/20 bg-card/95 px-4 py-4 backdrop-blur-sm">
       <Button
         type="submit"
         disabled={pending || !enabled}
@@ -141,6 +141,9 @@ export function ProjectForm({
 
   const [state, formAction] = useActionState(handleAction, null);
 
+  const fieldError = (field: string) =>
+    state && !state.success ? state.fieldErrors?.[field]?.[0] : undefined;
+
   React.useEffect(() => {
     if (state?.success && state.data?.id) {
       onSuccess?.(state.data.id);
@@ -232,7 +235,7 @@ export function ProjectForm({
             </div>
           </div>
 
-          <FieldWrapper icon={Building2} label="Client" htmlFor="clientId">
+          <FieldWrapper icon={Building2} label="Client" htmlFor="clientId" error={fieldError("clientId")}>
             <input type="hidden" name="clientId" value={selectedClientId} required />
             <div className="relative" ref={clientRef}>
               <button
@@ -249,7 +252,7 @@ export function ProjectForm({
                 <span className="flex items-center gap-2 truncate">
                   {selectedClient?.imageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={selectedClient.imageUrl} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-white/10" />
+                    <img src={selectedClient.imageUrl} alt={selectedClient.name} className="h-5 w-5 rounded-full object-cover ring-1 ring-white/10" />
                   )}
                   {selectedClient?.name ?? "Select a client"}
                 </span>
@@ -296,7 +299,7 @@ export function ProjectForm({
                         >
                           {c.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={c.imageUrl} alt="" className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-white/10" />
+                            <img src={c.imageUrl} alt={c.name} className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-white/10" />
                           ) : (
                             <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-[9px] font-bold text-muted-foreground/50">
                               {c.name.charAt(0)}
@@ -315,10 +318,10 @@ export function ProjectForm({
               )}
             </div>
           </FieldWrapper>
-          <FieldWrapper icon={FileText} label="Project Name" htmlFor="name">
+          <FieldWrapper icon={FileText} label="Project Name" htmlFor="name" error={fieldError("name")}>
             <Input id="name" name="name" placeholder="E-Commerce Platform Redesign" defaultValue={project?.name ?? ""} className="h-10" required />
           </FieldWrapper>
-          <FieldWrapper icon={Hash} label="Contract Number" htmlFor="contractNumber">
+          <FieldWrapper icon={Hash} label="Contract Number" htmlFor="contractNumber" error={fieldError("contractNumber")}>
             <Input id="contractNumber" name="contractNumber" placeholder="TC-2026-001" defaultValue={project?.contractNumber ?? ""} className="h-10" required />
           </FieldWrapper>
         </div>
@@ -338,6 +341,7 @@ export function ProjectForm({
             icon={DollarSign}
             label="Contract Value"
             htmlFor="contractValue"
+            error={fieldError("contractValue")}
           >
             <Input
               id="contractValue"
@@ -354,6 +358,7 @@ export function ProjectForm({
             icon={CreditCard}
             label="Payment Terms"
             htmlFor="paymentTerms"
+            error={fieldError("paymentTerms")}
           >
             <Input
               id="paymentTerms"
@@ -366,7 +371,7 @@ export function ProjectForm({
           </FieldWrapper>
         </div>
         <div className="mt-4">
-          <FieldWrapper icon={Coins} label="Currency" htmlFor="currency">
+          <FieldWrapper icon={Coins} label="Currency" htmlFor="currency" error={fieldError("currency")}>
             <div className="grid grid-cols-3 gap-2">
               {CURRENCIES.map((c) => (
                 <label

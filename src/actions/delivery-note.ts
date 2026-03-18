@@ -3,21 +3,25 @@
 import { prisma } from "@/lib/prisma";
 import type { ActionResult } from "@/types";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { parseRequiredString } from "@/lib/validation";
-
-const DN_TRANSITIONS: Record<string, string[]> = {
-  DRAFT: ["SENT"],
-  SENT: ["SIGNED"],
-  SIGNED: [],
-};
+import { DeliveryNoteStatus } from "@prisma/client";
+import { DN_TRANSITIONS } from "@/schemas/transitions";
+import { deliveryNoteFormSchema, deliveryNoteUpdateSchema } from "@/schemas/delivery-note";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 export async function createDeliveryNote(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const milestoneId = parseRequiredString(formData, "milestoneId");
-    const description = parseRequiredString(formData, "description");
-    const workDelivered = parseRequiredString(formData, "workDelivered");
+    const result = deliveryNoteFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const { milestoneId, description, workDelivered } = result.data;
 
     const milestone = await prisma.milestone.findUnique({
       where: { id: milestoneId },
@@ -54,8 +58,16 @@ export async function updateDeliveryNote(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const description = parseRequiredString(formData, "description");
-    const workDelivered = parseRequiredString(formData, "workDelivered");
+    const result = deliveryNoteUpdateSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const { description, workDelivered } = result.data;
 
     const deliveryNote = await prisma.deliveryNote.findUnique({
       where: { id },
@@ -82,7 +94,7 @@ export async function updateDeliveryNote(
 
 export async function updateDeliveryNoteStatus(
   id: string,
-  newStatus: string,
+  newStatus: DeliveryNoteStatus,
 ): Promise<ActionResult> {
   return withErrorHandling(async () => {
     const deliveryNote = await prisma.deliveryNote.findUnique({
@@ -94,15 +106,15 @@ export async function updateDeliveryNoteStatus(
       return { success: false, error: "Delivery note not found." };
     }
 
-    const allowedTransitions = DN_TRANSITIONS[deliveryNote.status] ?? [];
+    const allowedTransitions = DN_TRANSITIONS[deliveryNote.status];
     if (!allowedTransitions.includes(newStatus)) {
       return { success: false, error: `Cannot transition from ${deliveryNote.status} to ${newStatus}.` };
     }
 
     const updateData: Record<string, unknown> = { status: newStatus };
 
-    if (newStatus === "SENT") updateData.sentDate = new Date();
-    if (newStatus === "SIGNED") updateData.signedDate = new Date();
+    if (newStatus === DeliveryNoteStatus.SENT) updateData.sentDate = new Date();
+    if (newStatus === DeliveryNoteStatus.SIGNED) updateData.signedDate = new Date();
 
     await prisma.deliveryNote.update({ where: { id }, data: updateData });
 

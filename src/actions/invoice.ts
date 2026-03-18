@@ -3,33 +3,26 @@
 import { prisma } from "@/lib/prisma";
 import type { ActionResult } from "@/types";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import {
-  parseRequiredString,
-  parseDecimal,
-  ValidationError,
-} from "@/lib/validation";
 import { recalculateProjectStatus } from "./project";
-
-const INVOICE_TRANSITIONS: Record<string, string[]> = {
-  DRAFT: ["SUBMITTED"],
-  SUBMITTED: ["UNDER_REVIEW", "REJECTED"],
-  UNDER_REVIEW: ["APPROVED", "REJECTED"],
-  APPROVED: [], // PAID is set automatically by createPayment
-  PAID: [],
-  REJECTED: ["DRAFT"],
-};
+import { InvoiceStatus } from "@prisma/client";
+import { INVOICE_TRANSITIONS } from "@/schemas/transitions";
+import { invoiceCreateSchema, invoiceUpdateSchema } from "@/schemas/invoice";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 export async function createInvoice(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const milestoneIdsRaw = parseRequiredString(formData, "milestoneIds");
-    const vatAmount = parseDecimal(formData, "vatAmount");
-
-    const milestoneIds = milestoneIdsRaw.split(",").map((s) => s.trim()).filter(Boolean);
-    if (milestoneIds.length === 0) {
-      return { success: false, error: "At least one milestone is required." };
+    const result = invoiceCreateSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
     }
+
+    const { milestoneIds, vatAmount } = result.data;
 
     const milestones = await prisma.milestone.findMany({
       where: { id: { in: milestoneIds } },
@@ -71,40 +64,36 @@ export async function createInvoice(
     // Auto-calculate amount from milestone values
     const amount = milestones.reduce((sum, m) => sum + Number(m.value), 0);
     const vatNum = Number(vatAmount);
-
-    // Validate VAT is not negative
-    if (vatNum < 0) {
-      throw new ValidationError("VAT amount cannot be negative.");
-    }
-
-    // Calculate totalPayable = amount + VAT
     const totalPayable = amount + vatNum;
 
-    // Generate invoice number: INV-YYYY-NNN
-    const year = new Date().getFullYear();
-    const lastInvoice = await prisma.invoice.findFirst({
-      orderBy: { invoiceNumber: "desc" },
-      select: { invoiceNumber: true },
-    });
-    const lastNum = lastInvoice
-      ? parseInt(lastInvoice.invoiceNumber.split("-").pop() || "0", 10)
-      : 0;
-    const invoiceNumber = `INV-${year}-${String(lastNum + 1).padStart(3, "0")}`;
+    // Generate invoice number + create invoice + link milestones atomically
+    const invoice = await prisma.$transaction(async (tx) => {
+      const year = new Date().getFullYear();
+      const lastInvoice = await tx.invoice.findFirst({
+        orderBy: { invoiceNumber: "desc" },
+        select: { invoiceNumber: true },
+      });
+      const lastNum = lastInvoice
+        ? parseInt(lastInvoice.invoiceNumber.split("-").pop() || "0", 10)
+        : 0;
+      const invoiceNumber = `INV-${year}-${String(lastNum + 1).padStart(3, "0")}`;
 
-    const invoice = await prisma.invoice.create({
-      data: {
-        invoiceNumber,
-        amount: amount.toString(),
-        vatAmount,
-        totalPayable: totalPayable.toString(),
-        status: "DRAFT",
-      },
-    });
+      const created = await tx.invoice.create({
+        data: {
+          invoiceNumber,
+          amount,
+          vatAmount,
+          totalPayable,
+          status: "DRAFT",
+        },
+      });
 
-    // Link milestones and set status to INVOICED
-    await prisma.milestone.updateMany({
-      where: { id: { in: milestoneIds } },
-      data: { invoiceId: invoice.id, status: "INVOICED" },
+      await tx.milestone.updateMany({
+        where: { id: { in: milestoneIds } },
+        data: { invoiceId: created.id, status: "INVOICED" },
+      });
+
+      return created;
     });
 
     await recalculateProjectStatus(projectId);
@@ -121,8 +110,16 @@ export async function updateInvoice(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const invoiceNumber = parseRequiredString(formData, "invoiceNumber");
-    const vatAmount = parseDecimal(formData, "vatAmount");
+    const result = invoiceUpdateSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const { invoiceNumber, vatAmount } = result.data;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -140,18 +137,17 @@ export async function updateInvoice(
     // Recalculate amount from linked milestones
     const amount = invoice.milestones.reduce((sum, m) => sum + Number(m.value), 0);
     const vatNum = Number(vatAmount);
-
-    if (vatNum < 0) {
-      throw new ValidationError("VAT amount cannot be negative.");
-    }
-
     const totalPayable = amount + vatNum;
 
     // Invoice number uniqueness (if changed)
     if (invoiceNumber !== invoice.invoiceNumber) {
       const existing = await prisma.invoice.findUnique({ where: { invoiceNumber } });
       if (existing) {
-        return { success: false, error: "Invoice number already exists." };
+        return {
+          success: false,
+          error: "Invoice number already exists.",
+          fieldErrors: { invoiceNumber: ["Invoice number already exists."] },
+        };
       }
     }
 
@@ -159,9 +155,9 @@ export async function updateInvoice(
       where: { id },
       data: {
         invoiceNumber,
-        amount: amount.toString(),
+        amount,
         vatAmount,
-        totalPayable: totalPayable.toString(),
+        totalPayable,
       },
     });
 
@@ -172,7 +168,7 @@ export async function updateInvoice(
 
 export async function updateInvoiceStatus(
   id: string,
-  newStatus: string,
+  newStatus: InvoiceStatus,
 ): Promise<ActionResult> {
   return withErrorHandling(async () => {
     const invoice = await prisma.invoice.findUnique({
@@ -188,21 +184,21 @@ export async function updateInvoiceStatus(
       return { success: false, error: "Invoice has no linked milestones." };
     }
 
-    const allowedTransitions = INVOICE_TRANSITIONS[invoice.status] ?? [];
+    const allowedTransitions = INVOICE_TRANSITIONS[invoice.status];
     if (!allowedTransitions.includes(newStatus)) {
       return { success: false, error: `Cannot transition from ${invoice.status} to ${newStatus}.` };
     }
 
     const updateData: Record<string, unknown> = { status: newStatus };
 
-    if (newStatus === "SUBMITTED") {
+    if (newStatus === InvoiceStatus.SUBMITTED) {
       if (!invoice.paymentDueDate) {
         return { success: false, error: "Payment due date must be set before submitting." };
       }
       updateData.submittedDate = new Date();
     }
 
-    if (newStatus === "DRAFT") {
+    if (newStatus === InvoiceStatus.DRAFT) {
       updateData.submittedDate = null;
     }
 

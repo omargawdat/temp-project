@@ -154,6 +154,9 @@ export function ClientForm({
 
   const [state, formAction] = useActionState(handleAction, null);
 
+  const fieldError = (field: string) =>
+    state && !state.success ? state.fieldErrors?.[field]?.[0] : undefined;
+
   React.useEffect(() => {
     if (state?.success && state.data?.id) {
       onSuccess?.(state.data.id);
@@ -233,7 +236,7 @@ export function ClientForm({
           </div>
         </div>
 
-        <FieldWrapper icon={Building2} label="Name" htmlFor="name">
+        <FieldWrapper icon={Building2} label="Name" htmlFor="name" error={fieldError("name")}>
           <Input
             id="name"
             name="name"
@@ -243,7 +246,7 @@ export function ClientForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={Hash} label="Code" htmlFor="code">
+        <FieldWrapper icon={Hash} label="Code" htmlFor="code" error={fieldError("code")}>
           <Input
             id="code"
             name="code"
@@ -253,13 +256,13 @@ export function ClientForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={Globe} label="Sector" htmlFor="sector">
+        <FieldWrapper icon={Globe} label="Sector" htmlFor="sector" error={fieldError("sector")}>
           <SectorSelect defaultValue={client?.sector} />
         </FieldWrapper>
-        <FieldWrapper icon={MapPin} label="Country" htmlFor="country">
+        <FieldWrapper icon={MapPin} label="Country" htmlFor="country" error={fieldError("countryId")}>
           <CountrySelect countries={countries} defaultValue={client?.countryId} />
         </FieldWrapper>
-        <FieldWrapper icon={User} label="Primary Contact" htmlFor="primaryContact">
+        <FieldWrapper icon={User} label="Primary Contact" htmlFor="primaryContact" error={fieldError("primaryContact")}>
           <Input
             id="primaryContact"
             name="primaryContact"
@@ -269,7 +272,7 @@ export function ClientForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={User} label="Finance Contact" htmlFor="financeContact">
+        <FieldWrapper icon={User} label="Finance Contact" htmlFor="financeContact" error={fieldError("financeContact")}>
           <Input
             id="financeContact"
             name="financeContact"
@@ -279,7 +282,7 @@ export function ClientForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={Mail} label="Email" htmlFor="email">
+        <FieldWrapper icon={Mail} label="Email" htmlFor="email" error={fieldError("email")}>
           <Input
             id="email"
             name="email"
@@ -290,7 +293,7 @@ export function ClientForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={Phone} label="Phone" htmlFor="phone">
+        <FieldWrapper icon={Phone} label="Phone" htmlFor="phone" error={fieldError("phone")}>
           <Input
             id="phone"
             name="phone"
@@ -301,7 +304,7 @@ export function ClientForm({
             required
           />
         </FieldWrapper>
-        <FieldWrapper icon={MapPin} label="Billing Address" htmlFor="billingAddress">
+        <FieldWrapper icon={MapPin} label="Billing Address" htmlFor="billingAddress" error={fieldError("billingAddress")}>
           <textarea
             id="billingAddress"
             name="billingAddress"

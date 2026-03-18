@@ -3,7 +3,22 @@
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createNote, updateNote, deleteNote } from "@/actions/note";
-import { StickyNote, Plus, Pencil, Trash2, X, Check, Loader2 } from "lucide-react";
+import {
+  StickyNote,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Check,
+  Loader2,
+  MessageSquare,
+  Users,
+  Gavel,
+  ShieldAlert,
+  ListTodo,
+  Banknote,
+  Send,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,12 +32,12 @@ interface NoteData {
 }
 
 const NOTE_TYPES = [
-  { value: "GENERAL", label: "General", color: "bg-white/10 text-white/50" },
-  { value: "MEETING", label: "Meeting", color: "bg-blue-500/10 text-blue-400" },
-  { value: "DECISION", label: "Decision", color: "bg-purple-500/10 text-purple-400" },
-  { value: "RISK", label: "Risk", color: "bg-red-500/10 text-red-400" },
-  { value: "ACTION", label: "Action Item", color: "bg-amber-500/10 text-amber-400" },
-  { value: "FINANCE", label: "Finance", color: "bg-emerald-500/10 text-emerald-400" },
+  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-white/10 text-white/50", accent: "white" },
+  { value: "MEETING", label: "Meeting", icon: Users, color: "bg-blue-500/10 text-blue-400", accent: "blue" },
+  { value: "DECISION", label: "Decision", icon: Gavel, color: "bg-purple-500/10 text-purple-400", accent: "purple" },
+  { value: "RISK", label: "Risk", icon: ShieldAlert, color: "bg-red-500/10 text-red-400", accent: "red" },
+  { value: "ACTION", label: "Action Item", icon: ListTodo, color: "bg-amber-500/10 text-amber-400", accent: "amber" },
+  { value: "FINANCE", label: "Finance", icon: Banknote, color: "bg-emerald-500/10 text-emerald-400", accent: "emerald" },
 ] as const;
 
 function noteTypeStyle(type?: string) {
@@ -108,13 +123,18 @@ function NoteItem({
   return (
     <div className="group flex gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.02]">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          {note.noteType && note.noteType !== "GENERAL" && (
-            <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${noteTypeStyle(note.noteType).color}`}>
-              {noteTypeStyle(note.noteType).label}
-            </span>
-          )}
-        </div>
+        {note.noteType && note.noteType !== "GENERAL" && (() => {
+          const style = noteTypeStyle(note.noteType);
+          const TypeIcon = style.icon;
+          return (
+            <div className="flex items-center gap-1.5 mb-1">
+              <TypeIcon className={`h-3 w-3 ${style.color.split(" ")[1]}`} strokeWidth={2} />
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${style.color.split(" ")[1]}`}>
+                {style.label}
+              </span>
+            </div>
+          );
+        })()}
         <p className="text-base text-foreground/85 whitespace-pre-wrap">{note.content}</p>
         <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground/40">
           <span className="font-medium text-muted-foreground/55">{note.createdBy}</span>
@@ -133,6 +153,7 @@ function NoteItem({
           type="button"
           onClick={() => setEditing(true)}
           disabled={isPending}
+          aria-label="Edit note"
           className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-white/[0.06] hover:text-foreground/70"
         >
           <Pencil className="h-3 w-3" />
@@ -141,6 +162,7 @@ function NoteItem({
           type="button"
           onClick={handleDelete}
           disabled={isPending}
+          aria-label="Delete note"
           className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
@@ -202,55 +224,79 @@ export function NotesSection({
 
       <div className="divide-y divide-border/10">
         {/* Add note form */}
-        {adding && (
-          <div className="p-4">
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {NOTE_TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setNoteType(t.value)}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all",
-                    noteType === t.value
-                      ? `${t.color} ring-1 ring-current/20`
-                      : "text-white/30 hover:text-white/50 bg-white/[0.03] hover:bg-white/[0.06]",
-                  )}
-                >
-                  {t.label}
-                </button>
-              ))}
+        {adding && (() => {
+          const selected = NOTE_TYPES.find((t) => t.value === noteType) ?? NOTE_TYPES[0];
+          const SelectedIcon = selected.icon;
+
+          return (
+            <div className="p-5">
+              <div className="overflow-hidden rounded-xl border border-border/30 bg-white/[0.015]">
+                {/* Textarea */}
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && content.trim()) {
+                      handleAdd();
+                    }
+                  }}
+                  placeholder="Write a note..."
+                  className="w-full resize-none bg-transparent px-4 pt-4 pb-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/30 outline-none min-h-[110px]"
+                  autoFocus
+                />
+
+                {/* Bottom toolbar */}
+                <div className="flex items-center justify-between border-t border-border/15 px-2 py-1.5">
+                  {/* Type chips — inline in toolbar */}
+                  <div className="flex items-center gap-0.5">
+                    {NOTE_TYPES.map((t) => {
+                      const Icon = t.icon;
+                      const isActive = noteType === t.value;
+                      return (
+                        <button
+                          key={t.value}
+                          type="button"
+                          onClick={() => setNoteType(t.value)}
+                          className={cn(
+                            "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150",
+                            isActive
+                              ? `${t.color}`
+                              : "text-muted-foreground/50 hover:text-muted-foreground/80 hover:bg-white/[0.04]",
+                          )}
+                        >
+                          <Icon className="h-3 w-3" strokeWidth={2} />
+                          <span className={cn(isActive ? "inline" : "hidden sm:inline")}>{t.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => { setAdding(false); setContent(""); setNoteType("GENERAL"); }}
+                      disabled={isPending}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground/50 transition-colors hover:text-foreground/70"
+                    >
+                      Cancel
+                    </button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleAdd}
+                      disabled={isPending || !content.trim()}
+                      className="h-7 gap-1.5 rounded-lg text-xs"
+                    >
+                      {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write a note..."
-              className="w-full resize-none rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/25 outline-none focus:border-teal-500/40 min-h-[80px]"
-              autoFocus
-            />
-            <div className="mt-2 flex items-center justify-end gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => { setAdding(false); setContent(""); }}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleAdd}
-                disabled={isPending || !content.trim()}
-                className="gap-1"
-              >
-                {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
-                Add
-              </Button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Notes list */}
         {notes.map((note) => (

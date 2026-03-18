@@ -201,7 +201,7 @@ export function SchemaProjectCard({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={projectManagerPhoto}
-                  alt=""
+                  alt={projectManager}
                   className="h-4 w-4 rounded-full object-cover ring-1 ring-white/10"
                 />
               ) : (

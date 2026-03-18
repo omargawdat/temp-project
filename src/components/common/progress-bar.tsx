@@ -41,7 +41,13 @@ export function ProgressBar({
   const h = heightMap[height];
   const bg = barColorMap[color] ?? barColorMap.teal;
   return (
-    <div className={`${h} w-full overflow-hidden rounded-full bg-white/[0.06] ${className ?? ""}`}>
+    <div
+      className={`${h} w-full overflow-hidden rounded-full bg-white/[0.06] ${className ?? ""}`}
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
       <div
         className={`${h} rounded-full ${bg} transition-all duration-700`}
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
@@ -67,8 +73,15 @@ export function StackedProgressBar({
   className,
 }: StackedProgressBarProps) {
   const h = heightMap[height];
+  const total = layers.reduce((sum, l) => sum + l.value, 0);
   return (
-    <div className={`${h} w-full overflow-hidden rounded-full bg-white/[0.04] ${className ?? ""}`}>
+    <div
+      className={`${h} w-full overflow-hidden rounded-full bg-white/[0.04] ${className ?? ""}`}
+      role="progressbar"
+      aria-valuenow={total}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
       <div className="relative h-full">
         {layers.map((layer, i) => {
           const bg = stackedColorMap[layer.color] ?? stackedColorMap.teal;

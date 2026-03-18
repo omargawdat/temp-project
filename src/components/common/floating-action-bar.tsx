@@ -22,7 +22,7 @@ const variantClasses: Record<string, string> = {
   danger:
     "text-white/35 hover:bg-white/[0.06] hover:text-white/60",
   accent:
-    "bg-teal-500/15 text-teal-400 hover:bg-teal-500/25 hover:text-teal-300 ring-1 ring-teal-500/20",
+    "text-teal-400 hover:bg-teal-500/15 hover:text-teal-300 ring-1 ring-teal-500/20",
 };
 
 export function FloatingActionBar({ actions }: { actions: FloatingAction[] }) {

@@ -778,11 +778,33 @@ async function main() {
 
   await prisma.note.createMany({
     data: [
-      { entityType: "CLIENT", entityId: stc.id, createdBy: "Omar Gawdat", content: "Preferred communication language is Arabic. All official documents must be in both Arabic and English." },
-      { entityType: "CLIENT", entityId: stc.id, createdBy: "Sarah Johnson", content: "Annual contract renewal discussion scheduled for Q4 2026. Prepare updated rate card." },
-      { entityType: "CLIENT", entityId: careem.id, createdBy: "Fatima Al-Sayed", content: "Finance team prefers invoices submitted by the 25th of each month to align with their payment cycle." },
-      { entityType: "PROJECT", entityId: neomProject.id, createdBy: "Ahmed Al-Rashid", content: "Project on hold pending revised scope from client. Expected to resume after board approval in April 2026." },
-      { entityType: "PROJECT", entityId: stcProject.id, createdBy: "Sarah Johnson", content: "Client requested biweekly demo sessions starting from the backend development phase." },
+      // ── Client notes ──
+      { entityType: "CLIENT", entityId: stc.id, createdBy: "Omar Gawdat", noteType: "GENERAL", content: "Preferred communication language is Arabic. All official documents must be in both Arabic and English." },
+      { entityType: "CLIENT", entityId: stc.id, createdBy: "Sarah Johnson", noteType: "ACTION", content: "Annual contract renewal discussion scheduled for Q4 2026. Prepare updated rate card." },
+      { entityType: "CLIENT", entityId: stc.id, createdBy: "Omar Gawdat", noteType: "FINANCE", content: "STC requires a separate PO for each project phase. Invoices without a valid PO will be rejected automatically by their vendor portal." },
+      { entityType: "CLIENT", entityId: enbd.id, createdBy: "Omar Gawdat", noteType: "GENERAL", content: "ENBD procurement team rotates quarterly. Always confirm current contact before submitting proposals." },
+      { entityType: "CLIENT", entityId: enbd.id, createdBy: "Fatima Al-Sayed", noteType: "FINANCE", content: "ENBD applies 5% VAT on all AED invoices. USD invoices are VAT-exempt per their cross-border policy." },
+      { entityType: "CLIENT", entityId: neom.id, createdBy: "Ahmed Al-Rashid", noteType: "MEETING", content: "Met with Faisal Al-Ruwaily on 2026-01-15. NEOM is restructuring their tech department — new CTO expected by Q2 2026." },
+      { entityType: "CLIENT", entityId: neom.id, createdBy: "Ahmed Al-Rashid", noteType: "RISK", content: "NEOM payment cycles can extend to 90+ days during organizational restructuring. Plan cash flow accordingly." },
+      { entityType: "CLIENT", entityId: careem.id, createdBy: "Fatima Al-Sayed", noteType: "FINANCE", content: "Finance team prefers invoices submitted by the 25th of each month to align with their payment cycle." },
+      { entityType: "CLIENT", entityId: careem.id, createdBy: "Fatima Al-Sayed", noteType: "GENERAL", content: "Careem uses Slack for day-to-day communication. Formal approvals still go through email." },
+      { entityType: "CLIENT", entityId: mof.id, createdBy: "Sarah Johnson", noteType: "DECISION", content: "MOF requires all deliverables to pass their internal security audit before acceptance. Factor 2 weeks into timelines." },
+      { entityType: "CLIENT", entityId: mof.id, createdBy: "Omar Gawdat", noteType: "FINANCE", content: "All MOF invoices must reference the Etimad PO number and include a stamped delivery certificate." },
+
+      // ── Project notes ──
+      { entityType: "PROJECT", entityId: stcProject.id, createdBy: "Sarah Johnson", noteType: "MEETING", content: "Client requested biweekly demo sessions starting from the backend development phase." },
+      { entityType: "PROJECT", entityId: stcProject.id, createdBy: "Sarah Johnson", noteType: "RISK", content: "Backend team is at 80% capacity. If the ENBD project accelerates, we may need to bring in a contractor for the API layer." },
+      { entityType: "PROJECT", entityId: stcProject.id, createdBy: "Omar Gawdat", noteType: "DECISION", content: "Decided to use microservices architecture instead of monolith after load testing showed 3x better throughput." },
+      { entityType: "PROJECT", entityId: enbdMobile.id, createdBy: "Omar Gawdat", noteType: "GENERAL", content: "ENBD security team requires all code to pass Veracode static analysis before deployment to staging." },
+      { entityType: "PROJECT", entityId: enbdMobile.id, createdBy: "Omar Gawdat", noteType: "ACTION", content: "Schedule penetration testing with ENBD's approved vendor (CyberKnight) before the security audit milestone." },
+      { entityType: "PROJECT", entityId: neomProject.id, createdBy: "Ahmed Al-Rashid", noteType: "RISK", content: "Project on hold pending revised scope from client. Expected to resume after board approval in April 2026." },
+      { entityType: "PROJECT", entityId: neomProject.id, createdBy: "Ahmed Al-Rashid", noteType: "MEETING", content: "Attended NEOM tech summit on 2025-12-10. Smart city portal must integrate with their IoT middleware layer — adding to scope." },
+      { entityType: "PROJECT", entityId: careemProject.id, createdBy: "Fatima Al-Sayed", noteType: "ACTION", content: "Need to finalize API rate limiting strategy with Careem's platform team before the integration milestone." },
+      { entityType: "PROJECT", entityId: careemProject.id, createdBy: "Fatima Al-Sayed", noteType: "RISK", content: "Careem is migrating their fleet data to a new provider in Q2 2026. Our integration endpoints may need to be updated." },
+      { entityType: "PROJECT", entityId: mofProject.id, createdBy: "Sarah Johnson", noteType: "GENERAL", content: "Project closed successfully. Client expressed interest in a Phase 2 for forecasting module — follow up in Q1 2026." },
+      { entityType: "PROJECT", entityId: mofProject.id, createdBy: "Sarah Johnson", noteType: "DECISION", content: "Chose Arabic-first UI with RTL layout as primary. English toggle added as secondary language option per MOF request." },
+      { entityType: "PROJECT", entityId: enbdRewards.id, createdBy: "Omar Gawdat", noteType: "FINANCE", content: "Rewards engine milestone completed 2 weeks late. Client agreed to waive penalty clause due to scope additions." },
+      { entityType: "PROJECT", entityId: enbdRewards.id, createdBy: "Omar Gawdat", noteType: "ACTION", content: "Admin portal must support bulk CSV upload of partner merchant data. Confirm file size limits with ENBD IT." },
     ],
   });
 
@@ -819,6 +841,7 @@ async function main() {
   console.log("  - 7 delivery notes (DRAFT, SENT, SIGNED)");
   console.log("  - 7 invoices (all 6 statuses covered)");
   console.log("  - 3 payments (partial + full)");
+  console.log("  - 24 notes (all 6 note types covered)");
 }
 
 main()

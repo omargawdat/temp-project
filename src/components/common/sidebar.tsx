@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -28,9 +27,13 @@ const navItems = [
   { href: "/countries", label: "Countries", icon: Globe, color: "#06b6d4" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onToggle: () => void;
+}
+
+export function Sidebar({ open, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(true);
 
   return (
     <aside
@@ -47,7 +50,7 @@ export function Sidebar() {
 
       {/* Toggle button */}
       <button
-        onClick={() => setOpen(!open)}
+        onClick={onToggle}
         className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.08] bg-[#0e1828] text-white/40 shadow-lg shadow-black/40 transition-colors hover:bg-[#162236] hover:text-white/70"
       >
         {open ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -73,7 +76,7 @@ export function Sidebar() {
       )}
 
       {/* Nav items */}
-      <nav className={cn("flex-1 px-3", !open && "px-2")}>
+      <nav aria-label="Main navigation" className={cn("flex-1 px-3", !open && "px-2")}>
         <div className="flex flex-col gap-1">
           {navItems.map((item) => {
             const isActive =

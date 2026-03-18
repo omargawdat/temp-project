@@ -45,6 +45,7 @@ export function ToolbarSearch({
           <InputGroupButton
             size="icon-xs"
             variant="ghost"
+            aria-label="Clear search"
             onClick={() => { setLocal(""); onChange(""); }}
           >
             <X className="h-3 w-3" />

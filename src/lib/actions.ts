@@ -1,6 +1,9 @@
 import type { ActionResult } from "@/types";
 import { ValidationError } from "./validation";
 import { revalidatePath } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { z } from "zod";
+import { zodErrorToFieldErrors } from "./form-utils";
 
 export async function withErrorHandling<T>(
   fn: () => Promise<ActionResult<T>>,
@@ -8,8 +11,16 @@ export async function withErrorHandling<T>(
   try {
     return await fn();
   } catch (error) {
+    if (isRedirectError(error)) throw error;
     if (error instanceof ValidationError) {
       return { success: false, error: error.message };
+    }
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: "Validation failed.",
+        fieldErrors: zodErrorToFieldErrors(error),
+      };
     }
     console.error("Action error:", error);
     return {

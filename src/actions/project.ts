@@ -3,17 +3,12 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { ActionResult } from "@/types";
-import {
-  parseRequiredString,
-  parseDecimal,
-  parseDate,
-  parseEnum,
-  validateDateRange,
-} from "@/lib/validation";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
 import { handleImageUpload } from "@/lib/image-upload";
-
-const INVOICING_METHODS = ["PORTAL", "EMAIL"] as const;
+import { ProjectStatus } from "@prisma/client";
+import { PROJECT_TRANSITIONS } from "@/schemas/transitions";
+import { projectFormSchema } from "@/schemas/project";
+import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 /**
  * Recalculates project status based on milestones and invoices.
@@ -30,7 +25,17 @@ export async function recalculateProjectStatus(projectId: string) {
     },
   });
 
-  if (!project || project.milestones.length === 0) return;
+  if (!project) return;
+
+  if (project.milestones.length === 0) {
+    if (project.status === "CLOSED") {
+      await prisma.project.update({
+        where: { id: projectId },
+        data: { status: "ACTIVE" },
+      });
+    }
+    return;
+  }
 
   // Don't auto-override manual ON_HOLD status
   if (project.status === "ON_HOLD") return;
@@ -56,15 +61,9 @@ export async function recalculateProjectStatus(projectId: string) {
   }
 }
 
-const PROJECT_TRANSITIONS: Record<string, string[]> = {
-  ACTIVE: ["ON_HOLD", "CLOSED"],
-  ON_HOLD: ["ACTIVE"],
-  CLOSED: ["ACTIVE"],
-};
-
 export async function updateProjectStatus(
   id: string,
-  newStatus: string,
+  newStatus: ProjectStatus,
 ): Promise<ActionResult<void>> {
   return withErrorHandling(async () => {
     const project = await prisma.project.findUnique({ where: { id } });
@@ -73,14 +72,14 @@ export async function updateProjectStatus(
       return { success: false, error: "Project not found." };
     }
 
-    const allowed = PROJECT_TRANSITIONS[project.status] ?? [];
+    const allowed = PROJECT_TRANSITIONS[project.status];
     if (!allowed.includes(newStatus)) {
       return { success: false, error: `Cannot transition from ${project.status} to ${newStatus}.` };
     }
 
     await prisma.project.update({
       where: { id },
-      data: { status: newStatus as "ACTIVE" | "ON_HOLD" | "CLOSED" },
+      data: { status: newStatus },
     });
 
     revalidateEntity("projects", id);
@@ -88,55 +87,37 @@ export async function updateProjectStatus(
   });
 }
 
-function validateProjectData(formData: FormData) {
-  const name = parseRequiredString(formData, "name");
-  const clientId = parseRequiredString(formData, "clientId");
-  const contractNumber = parseRequiredString(formData, "contractNumber");
-  const contractValue = parseDecimal(formData, "contractValue");
-  const currency = parseRequiredString(formData, "currency");
-  const startDate = parseDate(formData, "startDate");
-  const endDate = parseDate(formData, "endDate");
-  const projectManagerId = parseRequiredString(formData, "projectManagerId");
-  const paymentTerms = parseRequiredString(formData, "paymentTerms");
-  const clientInvoicingMethod = parseEnum(
-    formData,
-    "clientInvoicingMethod",
-    INVOICING_METHODS,
-  );
-
-  validateDateRange(startDate, endDate);
-
-  return {
-    name,
-    clientId,
-    contractNumber,
-    contractValue,
-    currency: currency.toUpperCase(),
-    startDate,
-    endDate,
-    projectManagerId,
-    paymentTerms,
-    clientInvoicingMethod,
-  };
-}
-
 export async function createProject(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const data = validateProjectData(formData);
+    const result = projectFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const data = result.data;
     const imageUrl = await handleImageUpload(formData, "image", "projects");
 
     const existing = await prisma.project.findUnique({
       where: { contractNumber: data.contractNumber },
     });
     if (existing) {
-      return { success: false, error: "Contract number already exists." };
+      return {
+        success: false,
+        error: "Contract number already exists.",
+        fieldErrors: { contractNumber: ["Contract number already exists."] },
+      };
     }
 
     const project = await prisma.project.create({
       data: {
         ...data,
+        currency: data.currency.toUpperCase(),
         imageUrl,
         status: "ACTIVE",
       },
@@ -152,7 +133,16 @@ export async function updateProject(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const data = validateProjectData(formData);
+    const result = projectFormSchema.safeParse(formDataToObject(formData));
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Please fix the errors below.",
+        fieldErrors: zodErrorToFieldErrors(result.error),
+      };
+    }
+
+    const data = result.data;
 
     const current = await prisma.project.findUnique({ where: { id } });
     if (!current) {
@@ -165,12 +155,16 @@ export async function updateProject(
       where: { contractNumber: data.contractNumber, id: { not: id } },
     });
     if (existing) {
-      return { success: false, error: "Contract number already exists." };
+      return {
+        success: false,
+        error: "Contract number already exists.",
+        fieldErrors: { contractNumber: ["Contract number already exists."] },
+      };
     }
 
     await prisma.project.update({
       where: { id },
-      data: { ...data, imageUrl },
+      data: { ...data, currency: data.currency.toUpperCase(), imageUrl },
     });
 
     revalidateEntity("projects", id);

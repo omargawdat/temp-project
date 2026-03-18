@@ -1,3 +1,6 @@
+import type { CurrencyTotals } from "@/lib/format";
+import { addToCurrency } from "@/lib/format";
+
 type DecimalLike = number | string | { toString(): string };
 
 /**
@@ -40,6 +43,30 @@ export interface DeduplicatedInvoice {
  * Deduplicate invoices from milestones, collecting milestone names per invoice.
  * Replaces the repeated Map-based dedup pattern found in multiple pages.
  */
+/**
+ * Sum invoice totalPayable grouped by currency, deduplicating by invoice ID.
+ * Each milestone must carry a `_currency` field indicating the project's currency.
+ */
+export function sumUniqueInvoicesByCurrency(
+  milestones: Array<{
+    invoice?: { id: string; totalPayable: DecimalLike; status?: string } | null;
+    _currency: string;
+  }>,
+  statusFilter?: string,
+): CurrencyTotals {
+  const seen = new Set<string>();
+  const totals: CurrencyTotals = {};
+  for (const m of milestones) {
+    if (m.invoice && !seen.has(m.invoice.id)) {
+      if (!statusFilter || m.invoice.status === statusFilter) {
+        seen.add(m.invoice.id);
+        addToCurrency(totals, m._currency, Number(m.invoice.totalPayable));
+      }
+    }
+  }
+  return totals;
+}
+
 export function deduplicateInvoices<
   M extends {
     name: string;

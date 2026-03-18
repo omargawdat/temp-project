@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -74,10 +74,10 @@ model Client {
   financeContact  String
   email           String
   phone           String
-  billingAddress  String
+  billingAddress  String    @db.Text
   portalName      String?
   portalLink      String?
-  notes           String?
+  notes           String?   @db.Text
 
   country  Country   @relation(fields: [countryId], references: [id])
   projects Project[]
@@ -108,7 +108,7 @@ model Project {
   imageUrl              String?
   clientId              String
   contractNumber        String                @unique
-  contractValue         Decimal
+  contractValue         Decimal               @db.Decimal(15, 2)
   currency              String
   startDate             DateTime
   endDate               DateTime
@@ -133,7 +133,7 @@ model Milestone {
   id                   String          @id @default(cuid())
   projectId            String
   name                 String
-  value                Decimal
+  value                Decimal         @db.Decimal(15, 2)
   plannedDate          DateTime
   status               MilestoneStatus @default(NOT_STARTED)
   requiresDeliveryNote Boolean         @default(false)
@@ -154,8 +154,8 @@ model Milestone {
 model DeliveryNote {
   id                String             @id @default(cuid())
   milestoneId       String             @unique
-  description       String
-  workDelivered     String
+  description       String             @db.Text
+  workDelivered     String             @db.Text
   status            DeliveryNoteStatus @default(DRAFT)
   signedDocumentUrl String?
   sentDate          DateTime?
@@ -170,9 +170,9 @@ model DeliveryNote {
 model Invoice {
   id             String        @id @default(cuid())
   invoiceNumber  String        @unique
-  amount         Decimal
-  vatAmount      Decimal
-  totalPayable   Decimal
+  amount         Decimal       @db.Decimal(15, 2)
+  vatAmount      Decimal       @db.Decimal(15, 2)
+  totalPayable   Decimal       @db.Decimal(15, 2)
   status         InvoiceStatus @default(DRAFT)
   submittedDate  DateTime?
   paymentDueDate DateTime?
@@ -189,7 +189,7 @@ model Invoice {
 model CompanySettings {
   id            String   @id @default("default")
   companyName   String   @default("")
-  address       String   @default("")
+  address       String   @default("") @db.Text
   city          String   @default("")
   country       String   @default("")
   taxId         String   @default("")
@@ -201,14 +201,14 @@ model CompanySettings {
   bankAccount   String   @default("")
   bankIban      String   @default("")
   bankSwift     String   @default("")
-  invoiceFooter String   @default("")
+  invoiceFooter String   @default("") @db.Text
   updatedAt     DateTime @updatedAt
 }
 
 model Payment {
   id           String   @id @default(cuid())
   invoiceId    String
-  amount       Decimal
+  amount       Decimal  @db.Decimal(15, 2)
   receivedDate DateTime
   reference    String
 
@@ -224,7 +224,7 @@ model Note {
   entityType String
   entityId   String
   noteType   String   @default("GENERAL")
-  content    String
+  content    String   @db.Text
   createdBy  String
 
   createdAt DateTime @default(now())
