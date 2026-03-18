@@ -16,6 +16,9 @@ import {
   buildInvoiceOrderBy,
   hasActiveInvoiceFilters,
 } from "@/lib/invoice-queries";
+import { parsePage, getPaginationMeta } from "@/lib/pagination";
+import { PAGE_SIZE } from "@/lib/constants";
+import { Pagination } from "@/components/common/pagination";
 
 export default async function InvoicesPage({
   searchParams,
@@ -38,11 +41,15 @@ export default async function InvoicesPage({
   const where = buildInvoiceWhere(filterParams);
   const orderBy = buildInvoiceOrderBy(sortParams);
   const filtersActive = hasActiveInvoiceFilters(filterParams);
+  const rawPage = parsePage(params.page);
+  const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [invoices, allProjects] = await Promise.all([
+  const [invoices, allProjects, totalCount, filteredCount] = await Promise.all([
     prisma.invoice.findMany({
       where,
       orderBy,
+      skip,
+      take: PAGE_SIZE,
       include: {
         milestones: {
           include: { project: true },
@@ -53,20 +60,24 @@ export default async function InvoicesPage({
       select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
       orderBy: { name: "asc" },
     }),
+    prisma.invoice.count(),
+    prisma.invoice.count({ where }),
   ]);
+
+  const pagination = getPaginationMeta(rawPage, filteredCount);
 
   return (
     <div>
       <PageHeader
         title="Invoices"
-        description={`${invoices.length} invoice${invoices.length !== 1 ? "s" : ""} total`}
+        description={`${totalCount} invoice${totalCount !== 1 ? "s" : ""} total`}
         breadcrumbs={[]}
       />
 
       {/* Toolbar */}
       <InvoicesToolbar
         projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
-        resultCount={invoices.length}
+        resultCount={filteredCount}
       />
 
       {/* Table */}
@@ -160,7 +171,7 @@ export default async function InvoicesPage({
           ))}
         </div>
 
-        {invoices.length === 0 && (
+        {invoices.length === 0 && filteredCount === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
             <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
               {filtersActive ? (
@@ -189,6 +200,7 @@ export default async function InvoicesPage({
           </div>
         )}
       </div>
+      <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
     </div>
   );
 }

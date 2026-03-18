@@ -46,6 +46,7 @@ export function SortableHeader({
       params.delete("dir");
     }
 
+    params.delete("page");
     const qs = params.toString();
     router.replace(`${basePath}${qs ? `?${qs}` : ""}`, { scroll: false });
   }

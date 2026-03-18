@@ -36,3 +36,5 @@ export const DATE_FORMAT_MONTH_YEAR: Intl.DateTimeFormatOptions = {
   month: "short",
   year: "numeric",
 };
+
+export const PAGE_SIZE = 12;

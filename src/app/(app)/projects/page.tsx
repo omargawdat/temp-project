@@ -12,6 +12,9 @@ import {
   buildProjectOrderBy,
   hasActiveProjectFilters,
 } from "@/lib/project-queries";
+import { parsePage, getPaginationMeta } from "@/lib/pagination";
+import { PAGE_SIZE } from "@/lib/constants";
+import { Pagination } from "@/components/common/pagination";
 
 export default async function ProjectsPage({
   searchParams,
@@ -33,11 +36,15 @@ export default async function ProjectsPage({
   const where = buildProjectWhere(filterParams);
   const orderBy = buildProjectOrderBy(sortParams);
   const filtersActive = hasActiveProjectFilters(filterParams);
+  const rawPage = parsePage(params.page);
+  const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [projects, projectManagers, clients, totalCount] = await Promise.all([
+  const [projects, projectManagers, clients, totalCount, filteredCount] = await Promise.all([
     prisma.project.findMany({
       where,
       orderBy,
+      skip,
+      take: PAGE_SIZE,
       include: {
         client: { select: { name: true, imageUrl: true } },
         projectManager: { select: { name: true, photoUrl: true } },
@@ -55,7 +62,10 @@ export default async function ProjectsPage({
       orderBy: { name: "asc" },
     }),
     prisma.project.count(),
+    prisma.project.count({ where }),
   ]);
+
+  const pagination = getPaginationMeta(rawPage, filteredCount);
 
   return (
     <div>
@@ -70,10 +80,11 @@ export default async function ProjectsPage({
       <ProjectsToolbar
         clients={clients.map((c) => ({ id: c.id, name: c.name, imageUrl: c.imageUrl, count: c._count.projects }))}
         projectManagers={projectManagers.map((pm) => ({ id: pm.id, name: pm.name, imageUrl: pm.photoUrl, count: pm._count.projects }))}
-        resultCount={projects.length}
+        resultCount={filteredCount}
       />
 
-      {projects.length > 0 ? (
+      {filteredCount > 0 ? (
+        <>
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {projects.map((project, i) => {
             const completed = project.milestones.filter(
@@ -113,6 +124,8 @@ export default async function ProjectsPage({
             );
           })}
         </div>
+        <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
+        </>
       ) : (
         <div className="border-border/50 bg-card flex flex-col items-center gap-4 rounded-2xl border py-20 shadow-lg shadow-black/10">
           <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>

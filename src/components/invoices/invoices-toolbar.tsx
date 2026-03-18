@@ -49,6 +49,7 @@ export function InvoicesToolbar({
           params.set(key, value);
         }
       }
+      params.delete("page");
       const qs = params.toString();
       router.replace(`/invoices${qs ? `?${qs}` : ""}`, { scroll: false });
     },

@@ -21,6 +21,7 @@ export function PMToolbar({ resultCount }: { resultCount: number }) {
           params.set(key, value);
         }
       }
+      params.delete("page");
       const qs = params.toString();
       router.replace(`/project-managers${qs ? `?${qs}` : ""}`, { scroll: false });
     },

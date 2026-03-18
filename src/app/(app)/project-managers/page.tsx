@@ -7,6 +7,8 @@ import { SortableHeader } from "@/components/toolbar/sortable-header";
 import { PMToolbar } from "@/components/project-managers/pm-toolbar";
 import { computePMStats } from "@/lib/pm-stats";
 import { buildPMWhere, sortPMStats, hasActivePMFilters } from "@/lib/pm-queries";
+import { parsePage, getPaginationMeta } from "@/lib/pagination";
+import { Pagination } from "@/components/common/pagination";
 import { Button } from "@/components/ui/button";
 import { OverdueAlert } from "@/components/project-managers/overdue-alert";
 import { formatMultiCurrency } from "@/lib/format";
@@ -50,6 +52,9 @@ export default async function ProjectManagersPage({
 
   const pmStats = computePMStats(managers);
   const sortedStats = sortPMStats(pmStats, sortParams);
+  const rawPage = parsePage(params.page);
+  const pagination = getPaginationMeta(rawPage, sortedStats.length);
+  const paginatedStats = sortedStats.slice(pagination.skip, pagination.skip + pagination.take);
 
   return (
     <div className="space-y-6">
@@ -64,6 +69,8 @@ export default async function ProjectManagersPage({
       <PMToolbar resultCount={sortedStats.length} />
 
       {sortedStats.length > 0 ? (
+        <>
+
         <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
           <table className="w-full" style={{ tableLayout: "fixed" }}>
             <colgroup>
@@ -97,7 +104,7 @@ export default async function ProjectManagersPage({
               </tr>
             </thead>
             <tbody>
-              {sortedStats.map((pm, idx) => {
+              {paginatedStats.map((pm, idx) => {
                 const initials = pm.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
                 // Next deadline formatting
@@ -118,7 +125,7 @@ export default async function ProjectManagersPage({
                   <tr
                     key={pm.id}
                     className={`group transition-colors hover:bg-teal-500/[0.03] ${
-                      idx < sortedStats.length - 1 ? "border-b border-border/10" : ""
+                      idx < paginatedStats.length - 1 ? "border-b border-border/10" : ""
                     }`}
                   >
                     {/* Manager */}
@@ -194,6 +201,8 @@ export default async function ProjectManagersPage({
             </tbody>
           </table>
         </div>
+        <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
+        </>
       ) : (
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card/40 py-20">
           <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>

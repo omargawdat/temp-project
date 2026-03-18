@@ -53,6 +53,7 @@ export function ProjectsToolbar({
           params.set(key, value);
         }
       }
+      params.delete("page");
       const qs = params.toString();
       router.replace(`/projects${qs ? `?${qs}` : ""}`, { scroll: false });
     },

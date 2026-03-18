@@ -14,6 +14,9 @@ import {
   buildClientOrderBy,
   hasActiveClientFilters,
 } from "@/lib/client-queries";
+import { parsePage, getPaginationMeta } from "@/lib/pagination";
+import { PAGE_SIZE } from "@/lib/constants";
+import { Pagination } from "@/components/common/pagination";
 import { filterOverdue, daysDifference } from "@/lib/milestones";
 import { getInitials, safePercent, formatMultiCurrency, addToCurrency, type CurrencyTotals } from "@/lib/format";
 import { SECTOR_STYLES, DEFAULT_STATUS_STYLE, formatSector } from "@/lib/status-config";
@@ -37,11 +40,15 @@ export default async function ClientsPage({
   const where = buildClientWhere(filterParams);
   const orderBy = buildClientOrderBy(sortParams);
   const filtersActive = hasActiveClientFilters(filterParams);
+  const rawPage = parsePage(params.page);
+  const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [clients, totalCount, countries] = await Promise.all([
+  const [clients, totalCount, filteredCount, countries] = await Promise.all([
     prisma.client.findMany({
       where,
       orderBy,
+      skip,
+      take: PAGE_SIZE,
       include: {
         country: true,
         projects: {
@@ -66,11 +73,14 @@ export default async function ClientsPage({
       },
     }),
     prisma.client.count(),
+    prisma.client.count({ where }),
     prisma.country.findMany({
       select: { id: true, name: true, code: true, flag: true, _count: { select: { clients: true } } },
       orderBy: { name: "asc" },
     }),
   ]);
+
+  const pagination = getPaginationMeta(rawPage, filteredCount);
 
   return (
     <div>
@@ -86,10 +96,11 @@ export default async function ClientsPage({
         countries={countries
           .filter((c) => c._count.clients > 0)
           .map((c) => ({ id: c.id, name: c.name, flag: c.flag, count: c._count.clients }))}
-        resultCount={clients.length}
+        resultCount={filteredCount}
       />
 
-      {clients.length > 0 ? (
+      {filteredCount > 0 ? (
+        <>
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {clients.map((client) => {
             const activeProjects = client.projects.filter(
@@ -243,6 +254,8 @@ export default async function ClientsPage({
             );
           })}
         </div>
+        <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
+        </>
       ) : (
         <div className="border-border/50 bg-card flex flex-col items-center gap-4 rounded-2xl border py-20 shadow-lg shadow-black/10">
           <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-orange-500/10"}`}>

@@ -49,6 +49,7 @@ export function ClientsToolbar({
           params.set(key, value);
         }
       }
+      params.delete("page");
       const qs = params.toString();
       router.replace(`/clients${qs ? `?${qs}` : ""}`, { scroll: false });
     },

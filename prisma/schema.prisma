@@ -232,3 +232,29 @@ model Note {
 
   @@index([entityType, entityId])
 }
+
+// ─── Audit ──────────────────────────────────────────────────────
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  action      AuditAction
+  entityType  String
+  entityId    String
+  entityName  String
+  performedBy String      @default("System")
+  changes     Json?
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([entityType])
+  @@index([createdAt])
+  @@index([action])
+}

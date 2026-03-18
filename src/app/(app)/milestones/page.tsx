@@ -11,6 +11,9 @@ import {
   buildMilestoneOrderBy,
   hasActiveFilters,
 } from "@/lib/milestone-queries";
+import { parsePage, getPaginationMeta } from "@/lib/pagination";
+import { PAGE_SIZE } from "@/lib/constants";
+import { Pagination } from "@/components/common/pagination";
 
 export default async function MilestonesPage({
   searchParams,
@@ -34,15 +37,20 @@ export default async function MilestonesPage({
   const where = buildMilestoneWhere(filterParams);
   const orderBy = buildMilestoneOrderBy(sortParams);
   const filtersActive = hasActiveFilters(filterParams);
+  const rawPage = parsePage(params.page);
+  const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [milestones, allProjects, totalCount] = await Promise.all([
-    prisma.milestone.findMany({ where, orderBy, include: { project: true } }),
+  const [milestones, allProjects, totalCount, filteredCount] = await Promise.all([
+    prisma.milestone.findMany({ where, orderBy, skip, take: PAGE_SIZE, include: { project: true } }),
     prisma.project.findMany({
       select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.milestone.count(),
+    prisma.milestone.count({ where }),
   ]);
+
+  const pagination = getPaginationMeta(rawPage, filteredCount);
 
   return (
     <div>
@@ -55,7 +63,7 @@ export default async function MilestonesPage({
       {/* Toolbar */}
       <MilestonesToolbar
         projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
-        resultCount={milestones.length}
+        resultCount={filteredCount}
       />
 
       {/* Table */}
@@ -112,7 +120,7 @@ export default async function MilestonesPage({
           ))}
         </div>
 
-        {milestones.length === 0 && (
+        {milestones.length === 0 && filteredCount === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
             <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
               {filtersActive ? (
@@ -147,6 +155,7 @@ export default async function MilestonesPage({
           </div>
         )}
       </div>
+      <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
     </div>
   );
 }

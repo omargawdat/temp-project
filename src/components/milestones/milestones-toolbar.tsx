@@ -44,6 +44,7 @@ export function MilestonesToolbar({
           params.set(key, value);
         }
       }
+      params.delete("page");
       const qs = params.toString();
       router.replace(`/milestones${qs ? `?${qs}` : ""}`, { scroll: false });
     },
