@@ -8,6 +8,7 @@ import { InvoiceStatus } from "@prisma/client";
 import { INVOICE_TRANSITIONS } from "@/schemas/transitions";
 import { invoiceCreateSchema, invoiceUpdateSchema } from "@/schemas/invoice";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 export async function createInvoice(
   formData: FormData,
@@ -96,6 +97,14 @@ export async function createInvoice(
       return created;
     });
 
+    void createAuditLog({
+      action: "CREATE",
+      entityType: "Invoice",
+      entityId: invoice.id,
+      entityName: invoice.invoiceNumber,
+      metadata: { projectId, milestoneCount: milestoneIds.length, amount: String(amount) },
+    });
+
     await recalculateProjectStatus(projectId);
     revalidateEntity("invoices");
     revalidateEntity("milestones");
@@ -161,6 +170,17 @@ export async function updateInvoice(
       },
     });
 
+    void createAuditLog({
+      action: "UPDATE",
+      entityType: "Invoice",
+      entityId: id,
+      entityName: invoiceNumber,
+      changes: diffFields(
+        { invoiceNumber: invoice.invoiceNumber, vatAmount: String(invoice.vatAmount) },
+        { invoiceNumber, vatAmount: String(vatAmount) },
+      ),
+    });
+
     revalidateEntity("invoices");
     return { success: true, data: { id } };
   });
@@ -203,6 +223,14 @@ export async function updateInvoiceStatus(
     }
 
     await prisma.invoice.update({ where: { id }, data: updateData });
+
+    void createAuditLog({
+      action: "STATUS_CHANGE",
+      entityType: "Invoice",
+      entityId: id,
+      entityName: invoice.invoiceNumber,
+      changes: { before: { status: invoice.status }, after: { status: newStatus } },
+    });
 
     const projectId = invoice.milestones[0].projectId;
     await recalculateProjectStatus(projectId);

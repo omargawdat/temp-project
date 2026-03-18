@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { buildInvoiceWhere, buildInvoiceOrderBy } from "@/lib/invoice-queries";
 import { buildExportResponse } from "@/lib/export-utils";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
+  logger.info("API request", { route: "/api/invoices/export", method: "GET" });
   const { searchParams } = new URL(request.url);
   const params = {
     q: searchParams.get("q") ?? undefined,

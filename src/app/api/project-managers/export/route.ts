@@ -2,8 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { buildPMWhere, sortPMStats } from "@/lib/pm-queries";
 import { computePMStats } from "@/lib/pm-stats";
 import { buildExportResponse } from "@/lib/export-utils";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
+  logger.info("API request", { route: "/api/project-managers/export", method: "GET" });
   const { searchParams } = new URL(request.url);
   const filterParams = {
     q: searchParams.get("q") ?? undefined,

@@ -82,3 +82,30 @@ export const CLIENT_SECTORS = [
   { key: "PRIVATE", label: "Private", dot: "bg-emerald-400" },
   { key: "SEMI_GOVERNMENT", label: "Semi Government", dot: "bg-amber-400" },
 ] as const;
+
+export const AUDIT_ACTION_STYLES: Record<string, StatusStyle> = {
+  CREATE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
+  UPDATE: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400" },
+  DELETE: { bg: "bg-red-500/10", text: "text-red-400", dot: "bg-red-400" },
+  STATUS_CHANGE: { bg: "bg-purple-500/10", text: "text-purple-400", dot: "bg-purple-400" },
+};
+
+export const AUDIT_ACTION_STATUSES = [
+  { key: "CREATE", label: "Create", dot: "bg-emerald-400" },
+  { key: "UPDATE", label: "Update", dot: "bg-blue-400" },
+  { key: "DELETE", label: "Delete", dot: "bg-red-400" },
+  { key: "STATUS_CHANGE", label: "Status Change", dot: "bg-purple-400" },
+] as const;
+
+export const AUDIT_ENTITY_TYPES = [
+  { id: "Project", name: "Project" },
+  { id: "Client", name: "Client" },
+  { id: "Milestone", name: "Milestone" },
+  { id: "Invoice", name: "Invoice" },
+  { id: "DeliveryNote", name: "Delivery Note" },
+  { id: "Payment", name: "Payment" },
+  { id: "ProjectManager", name: "Project Manager" },
+  { id: "Country", name: "Country" },
+  { id: "Note", name: "Note" },
+  { id: "CompanySettings", name: "Settings" },
+] as const;

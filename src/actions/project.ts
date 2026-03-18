@@ -9,6 +9,7 @@ import { ProjectStatus } from "@prisma/client";
 import { PROJECT_TRANSITIONS } from "@/schemas/transitions";
 import { projectFormSchema } from "@/schemas/project";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 /**
  * Recalculates project status based on milestones and invoices.
@@ -58,6 +59,14 @@ export async function recalculateProjectStatus(projectId: string) {
       where: { id: projectId },
       data: { status: newStatus },
     });
+    void createAuditLog({
+      action: "STATUS_CHANGE",
+      entityType: "Project",
+      entityId: projectId,
+      entityName: project.name,
+      changes: { before: { status: project.status }, after: { status: newStatus } },
+      metadata: { trigger: "auto-recalculation" },
+    });
   }
 }
 
@@ -80,6 +89,14 @@ export async function updateProjectStatus(
     await prisma.project.update({
       where: { id },
       data: { status: newStatus },
+    });
+
+    void createAuditLog({
+      action: "STATUS_CHANGE",
+      entityType: "Project",
+      entityId: id,
+      entityName: project.name,
+      changes: { before: { status: project.status }, after: { status: newStatus } },
     });
 
     revalidateEntity("projects", id);
@@ -121,6 +138,13 @@ export async function createProject(
         imageUrl,
         status: "ACTIVE",
       },
+    });
+
+    void createAuditLog({
+      action: "CREATE",
+      entityType: "Project",
+      entityId: project.id,
+      entityName: data.name,
     });
 
     revalidateEntity("projects");
@@ -167,6 +191,17 @@ export async function updateProject(
       data: { ...data, currency: data.currency.toUpperCase(), imageUrl },
     });
 
+    void createAuditLog({
+      action: "UPDATE",
+      entityType: "Project",
+      entityId: id,
+      entityName: data.name,
+      changes: diffFields(
+        { name: current.name, contractNumber: current.contractNumber, contractValue: String(current.contractValue), currency: current.currency },
+        { name: data.name, contractNumber: data.contractNumber, contractValue: String(data.contractValue), currency: data.currency.toUpperCase() },
+      ),
+    });
+
     revalidateEntity("projects", id);
     return { success: true, data: { id } };
   });
@@ -196,6 +231,13 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     }
 
     await prisma.project.delete({ where: { id } });
+
+    void createAuditLog({
+      action: "DELETE",
+      entityType: "Project",
+      entityId: id,
+      entityName: project.name,
+    });
 
     revalidateEntity("projects");
     redirect("/projects");

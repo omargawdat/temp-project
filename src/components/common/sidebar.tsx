@@ -10,6 +10,7 @@ import {
   Receipt,
   Users2,
   Globe,
+  ScrollText,
   Settings,
   LogOut,
   ChevronLeft,
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/invoices", label: "Invoices", icon: Receipt, color: "#f472b6" },
   { href: "/project-managers", label: "Team", icon: Users2, color: "#a78bfa" },
   { href: "/countries", label: "Countries", icon: Globe, color: "#06b6d4" },
+  { href: "/audit-log", label: "Audit Log", icon: ScrollText, color: "#94a3b8" },
 ];
 
 interface SidebarProps {

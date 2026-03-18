@@ -7,6 +7,7 @@ import { DeliveryNoteStatus } from "@prisma/client";
 import { DN_TRANSITIONS } from "@/schemas/transitions";
 import { deliveryNoteFormSchema, deliveryNoteUpdateSchema } from "@/schemas/delivery-note";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 export async function createDeliveryNote(
   formData: FormData,
@@ -48,6 +49,14 @@ export async function createDeliveryNote(
       data: { milestoneId, description, workDelivered, status: "DRAFT" },
     });
 
+    void createAuditLog({
+      action: "CREATE",
+      entityType: "DeliveryNote",
+      entityId: deliveryNote.id,
+      entityName: `DN for ${milestone.name}`,
+      metadata: { milestoneId, projectId: milestone.projectId },
+    });
+
     revalidateEntity("projects", milestone.projectId);
     return { success: true, data: { id: deliveryNote.id } };
   });
@@ -87,6 +96,18 @@ export async function updateDeliveryNote(
       data: { description, workDelivered },
     });
 
+    void createAuditLog({
+      action: "UPDATE",
+      entityType: "DeliveryNote",
+      entityId: id,
+      entityName: `DN for ${deliveryNote.milestone.name}`,
+      changes: diffFields(
+        { description: deliveryNote.description, workDelivered: deliveryNote.workDelivered },
+        { description, workDelivered },
+      ),
+      metadata: { milestoneId: deliveryNote.milestoneId, projectId: deliveryNote.milestone.projectId },
+    });
+
     revalidateEntity("projects", deliveryNote.milestone.projectId);
     return { success: true, data: { id } };
   });
@@ -117,6 +138,15 @@ export async function updateDeliveryNoteStatus(
     if (newStatus === DeliveryNoteStatus.SIGNED) updateData.signedDate = new Date();
 
     await prisma.deliveryNote.update({ where: { id }, data: updateData });
+
+    void createAuditLog({
+      action: "STATUS_CHANGE",
+      entityType: "DeliveryNote",
+      entityId: id,
+      entityName: `DN for ${deliveryNote.milestone.name}`,
+      changes: { before: { status: deliveryNote.status }, after: { status: newStatus } },
+      metadata: { milestoneId: deliveryNote.milestoneId, projectId: deliveryNote.milestone.projectId },
+    });
 
     revalidateEntity("projects", deliveryNote.milestone.projectId);
     return { success: true, data: undefined };

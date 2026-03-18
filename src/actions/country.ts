@@ -9,6 +9,7 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import { countryFormSchema } from "@/schemas/country";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 async function handleFlagUpload(
   formData: FormData,
@@ -91,6 +92,13 @@ export async function createCountry(
       data: { name, code, flag },
     });
 
+    void createAuditLog({
+      action: "CREATE",
+      entityType: "Country",
+      entityId: country.id,
+      entityName: name,
+    });
+
     revalidateEntity("countries");
     return { success: true, data: { id: country.id } };
   });
@@ -144,6 +152,17 @@ export async function updateCountry(
       data: { name, code, flag },
     });
 
+    void createAuditLog({
+      action: "UPDATE",
+      entityType: "Country",
+      entityId: id,
+      entityName: name,
+      changes: diffFields(
+        { name: current.name, code: current.code },
+        { name, code },
+      ),
+    });
+
     revalidateEntity("countries");
     return { success: true, data: { id } };
   });
@@ -168,6 +187,13 @@ export async function deleteCountry(id: string): Promise<ActionResult> {
     }
 
     await prisma.country.delete({ where: { id } });
+
+    void createAuditLog({
+      action: "DELETE",
+      entityType: "Country",
+      entityId: id,
+      entityName: country.name,
+    });
 
     revalidateEntity("countries");
     return { success: true, data: undefined };

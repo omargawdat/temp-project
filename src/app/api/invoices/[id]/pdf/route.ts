@@ -4,12 +4,14 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import { InvoicePdf } from "@/lib/pdf/invoice-template";
 import type { InvoicePdfData } from "@/lib/pdf/invoice-template";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  logger.info("API request", { route: "/api/invoices/[id]/pdf", method: "GET", invoiceId: id });
 
   const invoice = await prisma.invoice.findUnique({
     where: { id },

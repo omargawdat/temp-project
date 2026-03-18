@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { buildClientWhere, buildClientOrderBy } from "@/lib/client-queries";
 import { buildExportResponse } from "@/lib/export-utils";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
+  logger.info("API request", { route: "/api/clients/export", method: "GET" });
   const { searchParams } = new URL(request.url);
   const params = {
     q: searchParams.get("q") ?? undefined,
