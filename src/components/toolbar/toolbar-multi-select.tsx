@@ -65,14 +65,14 @@ export function ToolbarMultiSelect({
         size="sm"
         className={cn(
           "h-10 gap-2 px-4 text-sm font-medium",
-          value.length > 0 && "border-teal-500/30 text-teal-400",
+          value.length > 0 && "border-primary/30 text-primary",
         )}
         onClick={() => setOpen(!open)}
       >
         {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />}
         {label}
         {value.length > 0 && (
-          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-500/15 px-1 text-[10px] font-bold text-teal-400">
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-primary">
             {value.length}
           </span>
         )}
@@ -108,7 +108,7 @@ export function ToolbarMultiSelect({
                   <div className={cn(
                     "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
                     selected
-                      ? "border-teal-500 bg-teal-500"
+                      ? "border-primary bg-accent0"
                       : "border-border/50 bg-transparent",
                   )}>
                     {selected && <Check className="h-3 w-3 text-white" />}
@@ -119,10 +119,10 @@ export function ToolbarMultiSelect({
                       <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-white/10"
+                        className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-ring/20"
                       />
                     ) : (
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-[9px] font-bold text-muted-foreground/50">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground/50">
                         {item.name.charAt(0)}
                       </div>
                     )

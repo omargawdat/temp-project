@@ -1,0 +1,112 @@
+<h2>Card & Surface Style</h2>
+<p class="subtitle">How should dashboard cards and containers look on the light background?</p>
+
+<div class="cards">
+  <!-- Option A: Flat with subtle border -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:24px;background:#f8fafc;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <!-- Stat card mockup -->
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Portfolio Value</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;margin-top:4px;">SAR 2,450,000</div>
+            </div>
+            <div style="width:40px;height:40px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#6366f1;font-size:18px;">&#9670;</span>
+            </div>
+          </div>
+        </div>
+        <!-- Second card -->
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Total Billed</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;margin-top:4px;">SAR 1,680,000</div>
+            </div>
+            <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#d97706;font-size:18px;">&#9670;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Flat + Border</h3>
+      <p>White cards with subtle gray border. Clean and minimal. Similar to Notion, GitHub.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Elevated with shadow -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:24px;background:#f8fafc;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <!-- Stat card mockup -->
+        <div style="background:#ffffff;border-radius:12px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Portfolio Value</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;margin-top:4px;">SAR 2,450,000</div>
+            </div>
+            <div style="width:40px;height:40px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#6366f1;font-size:18px;">&#9670;</span>
+            </div>
+          </div>
+        </div>
+        <!-- Second card -->
+        <div style="background:#ffffff;border-radius:12px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Total Billed</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;margin-top:4px;">SAR 1,680,000</div>
+            </div>
+            <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#d97706;font-size:18px;">&#9670;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Elevated + Shadow</h3>
+      <p>White cards with soft drop shadow, no border. Feels layered and polished. Similar to Linear, Stripe.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Tinted surface -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:24px;background:#f8fafc;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <!-- Stat card mockup -->
+        <div style="background:#faf9fc;border:1px solid #ede9fe;border-radius:12px;padding:16px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Portfolio Value</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;margin-top:4px;">SAR 2,450,000</div>
+            </div>
+            <div style="width:40px;height:40px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#6366f1;font-size:18px;">&#9670;</span>
+            </div>
+          </div>
+        </div>
+        <!-- Second card -->
+        <div style="background:#faf9fc;border:1px solid #ede9fe;border-radius:12px;padding:16px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;">Total Billed</div>
+              <div style="font-size:22px;font-weight:700;color:#0f172a;margin-top:4px;">SAR 1,680,000</div>
+            </div>
+            <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#d97706;font-size:18px;">&#9670;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Tinted Surface</h3>
+      <p>Very light indigo-tinted cards with matching border. Cohesive and branded. Unique feel.</p>
+    </div>
+  </div>
+</div>

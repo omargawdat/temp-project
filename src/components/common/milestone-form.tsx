@@ -99,7 +99,7 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
           onClick={() => setDn(!dn)}
           className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5"
         >
-          <span className={`text-[11px] font-medium transition-colors ${dn ? "text-teal-400" : "text-muted-foreground/40"}`}>DN</span>
+          <span className={`text-[11px] font-medium transition-colors ${dn ? "text-primary" : "text-muted-foreground/40"}`}>DN</span>
           <div className={`relative h-4 w-7 rounded-full transition-colors ${dn ? "bg-teal-500" : "bg-border"}`}>
             <div className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${dn ? "left-3.5" : "left-0.5"}`} />
           </div>
@@ -111,7 +111,7 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
           className={`h-8 gap-1.5 shrink-0 rounded-md px-4 text-[11px] font-semibold transition-all duration-300 disabled:opacity-50 ${
             showSuccess
               ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
-              : "bg-teal-500/10 text-teal-400 ring-1 ring-teal-500/20 hover:bg-teal-500/20 hover:text-teal-300"
+              : "bg-accent text-primary ring-1 ring-teal-500/20 hover:bg-teal-500/20 hover:text-primary"
           }`}
         >
           {isPending ? (

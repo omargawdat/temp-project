@@ -25,9 +25,9 @@ export function OverdueAlert({
         <AlertTriangle className="h-3 w-3" />
         {count}
       </TooltipTrigger>
-      <TooltipContent hideArrow className="bg-[#1a1f2e] border border-red-500/20 max-w-xs p-0 text-foreground">
+      <TooltipContent hideArrow className="bg-muted border border-red-500/20 max-w-xs p-0 text-foreground">
         {/* Header */}
-        <div className="flex items-center gap-2 border-b border-white/[0.06] px-3 py-2.5">
+        <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
           <AlertTriangle className="h-3.5 w-3.5 text-red-400" />
           <span className="text-xs font-semibold text-red-400">
             {count} overdue milestone{count !== 1 ? "s" : ""}
@@ -35,7 +35,7 @@ export function OverdueAlert({
         </div>
 
         {/* Items */}
-        <div className="divide-y divide-white/[0.04] px-3">
+        <div className="divide-y divide-border/50 px-3">
           {details.map((d, i) => (
             <div key={i} className="py-2.5">
               <p className="text-xs font-medium text-foreground">{d.milestoneName}</p>

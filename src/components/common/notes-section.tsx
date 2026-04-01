@@ -33,11 +33,11 @@ interface NoteData {
 }
 
 const NOTE_TYPES = [
-  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-white/10 text-white/50", accent: "white" },
+  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-muted text-muted-foreground", accent: "white" },
   { value: "MEETING", label: "Meeting", icon: Users, color: "bg-blue-500/10 text-blue-400", accent: "blue" },
   { value: "DECISION", label: "Decision", icon: Gavel, color: "bg-purple-500/10 text-purple-400", accent: "purple" },
-  { value: "RISK", label: "Risk", icon: ShieldAlert, color: "bg-red-500/10 text-red-400", accent: "red" },
-  { value: "ACTION", label: "Action Item", icon: ListTodo, color: "bg-amber-500/10 text-amber-400", accent: "amber" },
+  { value: "RISK", label: "Risk", icon: ShieldAlert, color: "bg-red-50 text-red-400", accent: "red" },
+  { value: "ACTION", label: "Action Item", icon: ListTodo, color: "bg-amber-50 text-amber-400", accent: "amber" },
   { value: "FINANCE", label: "Finance", icon: Banknote, color: "bg-emerald-500/10 text-emerald-400", accent: "emerald" },
 ] as const;
 
@@ -157,7 +157,7 @@ function NoteItem({
           onClick={() => setEditing(true)}
           disabled={isPending}
           aria-label="Edit note"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-white/[0.06] hover:text-foreground/70"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground/70"
         >
           <Pencil className="h-3 w-3" />
         </button>
@@ -166,7 +166,7 @@ function NoteItem({
           onClick={handleDelete}
           disabled={isPending}
           aria-label="Delete note"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-red-50 hover:text-red-400"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
         </button>
@@ -210,11 +210,11 @@ export function NotesSection({
     <div id="notes" className="scroll-mt-8 overflow-hidden rounded-xl border border-border/25 bg-card/50">
       <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
         <div className="flex items-center gap-2.5">
-          <div className="rounded-lg bg-white/[0.06] p-2">
+          <div className="rounded-lg bg-muted p-2">
             <StickyNote className="h-4 w-4 text-muted-foreground/60" />
           </div>
           <span className="text-lg font-bold text-foreground">Notes</span>
-          <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
+          <span className="rounded-md bg-muted px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
             {notes.length}
           </span>
         </div>
@@ -234,7 +234,7 @@ export function NotesSection({
 
           return (
             <div className="p-5">
-              <div className="overflow-hidden rounded-xl border border-border/30 bg-white/[0.015]">
+              <div className="overflow-hidden rounded-xl border border-border/30 bg-accent">
                 {/* Textarea */}
                 <textarea
                   value={content}
@@ -265,7 +265,7 @@ export function NotesSection({
                             "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150",
                             isActive
                               ? `${t.color}`
-                              : "text-muted-foreground/50 hover:text-muted-foreground/80 hover:bg-white/[0.04]",
+                              : "text-muted-foreground/50 hover:text-muted-foreground/80 hover:bg-accent",
                           )}
                         >
                           <Icon className="h-3 w-3" strokeWidth={2} />

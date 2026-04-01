@@ -42,8 +42,8 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
         disabled={pending || !enabled}
         className={`w-full border-0 py-3 font-semibold transition-all ${
           enabled
-            ? "btn-gradient text-white shadow-lg shadow-teal-500/25"
-            : "bg-white/[0.06] text-muted-foreground/40 shadow-none"
+            ? "btn-gradient text-foreground shadow-lg shadow-teal-500/25"
+            : "bg-muted text-muted-foreground/40 shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -98,7 +98,7 @@ function FlagUpload({ currentFlagUrl }: { currentFlagUrl?: string | null }) {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); handleRemove(); }}
-              className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-card border border-border/50 text-muted-foreground transition-colors hover:bg-destructive hover:text-white hover:border-destructive"
+              className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-card border border-border/50 text-muted-foreground transition-colors hover:bg-destructive hover:text-foreground hover:border-destructive"
             >
               <X className="h-3 w-3" />
             </button>
@@ -225,7 +225,7 @@ export function CountrySheet({ country, variant = "create" }: CountrySheetProps)
         </Button>
       ) : (
         <Button
-          className="btn-gradient border-0 px-5 font-semibold text-white shadow-lg shadow-teal-500/20"
+          className="btn-gradient border-0 px-5 font-semibold text-foreground shadow-lg shadow-teal-500/20"
           onClick={() => setOpen(true)}
         >
           <Plus className="mr-1 h-4 w-4" />

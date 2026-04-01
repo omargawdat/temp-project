@@ -88,7 +88,7 @@ export function NotesToolbar({
       </div>
 
       {/* Row 2: Note type pills + clear all */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border/20 bg-card/40 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border/20 bg-card card-elevated px-4 py-2.5">
         <ToolbarStatusPills
           statuses={NOTE_TYPE_STATUSES}
           value={noteTypeFilter}

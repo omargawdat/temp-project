@@ -34,9 +34,9 @@ export function ToolbarToggleFilter({
               active
                 ? opt.color
                   ? "border-red-500/40 bg-red-500/10 text-red-300"
-                  : "border-teal-500/40 bg-teal-500/10 text-teal-300"
+                  : "border-primary/40 bg-accent text-primary"
                 : cn(
-                    "border-border/40 bg-card/60 hover:border-border/70 hover:bg-card hover:text-foreground/80",
+                    "border-border/40 bg-card card-elevated hover:border-border/70 hover:bg-card hover:text-foreground/80",
                     opt.color
                       ? "text-red-400/70"
                       : "text-muted-foreground",

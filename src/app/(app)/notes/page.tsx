@@ -164,10 +164,10 @@ export default async function NotesPage({
 
                 {/* Entity */}
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="shrink-0 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">
+                  <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">
                     {note.entityType === "PROJECT_MANAGER" ? "PM" : formatStatus(note.entityType)}
                   </span>
-                  <span className="truncate text-sm text-teal-400">
+                  <span className="truncate text-sm text-primary">
                     {entityName}
                   </span>
                 </div>
@@ -204,7 +204,7 @@ export default async function NotesPage({
 
         {notes.length === 0 && filteredCount === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
-            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-amber-500/10"}`}>
+            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-amber-50"}`}>
               {filtersActive ? (
                 <SearchX className="h-8 w-8 text-amber-400" />
               ) : (

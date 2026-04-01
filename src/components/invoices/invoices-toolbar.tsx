@@ -96,7 +96,7 @@ export function InvoicesToolbar({
       </div>
 
       {/* Row 2: Status pills + clear all */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border/20 bg-card/40 px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border/20 bg-card card-elevated px-4 py-2.5">
         <ToolbarStatusPills
           statuses={INVOICE_STATUSES}
           value={statusFilter}

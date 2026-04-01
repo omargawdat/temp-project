@@ -1,12 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 
 const colorStyles: Record<string, { bg: string; text: string }> = {
-  teal:   { bg: "bg-teal-500/10",   text: "text-teal-400" },
+  teal:   { bg: "bg-accent",   text: "text-primary" },
   orange: { bg: "bg-orange-500/10", text: "text-orange-400" },
-  amber:  { bg: "bg-amber-500/10",  text: "text-amber-400" },
+  amber:  { bg: "bg-amber-50",  text: "text-amber-400" },
   emerald:{ bg: "bg-emerald-500/10",text: "text-emerald-400" },
   blue:   { bg: "bg-blue-500/10",   text: "text-blue-400" },
-  red:    { bg: "bg-red-500/10",    text: "text-red-400" },
+  red:    { bg: "bg-red-50",    text: "text-red-400" },
   purple: { bg: "bg-purple-500/10", text: "text-purple-400" },
 };
 

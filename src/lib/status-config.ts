@@ -8,40 +8,40 @@ export interface StatusStyle {
 
 export const STATUS_CONFIG: Record<string, StatusStyle> = {
   // Project statuses
-  ACTIVE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
-  ON_HOLD: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-400" },
-  CLOSED: { bg: "bg-white/5", text: "text-white/40", dot: "bg-white/30" },
+  ACTIVE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
+  ON_HOLD: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500" },
+  CLOSED: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
 
   // Milestone statuses
-  NOT_STARTED: { bg: "bg-white/5", text: "text-white/40", dot: "bg-white/30" },
-  IN_PROGRESS: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400 animate-pulse" },
-  COMPLETED: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
-  READY_FOR_INVOICING: { bg: "bg-purple-500/10", text: "text-purple-400", dot: "bg-purple-400" },
-  INVOICED: { bg: "bg-indigo-500/10", text: "text-indigo-400", dot: "bg-indigo-400" },
+  NOT_STARTED: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
+  IN_PROGRESS: { bg: "bg-blue-50", text: "text-blue-600", dot: "bg-blue-500 animate-pulse" },
+  COMPLETED: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
+  READY_FOR_INVOICING: { bg: "bg-purple-50", text: "text-purple-600", dot: "bg-purple-500" },
+  INVOICED: { bg: "bg-indigo-50", text: "text-indigo-600", dot: "bg-indigo-500" },
 
   // Delivery note statuses
-  DRAFT: { bg: "bg-white/5", text: "text-white/40", dot: "bg-white/30" },
-  SENT: { bg: "bg-sky-500/10", text: "text-sky-400", dot: "bg-sky-400" },
-  SIGNED: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
+  DRAFT: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
+  SENT: { bg: "bg-sky-50", text: "text-sky-600", dot: "bg-sky-500" },
+  SIGNED: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
 
   // Invoice statuses
-  SUBMITTED: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-400" },
-  UNDER_REVIEW: { bg: "bg-orange-500/10", text: "text-orange-400", dot: "bg-orange-400 animate-pulse" },
-  APPROVED: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
-  PAID: { bg: "bg-teal-500/10", text: "text-teal-400", dot: "bg-teal-400" },
-  REJECTED: { bg: "bg-red-500/10", text: "text-red-400", dot: "bg-red-400" },
+  SUBMITTED: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500" },
+  UNDER_REVIEW: { bg: "bg-orange-50", text: "text-orange-600", dot: "bg-orange-500 animate-pulse" },
+  APPROVED: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
+  PAID: { bg: "bg-indigo-50", text: "text-indigo-600", dot: "bg-indigo-500" },
+  REJECTED: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-500" },
 };
 
 export const DEFAULT_STATUS_STYLE: StatusStyle = {
-  bg: "bg-white/5",
-  text: "text-white/40",
-  dot: "bg-white/30",
+  bg: "bg-slate-100",
+  text: "text-slate-500",
+  dot: "bg-slate-400",
 };
 
 export const SECTOR_STYLES: Record<string, StatusStyle> = {
-  GOVERNMENT: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400" },
-  PRIVATE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
-  SEMI_GOVERNMENT: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-400" },
+  GOVERNMENT: { bg: "bg-blue-50", text: "text-blue-600", dot: "bg-blue-500" },
+  PRIVATE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
+  SEMI_GOVERNMENT: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500" },
 };
 
 export function formatStatus(status: string): string {
@@ -84,10 +84,10 @@ export const CLIENT_SECTORS = [
 ] as const;
 
 export const AUDIT_ACTION_STYLES: Record<string, StatusStyle> = {
-  CREATE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
-  UPDATE: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400" },
-  DELETE: { bg: "bg-red-500/10", text: "text-red-400", dot: "bg-red-400" },
-  STATUS_CHANGE: { bg: "bg-purple-500/10", text: "text-purple-400", dot: "bg-purple-400" },
+  CREATE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
+  UPDATE: { bg: "bg-blue-50", text: "text-blue-600", dot: "bg-blue-500" },
+  DELETE: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-500" },
+  STATUS_CHANGE: { bg: "bg-purple-50", text: "text-purple-600", dot: "bg-purple-500" },
 };
 
 export const AUDIT_ACTION_STATUSES = [
@@ -120,12 +120,12 @@ export const NOTE_TYPE_STATUSES = [
 ] as const;
 
 export const NOTE_TYPE_STYLES: Record<string, StatusStyle> = {
-  GENERAL: { bg: "bg-white/5", text: "text-white/50", dot: "bg-zinc-400" },
-  MEETING: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400" },
-  DECISION: { bg: "bg-purple-500/10", text: "text-purple-400", dot: "bg-purple-400" },
-  RISK: { bg: "bg-red-500/10", text: "text-red-400", dot: "bg-red-400" },
-  ACTION: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-400" },
-  FINANCE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
+  GENERAL: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
+  MEETING: { bg: "bg-blue-50", text: "text-blue-600", dot: "bg-blue-500" },
+  DECISION: { bg: "bg-purple-50", text: "text-purple-600", dot: "bg-purple-500" },
+  RISK: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-500" },
+  ACTION: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500" },
+  FINANCE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
 };
 
 export const NOTE_ENTITY_TYPES = [

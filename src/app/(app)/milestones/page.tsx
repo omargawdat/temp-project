@@ -68,7 +68,7 @@ export default async function MilestonesPage({
 
       {/* Table */}
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">
-        <div className="grid grid-cols-[1fr_200px_90px_100px_140px_120px] gap-x-4 border-b border-border/20 bg-white/[0.02] px-6 py-3">
+        <div className="grid grid-cols-[1fr_200px_90px_100px_140px_120px] gap-x-4 border-b border-border/20 bg-accent px-6 py-3">
           <SortableHeader label="Milestone" field="name" basePath="/milestones" defaultSort="plannedDate" />
           <SortableHeader label="Project" field="project" basePath="/milestones" defaultSort="plannedDate" />
           <SortableHeader label="Value" field="value" align="right" basePath="/milestones" defaultSort="plannedDate" />
@@ -87,7 +87,7 @@ export default async function MilestonesPage({
               <span className="text-foreground text-[15px] font-semibold">
                 {milestone.name}
               </span>
-              <span className="truncate text-sm text-teal-400">
+              <span className="truncate text-sm text-primary">
                 {milestone.project.name}
               </span>
               <span className="text-foreground text-right font-mono text-[15px] font-semibold">
@@ -122,11 +122,11 @@ export default async function MilestonesPage({
 
         {milestones.length === 0 && filteredCount === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
-            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
+            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent"}`}>
               {filtersActive ? (
                 <SearchX className="h-8 w-8 text-amber-400" />
               ) : (
-                <ListChecks className="h-8 w-8 text-teal-400" />
+                <ListChecks className="h-8 w-8 text-primary" />
               )}
             </div>
             <div className="text-center">

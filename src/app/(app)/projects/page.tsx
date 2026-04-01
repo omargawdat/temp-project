@@ -128,11 +128,11 @@ export default async function ProjectsPage({
         </>
       ) : (
         <div className="border-border/50 bg-card flex flex-col items-center gap-4 rounded-2xl border py-20 shadow-lg shadow-black/10">
-          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
+          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent"}`}>
             {filtersActive ? (
               <SearchX className="h-8 w-8 text-amber-400" />
             ) : (
-              <FolderKanban className="h-8 w-8 text-teal-400" />
+              <FolderKanban className="h-8 w-8 text-primary" />
             )}
           </div>
           <div className="text-center">

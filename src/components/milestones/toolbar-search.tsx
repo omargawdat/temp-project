@@ -29,7 +29,7 @@ export function ToolbarSearch({
   }, [local, value, onChange]);
 
   return (
-    <InputGroup className="h-10 w-[280px] border-border/20 bg-white/[0.03]">
+    <InputGroup className="h-10 w-[280px] border-border/20 bg-accent">
       <InputGroupAddon>
         <Search className="h-3.5 w-3.5 text-muted-foreground/40" />
       </InputGroupAddon>

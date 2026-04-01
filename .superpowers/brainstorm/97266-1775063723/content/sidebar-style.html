@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; padding: 32px; }
+  h1 { text-align:center; color:#0f172a; font-size:24px; margin-bottom:8px; }
+  .sub { text-align:center; color:#64748b; font-size:14px; margin-bottom:32px; }
+
+  .options { display:flex; gap:24px; max-width:1200px; margin:0 auto; }
+  .option-box { flex:1; cursor:pointer; border-radius:16px; overflow:hidden; border:3px solid transparent; transition: all 0.2s; }
+  .option-box:hover { border-color:#6366f1; transform:translateY(-2px); }
+  .option-box.selected { border-color:#6366f1; box-shadow: 0 0 0 2px #6366f1; }
+
+  .option-label { padding:12px 16px; background:#0f172a; color:white; font-weight:700; font-size:15px; }
+  .option-label span { font-weight:400; font-size:12px; color:#94a3b8; display:block; margin-top:4px; }
+
+  .preview { height: 420px; display:flex; overflow:hidden; }
+
+  /* Sidebar items */
+  .nav-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; transition: background 0.15s; margin-bottom:2px; }
+  .nav-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .main-content { flex:1; padding:20px; display:flex; flex-direction:column; gap:12px; }
+  .mini-card { border-radius:10px; padding:14px 16px; }
+  .mini-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; }
+  .mini-value { font-size:18px; font-weight:800; color:#0f172a; margin-top:2px; }
+  .logo-area { padding:16px 14px; margin-bottom:8px; font-weight:800; font-size:15px; display:flex; align-items:center; gap:8px; }
+
+  /* A: Dark sidebar */
+  .sidebar-a { width:200px; background:#0f172a; padding:8px; display:flex; flex-direction:column; }
+  .sidebar-a .logo-area { color:#ffffff; border-bottom:1px solid #1e293b; }
+  .sidebar-a .nav-item { color:#94a3b8; }
+  .sidebar-a .nav-item:hover { background:#1e293b; }
+  .sidebar-a .nav-item.active { background:#1e293b; color:#ffffff; }
+  .sidebar-a .nav-item.active .nav-icon { background:#4f46e5; color:white; }
+  .content-a { background:#f8fafc; }
+  .content-a .mini-card { background:#ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  /* B: White sidebar */
+  .sidebar-b { width:200px; background:#ffffff; border-right:1px solid #e2e8f0; padding:8px; display:flex; flex-direction:column; }
+  .sidebar-b .logo-area { color:#0f172a; border-bottom:1px solid #f1f5f9; }
+  .sidebar-b .nav-item { color:#64748b; }
+  .sidebar-b .nav-item:hover { background:#f8fafc; }
+  .sidebar-b .nav-item.active { background:#eef2ff; color:#4f46e5; }
+  .sidebar-b .nav-item.active .nav-icon { background:#4f46e5; color:white; }
+  .content-b { background:#f8fafc; }
+  .content-b .mini-card { background:#ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  /* C: Indigo sidebar */
+  .sidebar-c { width:200px; background:linear-gradient(180deg, #4338ca 0%, #3730a3 100%); padding:8px; display:flex; flex-direction:column; }
+  .sidebar-c .logo-area { color:#ffffff; border-bottom:1px solid rgba(255,255,255,0.15); }
+  .sidebar-c .nav-item { color:rgba(255,255,255,0.65); }
+  .sidebar-c .nav-item:hover { background:rgba(255,255,255,0.1); }
+  .sidebar-c .nav-item.active { background:rgba(255,255,255,0.15); color:#ffffff; }
+  .sidebar-c .nav-item.active .nav-icon { background:rgba(255,255,255,0.2); color:white; }
+  .sidebar-c .nav-icon { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); }
+  .content-c { background:#f8fafc; }
+  .content-c .mini-card { background:#ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .key-diff { padding:10px 14px; background:#fefce8; border-left:3px solid #eab308; font-size:12px; color:#713f12; border-radius:0 8px 8px 0; flex:1; }
+</style>
+</head>
+<body>
+  <h1>Sidebar Style</h1>
+  <p class="sub">The sidebar is always visible — it sets the overall tone of the app</p>
+
+  <div class="options">
+    <!-- A: Dark Sidebar -->
+    <div class="option-box" onclick="document.querySelectorAll('.option-box').forEach(o=>o.classList.remove('selected'));this.classList.add('selected')">
+      <div class="option-label">A — Dark Sidebar<span>Dark navy sidebar + light content. High contrast split.</span></div>
+      <div class="preview">
+        <div class="sidebar-a">
+          <div class="logo-area"><div style="width:28px;height:28px;border-radius:8px;background:#4f46e5;"></div> Delivery</div>
+          <div class="nav-item active"><div class="nav-icon">&#9632;</div> Overview</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#1e293b;color:#64748b;">&#9632;</div> Clients</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#1e293b;color:#64748b;">&#9632;</div> Projects</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#1e293b;color:#64748b;">&#9632;</div> Milestones</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#1e293b;color:#64748b;">&#9632;</div> Invoices</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#1e293b;color:#64748b;">&#9632;</div> Team</div>
+        </div>
+        <div class="main-content content-a">
+          <div style="font-size:16px;font-weight:700;color:#0f172a;">Dashboard</div>
+          <div class="mini-card"><div class="mini-label">Portfolio</div><div class="mini-value">SAR 2.4M</div></div>
+          <div class="mini-card"><div class="mini-label">Billed</div><div class="mini-value">SAR 1.6M</div></div>
+          <div class="mini-card"><div class="mini-label">Collected</div><div class="mini-value">SAR 980K</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: White Sidebar -->
+    <div class="option-box" onclick="document.querySelectorAll('.option-box').forEach(o=>o.classList.remove('selected'));this.classList.add('selected')">
+      <div class="option-label">B — White Sidebar<span>All-light design. Sidebar separated by border only.</span></div>
+      <div class="preview">
+        <div class="sidebar-b">
+          <div class="logo-area"><div style="width:28px;height:28px;border-radius:8px;background:#4f46e5;"></div> Delivery</div>
+          <div class="nav-item active"><div class="nav-icon">&#9632;</div> Overview</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#f1f5f9;color:#94a3b8;">&#9632;</div> Clients</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#f1f5f9;color:#94a3b8;">&#9632;</div> Projects</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#f1f5f9;color:#94a3b8;">&#9632;</div> Milestones</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#f1f5f9;color:#94a3b8;">&#9632;</div> Invoices</div>
+          <div class="nav-item"><div class="nav-icon" style="background:#f1f5f9;color:#94a3b8;">&#9632;</div> Team</div>
+        </div>
+        <div class="main-content content-b">
+          <div style="font-size:16px;font-weight:700;color:#0f172a;">Dashboard</div>
+          <div class="mini-card"><div class="mini-label">Portfolio</div><div class="mini-value">SAR 2.4M</div></div>
+          <div class="mini-card"><div class="mini-label">Billed</div><div class="mini-value">SAR 1.6M</div></div>
+          <div class="mini-card"><div class="mini-label">Collected</div><div class="mini-value">SAR 980K</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Indigo Sidebar -->
+    <div class="option-box" onclick="document.querySelectorAll('.option-box').forEach(o=>o.classList.remove('selected'));this.classList.add('selected')">
+      <div class="option-label">C — Branded Indigo Sidebar<span>Indigo gradient sidebar. Strong brand presence.</span></div>
+      <div class="preview">
+        <div class="sidebar-c">
+          <div class="logo-area"><div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.2);"></div> Delivery</div>
+          <div class="nav-item active"><div class="nav-icon">&#9632;</div> Overview</div>
+          <div class="nav-item"><div class="nav-icon">&#9632;</div> Clients</div>
+          <div class="nav-item"><div class="nav-icon">&#9632;</div> Projects</div>
+          <div class="nav-item"><div class="nav-icon">&#9632;</div> Milestones</div>
+          <div class="nav-item"><div class="nav-icon">&#9632;</div> Invoices</div>
+          <div class="nav-item"><div class="nav-icon">&#9632;</div> Team</div>
+        </div>
+        <div class="main-content content-c">
+          <div style="font-size:16px;font-weight:700;color:#0f172a;">Dashboard</div>
+          <div class="mini-card"><div class="mini-label">Portfolio</div><div class="mini-value">SAR 2.4M</div></div>
+          <div class="mini-card"><div class="mini-label">Billed</div><div class="mini-value">SAR 1.6M</div></div>
+          <div class="mini-card"><div class="mini-label">Collected</div><div class="mini-value">SAR 980K</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1200px;margin:20px auto 0;display:flex;gap:24px;">
+    <div class="key-diff"><strong>A:</strong> Classic split — dark sidebar anchors the layout, content feels spacious by contrast</div>
+    <div class="key-diff"><strong>B:</strong> Fully light — airy and open, sidebar blends in. Most "clean" but less visual structure</div>
+    <div class="key-diff"><strong>C:</strong> Brand-forward — indigo sidebar is the signature element. Bold but cohesive with the accent color</div>
+  </div>
+</body>
+</html>

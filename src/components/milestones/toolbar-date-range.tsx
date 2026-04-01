@@ -178,7 +178,7 @@ export function ToolbarDateRange({
                 className={cn(
                   "rounded-md border px-2.5 py-1 text-[11px] font-medium transition-all",
                   isActive
-                    ? "border-teal-500/40 bg-teal-500/10 text-teal-300"
+                    ? "border-primary/40 bg-accent text-primary"
                     : "border-border/40 bg-background/40 text-muted-foreground hover:border-border/70 hover:text-foreground/80",
                 )}
               >
@@ -196,7 +196,7 @@ export function ToolbarDateRange({
             className={cn(
               "flex-1 rounded-lg px-3 py-1.5 text-center text-xs font-medium transition-all",
               picking === "from"
-                ? "bg-teal-500/10 text-teal-400 ring-1 ring-teal-500/30"
+                ? "bg-accent text-primary ring-1 ring-primary/30"
                 : "text-muted-foreground hover:text-foreground/80",
             )}
           >
@@ -210,7 +210,7 @@ export function ToolbarDateRange({
             className={cn(
               "flex-1 rounded-lg px-3 py-1.5 text-center text-xs font-medium transition-all",
               picking === "to"
-                ? "bg-teal-500/10 text-teal-400 ring-1 ring-teal-500/30"
+                ? "bg-accent text-primary ring-1 ring-primary/30"
                 : "text-muted-foreground hover:text-foreground/80",
             )}
           >
@@ -257,13 +257,13 @@ export function ToolbarDateRange({
                   className={cn(
                     "flex h-9 w-full items-center justify-center text-xs transition-colors",
                     // Range background
-                    inRange && "bg-teal-500/[0.07]",
+                    inRange && "bg-accent0/[0.07]",
                     // From/To endpoints
                     (isFrom || isTo)
-                      ? "rounded-md bg-teal-500 font-bold text-white"
+                      ? "rounded-md bg-accent0 font-bold text-white"
                       : isToday
-                        ? "rounded-md font-bold text-teal-400"
-                        : "rounded-md text-foreground hover:bg-teal-500/10 hover:text-teal-400",
+                        ? "rounded-md font-bold text-primary"
+                        : "rounded-md text-foreground hover:bg-accent hover:text-primary",
                   )}
                 >
                   {day}
@@ -290,7 +290,7 @@ export function ToolbarDateRange({
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-md bg-teal-500/15 px-3 py-1 text-[11px] font-medium text-teal-400 transition-colors hover:bg-teal-500/25"
+            className="rounded-md bg-accent px-3 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
           >
             Apply
           </button>
@@ -308,7 +308,7 @@ export function ToolbarDateRange({
         size="sm"
         className={cn(
           "h-10 gap-2 px-4 text-sm font-medium",
-          hasValue && "border-teal-500/30 text-teal-400",
+          hasValue && "border-primary/30 text-primary",
         )}
         onClick={() => { setOpen(!open); setPicking("from"); }}
       >
@@ -317,7 +317,7 @@ export function ToolbarDateRange({
         {hasValue && (
           <span
             role="button"
-            className="ml-0.5 rounded-full p-0.5 hover:bg-white/10"
+            className="ml-0.5 rounded-full p-0.5 hover:bg-muted"
             onClick={(e) => {
               e.stopPropagation();
               onChange(null, null);

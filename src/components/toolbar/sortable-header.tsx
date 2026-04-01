@@ -67,7 +67,7 @@ export function SortableHeader({
       {label}
       <span className={cn(
         "flex items-center justify-center rounded transition-all",
-        isActive ? "text-teal-400" : "text-muted-foreground/25 group-hover:text-muted-foreground/50",
+        isActive ? "text-primary" : "text-muted-foreground/25 group-hover:text-muted-foreground/50",
       )}>
         {isActive ? (
           currentDir === "asc"

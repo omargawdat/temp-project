@@ -119,7 +119,7 @@ export function InvoiceSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-all btn-gradient border-0 text-white shadow-lg shadow-teal-500/25"
+        className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-all btn-gradient border-0 text-foreground shadow-lg shadow-teal-500/25"
       >
         <Receipt className="h-4 w-4" strokeWidth={2} />
         Create Invoice
@@ -145,7 +145,7 @@ export function InvoiceSheet({
                   href={`/api/invoices/${createdInvoiceId}/pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl border-0 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-500/25"
+                  className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl border-0 px-5 py-3.5 text-sm font-bold text-foreground shadow-lg shadow-teal-500/25"
                 >
                   <Download className="h-4 w-4" />
                   Download PDF
@@ -158,7 +158,7 @@ export function InvoiceSheet({
                     setError(null);
                     setOpen(false);
                   }}
-                  className="flex-1 rounded-xl border border-border/25 px-5 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-white/[0.04]"
+                  className="flex-1 rounded-xl border border-border/25 px-5 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent"
                 >
                   Close
                 </button>
@@ -170,8 +170,8 @@ export function InvoiceSheet({
             {/* Header */}
             <div className="border-b border-border/15 px-6 py-6">
               <div className="flex items-center gap-4">
-                <div className="rounded-xl bg-teal-500/10 p-2.5">
-                  <Receipt className="h-5 w-5 text-teal-400" />
+                <div className="rounded-xl bg-accent p-2.5">
+                  <Receipt className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-foreground">Create Invoice</h2>
@@ -188,7 +188,7 @@ export function InvoiceSheet({
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-muted-foreground/40" />
                     <span className="text-sm font-semibold text-foreground">Milestones</span>
-                    <span className="rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground/50">
+                    <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground/50">
                       {selectedIds.size}/{eligibleMilestones.length}
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export function InvoiceSheet({
                     <button
                       type="button"
                       onClick={toggleAll}
-                      className="text-[11px] font-semibold text-teal-400 hover:text-teal-300 transition-colors"
+                      className="text-[11px] font-semibold text-primary hover:text-primary transition-colors"
                     >
                       {selectedIds.size === eligibleMilestones.length ? "Deselect all" : "Select all"}
                     </button>
@@ -216,25 +216,25 @@ export function InvoiceSheet({
                             ? "cursor-not-allowed opacity-60"
                             : isSelected
                               ? "cursor-pointer bg-teal-500/8 ring-1 ring-teal-500/25"
-                              : "cursor-pointer hover:bg-white/[0.03]",
+                              : "cursor-pointer hover:bg-accent",
                         )}
                       >
                         <div
                           className={cn(
                             "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all",
                             isInvoiced
-                              ? "border-white/10 bg-white/[0.03]"
+                              ? "border-border bg-accent"
                               : isSelected
                                 ? "border-teal-500 bg-teal-500"
-                                : "border-white/15 group-hover:border-white/25",
+                                : "border-border group-hover:border-border",
                           )}
                         >
                           {isSelected && (
-                            <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <svg className="h-3 w-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                           )}
-                          {isInvoiced && <Lock className="h-2.5 w-2.5 text-white/30" />}
+                          {isInvoiced && <Lock className="h-2.5 w-2.5 text-muted-foreground" />}
                         </div>
                         <input
                           type="checkbox"
@@ -258,7 +258,7 @@ export function InvoiceSheet({
                         ) : (
                           <span className={cn(
                             "font-mono text-sm font-semibold tabular-nums transition-colors",
-                            isSelected ? "text-teal-400" : "text-foreground/60",
+                            isSelected ? "text-primary" : "text-foreground/60",
                           )}>
                             {formatCur(Number(m.value))}
                           </span>
@@ -297,7 +297,7 @@ export function InvoiceSheet({
                         step="0.1"
                         value={vatPercent}
                         onChange={(e) => setVatPercent(e.target.value)}
-                        className="h-8 pr-6 text-right text-xs tabular-nums border-border/20 bg-white/[0.03]"
+                        className="h-8 pr-6 text-right text-xs tabular-nums border-border/20 bg-accent"
                       />
                       <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/40">%</span>
                     </div>
@@ -312,7 +312,7 @@ export function InvoiceSheet({
 
                 {/* Total */}
                 <div className="flex items-center justify-between px-5 py-5 bg-teal-500/[0.04]">
-                  <span className="text-sm font-bold text-teal-400">Total Payable</span>
+                  <span className="text-sm font-bold text-primary">Total Payable</span>
                   <span className={cn(
                     "text-xl font-bold tabular-nums transition-colors",
                     hasSelection ? "text-foreground" : "text-muted-foreground/30",
@@ -339,8 +339,8 @@ export function InvoiceSheet({
                 className={cn(
                   "w-full h-12 rounded-xl text-sm font-bold transition-all",
                   hasSelection
-                    ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400"
-                    : "bg-white/[0.06] text-muted-foreground/30 shadow-none",
+                    ? "bg-gradient-to-r from-teal-600 to-teal-500 text-foreground shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400"
+                    : "bg-muted text-muted-foreground/30 shadow-none",
                 )}
               >
                 {isPending ? (

@@ -66,8 +66,8 @@ export function Pagination({
           className={cn(
             "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
             page <= 1
-              ? "cursor-not-allowed text-white/15"
-              : "text-white/40 hover:bg-white/[0.06] hover:text-white/70",
+              ? "cursor-not-allowed text-muted-foreground/50"
+              : "text-muted-foreground hover:bg-muted hover:text-secondary-foreground",
           )}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -77,7 +77,7 @@ export function Pagination({
           p === "ellipsis" ? (
             <span
               key={`e-${i}`}
-              className="flex h-8 w-8 items-center justify-center text-xs text-white/20"
+              className="flex h-8 w-8 items-center justify-center text-xs text-muted-foreground/50"
             >
               ...
             </span>
@@ -89,8 +89,8 @@ export function Pagination({
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold tabular-nums transition-colors",
                 p === page
-                  ? "border border-teal-500/20 bg-teal-500/15 text-teal-400"
-                  : "text-white/40 hover:bg-white/[0.06] hover:text-white/70",
+                  ? "border border-teal-500/20 bg-teal-500/15 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-secondary-foreground",
               )}
             >
               {p}
@@ -105,15 +105,15 @@ export function Pagination({
           className={cn(
             "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
             page >= totalPages
-              ? "cursor-not-allowed text-white/15"
-              : "text-white/40 hover:bg-white/[0.06] hover:text-white/70",
+              ? "cursor-not-allowed text-muted-foreground/50"
+              : "text-muted-foreground hover:bg-muted hover:text-secondary-foreground",
           )}
         >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
-      <p className="text-xs tabular-nums text-white/25">
+      <p className="text-xs tabular-nums text-muted-foreground/50">
         Showing {from}–{to} of {totalCount}
       </p>
     </div>

@@ -146,10 +146,10 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
                 onClick={() => selectDate(day)}
                 className={`flex h-8 w-8 items-center justify-center rounded-md text-xs transition-colors ${
                   isSelected(day)
-                    ? "bg-teal-500 font-bold text-white"
+                    ? "bg-accent0 font-bold text-white"
                     : isToday(day)
-                      ? "font-bold text-teal-400"
-                      : "text-foreground hover:bg-teal-500/10 hover:text-teal-400"
+                      ? "font-bold text-primary"
+                      : "text-foreground hover:bg-accent hover:text-primary"
                 }`}
               >
                 {day}
@@ -163,7 +163,7 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
           <button
             type="button"
             onClick={() => { setSelected(new Date()); setOpen(false); onValueChange?.(); }}
-            className="text-[11px] font-medium text-teal-400 transition-colors hover:text-teal-300"
+            className="text-[11px] font-medium text-primary transition-colors hover:text-primary"
           >
             Today
           </button>
@@ -199,7 +199,7 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
         type="button"
         onClick={() => setOpen(!open)}
         className={compact
-          ? "flex w-full items-center justify-between rounded-md border border-border/20 bg-white/[0.02] px-2.5 text-xs text-foreground transition-all hover:border-border/40 focus:outline-none focus:ring-2 focus:ring-ring h-8 mt-1"
+          ? "flex w-full items-center justify-between rounded-md border border-border/20 bg-accent px-2.5 text-xs text-foreground transition-all hover:border-border/40 focus:outline-none focus:ring-2 focus:ring-ring h-8 mt-1"
           : "flex h-10 w-full items-center justify-between rounded-md border border-border bg-transparent px-3 text-sm text-foreground transition-all hover:border-border/80 focus:outline-none focus:ring-2 focus:ring-ring"
         }
       >

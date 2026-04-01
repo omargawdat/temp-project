@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; padding: 32px; }
+  h1 { text-align:center; color:#0f172a; font-size:24px; margin-bottom:8px; }
+  .sub { text-align:center; color:#64748b; font-size:14px; margin-bottom:32px; }
+
+  .options { display:flex; gap:24px; max-width:1200px; margin:0 auto; }
+  .option-box { flex:1; cursor:pointer; border-radius:16px; overflow:hidden; border:3px solid transparent; transition: all 0.2s; }
+  .option-box:hover { border-color:#6366f1; transform:translateY(-2px); }
+  .option-box.selected { border-color:#6366f1; box-shadow: 0 0 0 2px #6366f1; }
+
+  .option-label { padding:12px 16px; background:#0f172a; color:white; font-weight:700; font-size:15px; }
+  .option-label span { font-weight:400; font-size:12px; color:#94a3b8; display:block; margin-top:4px; }
+
+  .preview { padding:24px; min-height:280px; display:flex; flex-direction:column; gap:14px; }
+
+  /* Style A: Flat + Border */
+  .preview-a { background: #ffffff; }
+  .card-a { background:#ffffff; border:1.5px solid #e2e8f0; border-radius:12px; padding:18px 20px; }
+
+  /* Style B: Elevated + Shadow */
+  .preview-b { background: #f8fafc; }
+  .card-b { background:#ffffff; border:none; border-radius:12px; padding:18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05); }
+
+  /* Style C: Tinted */
+  .preview-c { background: #f5f3ff; }
+  .card-c { background:#ede9fe30; border:1.5px solid #c4b5fd40; border-radius:12px; padding:18px 20px; backdrop-filter:blur(8px); }
+
+  .stat-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; }
+  .stat-value { font-size:24px; font-weight:800; color:#0f172a; margin-top:2px; }
+  .stat-row { display:flex; justify-content:space-between; align-items:center; }
+  .icon-box { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600; margin-top:10px; }
+  .progress { height:6px; border-radius:99px; margin-top:10px; overflow:hidden; }
+
+  .tag { display:inline-block; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; margin-top:8px; }
+
+  .key-diff { padding:12px 16px; background:#fefce8; border-left:3px solid #eab308; font-size:13px; color:#713f12; margin:0 24px 16px; border-radius:0 8px 8px 0; }
+</style>
+</head>
+<body>
+  <h1>Card & Surface Style</h1>
+  <p class="sub">Look at the background color, card borders, and shadow differences</p>
+
+  <div class="options">
+    <!-- A: Flat + Border -->
+    <div class="option-box" onclick="this.classList.toggle('selected')">
+      <div class="option-label">A — Flat + Border<span>White bg, gray border, no shadow. Notion / GitHub style.</span></div>
+      <div class="preview preview-a">
+        <div class="card-a">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Portfolio Value</div>
+              <div class="stat-value">SAR 2,450,000</div>
+            </div>
+            <div class="icon-box" style="background:#eef2ff;color:#6366f1;">&#9672;</div>
+          </div>
+          <div class="progress" style="background:#e2e8f0;"><div style="width:68%;height:100%;background:#6366f1;border-radius:99px;"></div></div>
+        </div>
+        <div class="card-a">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Total Billed</div>
+              <div class="stat-value">SAR 1,680,000</div>
+            </div>
+            <div class="icon-box" style="background:#fef3c7;color:#d97706;">&#9672;</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;">
+            <span class="badge" style="background:#f0fdf4;color:#16a34a;">68% billed</span>
+            <span class="badge" style="background:#eef2ff;color:#4f46e5;">5 invoices</span>
+          </div>
+        </div>
+        <div class="card-a" style="padding:12px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:#64748b;">Active Projects</span>
+            <span style="font-size:18px;font-weight:800;color:#0f172a;">12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: Elevated + Shadow -->
+    <div class="option-box" onclick="this.classList.toggle('selected')">
+      <div class="option-label">B — Elevated + Shadow<span>Gray bg, white cards float above with shadow. Linear / Stripe style.</span></div>
+      <div class="preview preview-b">
+        <div class="card-b">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Portfolio Value</div>
+              <div class="stat-value">SAR 2,450,000</div>
+            </div>
+            <div class="icon-box" style="background:#eef2ff;color:#6366f1;">&#9672;</div>
+          </div>
+          <div class="progress" style="background:#e2e8f0;"><div style="width:68%;height:100%;background:#6366f1;border-radius:99px;"></div></div>
+        </div>
+        <div class="card-b">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Total Billed</div>
+              <div class="stat-value">SAR 1,680,000</div>
+            </div>
+            <div class="icon-box" style="background:#fef3c7;color:#d97706;">&#9672;</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;">
+            <span class="badge" style="background:#f0fdf4;color:#16a34a;">68% billed</span>
+            <span class="badge" style="background:#eef2ff;color:#4f46e5;">5 invoices</span>
+          </div>
+        </div>
+        <div class="card-b" style="padding:12px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:#64748b;">Active Projects</span>
+            <span style="font-size:18px;font-weight:800;color:#0f172a;">12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Tinted -->
+    <div class="option-box" onclick="this.classList.toggle('selected')">
+      <div class="option-label">C — Tinted Surface<span>Light violet bg, tinted cards with violet border. Branded & unique.</span></div>
+      <div class="preview preview-c">
+        <div class="card-c">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Portfolio Value</div>
+              <div class="stat-value">SAR 2,450,000</div>
+            </div>
+            <div class="icon-box" style="background:#ede9fe;color:#6366f1;">&#9672;</div>
+          </div>
+          <div class="progress" style="background:#ddd6fe;"><div style="width:68%;height:100%;background:#6366f1;border-radius:99px;"></div></div>
+        </div>
+        <div class="card-c">
+          <div class="stat-row">
+            <div>
+              <div class="stat-label">Total Billed</div>
+              <div class="stat-value">SAR 1,680,000</div>
+            </div>
+            <div class="icon-box" style="background:#fef3c7;color:#d97706;">&#9672;</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;">
+            <span class="badge" style="background:#f0fdf4;color:#16a34a;">68% billed</span>
+            <span class="badge" style="background:#eef2ff;color:#4f46e5;">5 invoices</span>
+          </div>
+        </div>
+        <div class="card-c" style="padding:12px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:#64748b;">Active Projects</span>
+            <span style="font-size:18px;font-weight:800;color:#0f172a;">12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1200px;margin:24px auto 0;display:flex;gap:24px;">
+    <div class="key-diff" style="flex:1;">&#128270; <strong>A:</strong> White page background, cards defined by <strong>gray border only</strong></div>
+    <div class="key-diff" style="flex:1;">&#128270; <strong>B:</strong> Light gray page background, cards <strong>float with shadow</strong></div>
+    <div class="key-diff" style="flex:1;">&#128270; <strong>C:</strong> Light violet page background, cards have <strong>violet tint + border</strong></div>
+  </div>
+</body>
+</html>

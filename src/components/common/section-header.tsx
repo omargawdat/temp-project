@@ -12,7 +12,7 @@ interface SectionHeaderProps {
 
 export function SectionHeader({
   icon: Icon,
-  iconColor = "text-white/30",
+  iconColor = "text-muted-foreground",
   title,
   count,
   action,
@@ -22,11 +22,11 @@ export function SectionHeader({
     <div className={`flex items-center justify-between ${className ?? ""}`}>
       <div className="flex items-center gap-2">
         {Icon && <Icon className={`h-3.5 w-3.5 ${iconColor}`} />}
-        <h2 className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">
+        <h2 className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
           {title}
         </h2>
         {count != null && (
-          <span className="rounded-full bg-white/[0.06] px-1.5 py-px text-[11px] font-bold tabular-nums text-white/40">
+          <span className="rounded-full bg-muted px-1.5 py-px text-[11px] font-bold tabular-nums text-muted-foreground">
             {count}
           </span>
         )}
@@ -34,7 +34,7 @@ export function SectionHeader({
       {action && (
         <Link
           href={action.href}
-          className="text-xs font-semibold text-teal-400 transition-colors hover:text-teal-300"
+          className="text-xs font-semibold text-primary transition-colors hover:text-primary"
         >
           {action.label}
         </Link>

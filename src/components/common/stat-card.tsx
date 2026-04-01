@@ -1,11 +1,11 @@
 import type { LucideIcon } from "lucide-react";
 
 const colorMap: Record<string, { icon: string; glow: string; iconBg: string; badge?: string }> = {
-  teal:    { icon: "text-teal-400",    glow: "bg-teal-500/[0.06]",    iconBg: "bg-teal-500/10" },
-  amber:   { icon: "text-amber-400",   glow: "bg-amber-500/[0.06]",   iconBg: "bg-amber-500/10",   badge: "bg-amber-400/10 text-amber-400/80" },
-  emerald: { icon: "text-emerald-400", glow: "bg-emerald-500/[0.06]", iconBg: "bg-emerald-500/10", badge: "bg-emerald-400/10 text-emerald-400/80" },
+  teal:    { icon: "text-primary",    glow: "bg-teal-500/[0.06]",    iconBg: "bg-accent" },
+  amber:   { icon: "text-amber-400",   glow: "bg-amber-500/[0.06]",   iconBg: "bg-amber-50",   badge: "bg-amber-100 text-amber-600" },
+  emerald: { icon: "text-emerald-400", glow: "bg-emerald-500/[0.06]", iconBg: "bg-emerald-50", badge: "bg-emerald-100 text-emerald-600" },
   blue:    { icon: "text-blue-400",    glow: "bg-blue-500/[0.06]",    iconBg: "bg-blue-500/10" },
-  red:     { icon: "text-red-400",     glow: "bg-red-500/[0.06]",     iconBg: "bg-red-500/10" },
+  red:     { icon: "text-red-400",     glow: "bg-red-500/[0.06]",     iconBg: "bg-red-50" },
   purple:  { icon: "text-purple-400",  glow: "bg-purple-500/[0.06]",  iconBg: "bg-purple-500/10" },
   orange:  { icon: "text-orange-400",  glow: "bg-orange-500/[0.06]",  iconBg: "bg-orange-500/10" },
 };
@@ -33,7 +33,7 @@ export function StatCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border border-white/[0.06] bg-card/60 px-4 py-3.5 ${className ?? ""}`}
+      className={`relative overflow-hidden rounded-xl border border-border bg-card card-elevated px-4 py-3.5 ${className ?? ""}`}
     >
       <div className={`absolute -top-10 -right-10 h-24 w-24 rounded-full ${c.glow} blur-2xl`} />
       <div className="flex items-center justify-between mb-2">
@@ -41,14 +41,14 @@ export function StatCard({
           <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${c.iconBg}`}>
             <Icon className={`h-3.5 w-3.5 ${c.icon}`} />
           </div>
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">
+          <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
             {label}
           </span>
         </div>
         {badge}
       </div>
-      <p className="text-xl font-bold tracking-tight text-white tabular-nums">{value}</p>
-      {subtitle && <p className="mt-1 text-xs text-white/35">{subtitle}</p>}
+      <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{value}</p>
+      {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
     </div>
   );
 }

@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const NOTE_TYPES = [
-  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-white/10 text-white/50" },
+  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-muted text-muted-foreground" },
   { value: "MEETING", label: "Meeting", icon: Users, color: "bg-blue-500/10 text-blue-400" },
   { value: "DECISION", label: "Decision", icon: Gavel, color: "bg-purple-500/10 text-purple-400" },
   { value: "RISK", label: "Risk", icon: ShieldAlert, color: "bg-red-500/10 text-red-400" },
@@ -96,7 +96,7 @@ export function NoteRowActions({ note }: NoteRowActionsProps) {
           type="button"
           onClick={(e) => { e.preventDefault(); handleOpenEdit(); }}
           disabled={isPending}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-white/[0.06] hover:text-foreground/70"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground/70"
           title="Edit note"
         >
           <Pencil className="h-3.5 w-3.5" />
@@ -142,7 +142,7 @@ export function NoteRowActions({ note }: NoteRowActionsProps) {
                         "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150",
                         isActive
                           ? t.color
-                          : "text-muted-foreground/50 hover:text-muted-foreground/80 hover:bg-white/[0.04]",
+                          : "text-muted-foreground/50 hover:text-muted-foreground/80 hover:bg-accent",
                       )}
                     >
                       <Icon className="h-3.5 w-3.5" strokeWidth={2} />
@@ -166,7 +166,7 @@ export function NoteRowActions({ note }: NoteRowActionsProps) {
                     handleSave();
                   }
                 }}
-                className="w-full resize-none rounded-xl border border-border/30 bg-white/[0.015] px-4 py-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-teal-500/40 min-h-[160px]"
+                className="w-full resize-none rounded-xl border border-border/30 bg-accent px-4 py-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/30 outline-none focus:border-primary/40 min-h-[160px]"
                 autoFocus
               />
             </div>

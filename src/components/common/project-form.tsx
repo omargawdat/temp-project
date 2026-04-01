@@ -48,8 +48,8 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
         disabled={pending || !enabled}
         className={`w-full rounded-md py-4.5 text-sm font-semibold tracking-wide transition-all active:scale-[0.99] ${
           enabled
-            ? "bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400 hover:shadow-teal-500/30"
-            : "bg-white/[0.06] text-muted-foreground/40 shadow-none"
+            ? "bg-gradient-to-r from-teal-600 to-teal-500 text-foreground shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400 hover:shadow-teal-500/30"
+            : "bg-muted text-muted-foreground/40 shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -177,7 +177,7 @@ export function ProjectForm({
           icon={Handshake}
           title={isEdit ? "Project & Client Details" : "Contract & Client Details"}
           subtitle={isEdit ? "Update project and client information" : "Enter details from the signed contract"}
-          accentColor="bg-teal-500/10 text-teal-400"
+          accentColor="bg-accent text-primary"
           step={1}
         />
         <div className="space-y-4">
@@ -195,7 +195,7 @@ export function ProjectForm({
                   <img
                     src={imagePreview}
                     alt="Project"
-                    className="h-20 w-20 rounded-xl object-cover ring-1 ring-white/10"
+                    className="h-20 w-20 rounded-xl object-cover ring-1 ring-ring/20"
                   />
                   <button
                     type="button"
@@ -204,7 +204,7 @@ export function ProjectForm({
                       if (imageInputRef.current) imageInputRef.current.value = "";
                       setIsDirty(true);
                     }}
-                    className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-white transition-colors hover:bg-red-500"
+                    className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-foreground transition-colors hover:bg-red-500"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -213,7 +213,7 @@ export function ProjectForm({
                 <button
                   type="button"
                   onClick={() => imageInputRef.current?.click()}
-                  className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-teal-400/50"
+                  className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-primary/50"
                 >
                   <ImagePlus className="h-6 w-6" />
                 </button>
@@ -256,7 +256,7 @@ export function ProjectForm({
                 <span className="flex items-center gap-2 truncate">
                   {selectedClient?.imageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={selectedClient.imageUrl} alt={selectedClient.name} className="h-5 w-5 rounded-full object-cover ring-1 ring-white/10" />
+                    <img src={selectedClient.imageUrl} alt={selectedClient.name} className="h-5 w-5 rounded-full object-cover ring-1 ring-ring/20" />
                   )}
                   {selectedClient?.name ?? "Select a client"}
                 </span>
@@ -297,20 +297,20 @@ export function ProjectForm({
                           className={cn(
                             "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                             isActive
-                              ? "bg-teal-500/10 text-teal-400"
-                              : "text-foreground/80 hover:bg-white/[0.04]",
+                              ? "bg-accent text-primary"
+                              : "text-foreground/80 hover:bg-accent",
                           )}
                         >
                           {c.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={c.imageUrl} alt={c.name} className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-white/10" />
+                            <img src={c.imageUrl} alt={c.name} className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-ring/20" />
                           ) : (
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-[9px] font-bold text-muted-foreground/50">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground/50">
                               {c.name.charAt(0)}
                             </div>
                           )}
                           <span className="flex-1 truncate font-medium">{c.name}</span>
-                          {isActive && <Check className="h-3.5 w-3.5 shrink-0 text-teal-400" />}
+                          {isActive && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
                         </button>
                       );
                     })}
@@ -380,7 +380,7 @@ export function ProjectForm({
               {CURRENCIES.map((c) => (
                 <label
                   key={c.code}
-                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-teal-500/50 has-[:checked]:bg-teal-500/10 has-[:checked]:text-teal-400"
+                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-teal-500/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
                 >
                   <input
                     type="radio"
@@ -436,7 +436,7 @@ export function ProjectForm({
                     className="h-7 w-7 flex-shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-has-[:checked]:ring-teal-500"
                   />
                 ) : (
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-muted-foreground transition-all group-has-[:checked]:bg-teal-500 group-has-[:checked]:text-white">
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-muted-foreground transition-all group-has-[:checked]:bg-teal-500 group-has-[:checked]:text-foreground">
                     {initials}
                   </div>
                 )}
@@ -457,7 +457,7 @@ export function ProjectForm({
           icon={Settings}
           title="Timeline & Invoicing"
           subtitle="Project dates and client invoicing method"
-          accentColor="bg-amber-500/10 text-amber-400"
+          accentColor="bg-amber-50 text-amber-400"
           step={4}
         />
         <div className="grid gap-4">
@@ -469,7 +469,7 @@ export function ProjectForm({
               ].map((opt) => (
                 <label
                   key={opt.value}
-                  className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground/50 transition-all hover:text-muted-foreground has-[:checked]:bg-teal-500/15 has-[:checked]:text-teal-400 has-[:checked]:ring-1 has-[:checked]:ring-teal-500/30"
+                  className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground/50 transition-all hover:text-muted-foreground has-[:checked]:bg-teal-500/15 has-[:checked]:text-primary has-[:checked]:ring-1 has-[:checked]:ring-teal-500/30"
                 >
                   <input
                     type="radio"

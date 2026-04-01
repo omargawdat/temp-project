@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutGrid, color: "#2dd4bf" },
+  { href: "/dashboard", label: "Overview", icon: LayoutGrid, color: "#818cf8" },
   { href: "/clients", label: "Clients", icon: Building2, color: "#f97316" },
   { href: "/projects", label: "Projects", icon: FolderKanban, color: "#60a5fa" },
   { href: "/milestones", label: "Milestones", icon: ListChecks, color: "#fbbf24" },
@@ -46,16 +46,16 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
         open ? "w-60" : "w-20",
       )}
       style={{
-        background: "linear-gradient(180deg, #0a1020 0%, #060c18 100%)",
+        background: "#0f172a",
       }}
     >
-      {/* Right border glow */}
-      <div className="absolute right-0 top-0 bottom-0 w-px bg-white/[0.04]" />
+      {/* Right border */}
+      <div className="absolute right-0 top-0 bottom-0 w-px bg-white/[0.06]" />
 
       {/* Toggle button */}
       <button
         onClick={onToggle}
-        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.08] bg-[#0e1828] text-white/40 shadow-lg shadow-black/40 transition-colors hover:bg-[#162236] hover:text-white/70"
+        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-white text-slate-400 shadow-sm transition-colors hover:bg-accent hover:text-slate-600"
       >
         {open ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
       </button>
@@ -194,10 +194,10 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
           )}
         >
           <div className="relative flex-shrink-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-cyan-600 text-[11px] font-bold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-[11px] font-bold text-white">
               OG
             </div>
-            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0a1020] bg-emerald-400" />
+            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0f172a] bg-emerald-400" />
           </div>
           {open && (
             <>

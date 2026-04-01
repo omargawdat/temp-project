@@ -141,10 +141,10 @@ export default async function ClientsPage({
               <Link
                 key={client.id}
                 href={`/clients/${client.id}`}
-                className="card-hover noise-overlay group relative block overflow-hidden rounded-2xl border border-white/[0.06] transition-all duration-300"
+                className="card-hover noise-overlay group relative block overflow-hidden rounded-2xl border border-border transition-all duration-300"
                 style={{
                   background:
-                    "linear-gradient(165deg, rgba(16,24,40,0.97), rgba(11,17,32,0.99))",
+                    "linear-gradient(165deg, rgba(255,255,255,1), rgba(248,250,252,1))",
                 }}
               >
                 {/* Subtle top glow */}
@@ -165,7 +165,7 @@ export default async function ClientsPage({
                       <img
                         src={client.imageUrl}
                         alt={client.name}
-                        className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-white/10"
+                        className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-ring/20"
                       />
                     ) : (
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-500/5 ring-1 ring-orange-500/20">
@@ -176,14 +176,14 @@ export default async function ClientsPage({
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-[17px] font-bold leading-snug tracking-tight text-white/95 transition-colors group-hover:text-white truncate">
+                        <h3 className="text-[17px] font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
                           {client.name}
                         </h3>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={client.country.flag} alt={client.country.name} className="h-3.5 w-5 shrink-0 rounded-[2px] object-cover" />
                       </div>
                       <div className="mt-0.5 flex items-center gap-2">
-                        <span className="font-mono text-[12px] tracking-wide text-white/30">
+                        <span className="font-mono text-[12px] tracking-wide text-muted-foreground">
                           {client.code}
                         </span>
                         <span className={cn("text-[11px] font-semibold", sector.text)}>
@@ -194,23 +194,23 @@ export default async function ClientsPage({
                   </div>
 
                   {/* Row 3: Stats */}
-                  <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/[0.04]">
-                    <div className="bg-[#0d1525] px-3.5 py-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-white/25">
+                  <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-accent">
+                    <div className="bg-accent px-3.5 py-3">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
                         Projects
                       </p>
-                      <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
+                      <p className="mt-1 text-[15px] font-bold tabular-nums text-foreground">
                         {client.projects.length}
-                        <span className="ml-1 text-[11px] font-medium text-emerald-400/60">
+                        <span className="ml-1 text-[11px] font-medium text-emerald-500">
                           {activeProjects} active
                         </span>
                       </p>
                     </div>
-                    <div className="bg-[#0d1525] px-3.5 py-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-white/25">
+                    <div className="bg-accent px-3.5 py-3">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
                         Contract Value
                       </p>
-                      <p className="mt-1 text-[15px] font-bold tabular-nums text-white/90">
+                      <p className="mt-1 text-[15px] font-bold tabular-nums text-foreground">
                         {formatMultiCurrency(contractByCurrency)}
                       </p>
                     </div>
@@ -219,14 +219,14 @@ export default async function ClientsPage({
                   {/* Row 4: Financial progress bar */}
                   <div className="mt-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-medium text-white/20">
+                      <span className="text-[10px] font-medium text-muted-foreground/50">
                         Billed / Collected
                       </span>
-                      <span className="text-[10px] tabular-nums text-white/25">
+                      <span className="text-[10px] tabular-nums text-muted-foreground/50">
                         {billedPct}% / {collectedPct}%
                       </span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.04]">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
                       <div className="relative h-full">
                         <div
                           className="absolute inset-y-0 left-0 rounded-full bg-amber-500/50 transition-all duration-700"
@@ -241,7 +241,7 @@ export default async function ClientsPage({
                   </div>
 
                   {/* Divider */}
-                  <div className="my-4 h-px bg-white/[0.05]" />
+                  <div className="my-4 h-px bg-muted" />
 
                   {/* Row 5: Contact info */}
                   <ContactActions
@@ -258,7 +258,7 @@ export default async function ClientsPage({
         </>
       ) : (
         <div className="border-border/50 bg-card flex flex-col items-center gap-4 rounded-2xl border py-20 shadow-lg shadow-black/10">
-          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-orange-500/10"}`}>
+          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-orange-500/10"}`}>
             {filtersActive ? (
               <SearchX className="h-8 w-8 text-amber-400" />
             ) : (

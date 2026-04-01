@@ -71,7 +71,7 @@ export default async function ProjectManagersPage({
       {sortedStats.length > 0 ? (
         <>
 
-        <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
+        <div className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated">
           <table className="w-full" style={{ tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: "28%" }} />
@@ -124,7 +124,7 @@ export default async function ProjectManagersPage({
                 return (
                   <tr
                     key={pm.id}
-                    className={`group transition-colors hover:bg-teal-500/[0.03] ${
+                    className={`group transition-colors hover:bg-accent ${
                       idx < paginatedStats.length - 1 ? "border-b border-border/10" : ""
                     }`}
                   >
@@ -135,12 +135,12 @@ export default async function ProjectManagersPage({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={pm.photoUrl} alt={pm.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-border/20" />
                         ) : (
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-500/20 to-cyan-500/20 text-xs font-bold text-teal-400 ring-2 ring-border/20">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 text-xs font-bold text-primary ring-2 ring-border/20">
                             {initials}
                           </div>
                         )}
                         <div>
-                          <p className="text-sm font-semibold text-foreground group-hover:text-teal-400 transition-colors">{pm.name}</p>
+                          <p className="text-sm font-semibold text-foreground group-hover:text-primary/80 transition-colors">{pm.name}</p>
                           {pm.title && <p className="text-xs text-muted-foreground/70">{pm.title}</p>}
                         </div>
                       </Link>
@@ -163,8 +163,8 @@ export default async function ProjectManagersPage({
                     {/* Milestones completion */}
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
-                          <div className="h-full rounded-full bg-teal-500/70 transition-all" style={{ width: `${pm.completionPct}%` }} />
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                          <div className="h-full rounded-full bg-accent0/70 transition-all" style={{ width: `${pm.completionPct}%` }} />
                         </div>
                         <span className="text-sm tabular-nums text-foreground/70">{pm.completedMilestones}/{pm.totalMilestones}</span>
                         {pm.overdueMilestones > 0 && (
@@ -188,7 +188,7 @@ export default async function ProjectManagersPage({
                       <div className="flex flex-col items-end gap-1">
                         <span className="text-sm font-bold tabular-nums text-foreground/90">{formatMultiCurrency(pm.billedByCurrency)}</span>
                         <div className="flex items-center gap-1.5">
-                          <div className="h-1.5 w-12 overflow-hidden rounded-full bg-amber-500/10">
+                          <div className="h-1.5 w-12 overflow-hidden rounded-full bg-amber-50">
                             <div className="h-full rounded-full bg-amber-500/70 transition-all" style={{ width: `${pm.billedPct}%` }} />
                           </div>
                           <span className="text-xs tabular-nums text-muted-foreground/60">{pm.billedPct}%</span>
@@ -204,12 +204,12 @@ export default async function ProjectManagersPage({
         <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
         </>
       ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card/40 py-20">
-          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-teal-500/10"}`}>
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card card-elevated py-20">
+          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent"}`}>
             {filtersActive ? (
               <SearchX className="h-8 w-8 text-amber-400" />
             ) : (
-              <Users className="h-8 w-8 text-teal-400" />
+              <Users className="h-8 w-8 text-primary" />
             )}
           </div>
           <div className="text-center">

@@ -14,24 +14,24 @@ export interface FloatingAction {
 
 const variantClasses: Record<string, string> = {
   primary:
-    "text-teal-400/80 hover:bg-teal-500/10 hover:text-teal-400",
+    "text-primary hover:bg-accent hover:text-primary/80",
   default:
-    "text-white/60 hover:bg-white/[0.08] hover:text-white",
+    "text-muted-foreground hover:bg-muted hover:text-foreground",
   warning:
-    "text-amber-400/70 hover:bg-amber-500/10 hover:text-amber-400",
+    "text-amber-500 hover:bg-amber-50 hover:text-amber-600",
   danger:
-    "text-white/35 hover:bg-white/[0.06] hover:text-white/60",
+    "text-muted-foreground hover:bg-muted hover:text-muted-foreground",
   accent:
-    "text-teal-400 hover:bg-teal-500/15 hover:text-teal-300 ring-1 ring-teal-500/20",
+    "text-primary hover:bg-accent hover:text-primary ring-1 ring-primary/20",
 };
 
 export function FloatingActionBar({ actions }: { actions: FloatingAction[] }) {
   return (
     <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-      <div className="flex items-center gap-1 rounded-2xl border border-white/[0.12] bg-[#131d2e]/95 px-4 py-3 shadow-[0_8px_40px_rgba(0,0,0,0.7),0_0_20px_rgba(45,212,191,0.08)] backdrop-blur-2xl ring-1 ring-white/[0.06]">
+      <div className="flex items-center gap-1 rounded-2xl border border-white/[0.12] bg-[#131d2e]/95 px-4 py-3 shadow-[0_8px_40px_rgba(0,0,0,0.7),0_0_20px_rgba(45,212,191,0.08)] backdrop-blur-2xl ring-1 ring-ring/20">
         {actions.map((action, i) => (
           <div key={action.label} className="flex items-center">
-            {i > 0 && <div className="mx-0.5 h-5 w-px bg-white/[0.06]" />}
+            {i > 0 && <div className="mx-0.5 h-5 w-px bg-muted" />}
             <button
               disabled={action.disabled}
               onClick={action.onClick}
@@ -43,7 +43,7 @@ export function FloatingActionBar({ actions }: { actions: FloatingAction[] }) {
               <action.icon className="h-4 w-4" />
               <span>{action.label}</span>
               {action.badge != null && action.badge > 0 && (
-                <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-teal-500/20 px-1 text-[10px] font-bold tabular-nums text-teal-400">
+                <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-teal-500/20 px-1 text-[10px] font-bold tabular-nums text-primary">
                   {action.badge}
                 </span>
               )}

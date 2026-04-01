@@ -107,9 +107,9 @@ export default async function ProjectManagerDetailPage({
   return (
     <div className="space-y-6">
       {/* ── A. Header ── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06]" style={{ background: "linear-gradient(168deg, rgba(14,20,36,0.95) 0%, rgba(10,16,28,0.98) 100%)" }}>
+      <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
         <div className="relative px-6 py-5">
-          <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-teal-500/[0.06] blur-3xl" />
+          <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-accent0/[0.06] blur-3xl" />
 
           {/* Top: Avatar + Name + Badge */}
           <div className="flex items-center gap-4 mb-4">
@@ -118,25 +118,25 @@ export default async function ProjectManagerDetailPage({
               <img
                 src={pm.photoUrl}
                 alt={pm.name}
-                className="h-14 w-14 rounded-xl object-cover ring-2 ring-teal-500/20"
+                className="h-14 w-14 rounded-xl object-cover ring-2 ring-primary/20"
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-base font-bold text-white ring-2 ring-teal-500/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-base font-bold text-foreground ring-2 ring-primary/20">
                 {initials}
               </div>
             )}
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-white">{pm.name}</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">{pm.name}</h1>
                 {pm.title && (
-                  <span className="rounded-md bg-teal-500/10 px-2.5 py-0.5 text-xs font-semibold text-teal-400">
+                  <span className="rounded-md bg-accent px-2.5 py-0.5 text-xs font-semibold text-primary">
                     {pm.title}
                   </span>
                 )}
               </div>
-              <div className="mt-1.5 flex items-center gap-3 text-sm text-white/40">
+              <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5">
-                  <CalendarDays className="h-3.5 w-3.5 text-white/20" />
+                  <CalendarDays className="h-3.5 w-3.5 text-muted-foreground/50" />
                   Joined {new Date(pm.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                 </span>
               </div>
@@ -144,7 +144,7 @@ export default async function ProjectManagerDetailPage({
           </div>
 
           {/* Contact details grid */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 rounded-xl bg-white/[0.03] px-4 py-3.5">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 rounded-xl bg-accent px-4 py-3.5">
             {pm.email && (
               <ContactDetailRow value={pm.email} icon="mail" href={`mailto:${pm.email}`} />
             )}
@@ -157,22 +157,22 @@ export default async function ProjectManagerDetailPage({
 
       {/* ── B. Financial & Delivery Dashboard ── */}
       {totalProjects > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-white/[0.06]" style={{ background: "linear-gradient(168deg, rgba(14,20,36,0.95) 0%, rgba(10,16,28,0.98) 100%)" }}>
+        <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
 
           {/* Top row: Financial metrics + Chart */}
-          <div className="grid grid-cols-[1fr_1fr_1fr_auto] divide-x divide-white/[0.04]">
+          <div className="grid grid-cols-[1fr_1fr_1fr_auto] divide-x divide-border/50">
             {/* Portfolio */}
             <div className="relative px-5 py-3">
-              <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-teal-500/[0.05] blur-3xl" />
+              <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-accent0/[0.05] blur-3xl" />
               <div className="flex items-center gap-2 mb-3">
-                <Briefcase className="h-3.5 w-3.5 text-teal-400/70" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Portfolio</span>
+                <Briefcase className="h-3.5 w-3.5 text-primary/70" />
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Portfolio</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
+              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-sm tabular-nums text-white/35">{totalProjects} projects</span>
-                <span className="h-1 w-1 rounded-full bg-white/15" />
-                <span className="text-sm font-medium text-emerald-400/70">{activeProjects} active</span>
+                <span className="text-sm tabular-nums text-muted-foreground">{totalProjects} projects</span>
+                <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+                <span className="text-sm font-medium text-emerald-500">{activeProjects} active</span>
               </div>
             </div>
 
@@ -181,16 +181,16 @@ export default async function ProjectManagerDetailPage({
               <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-amber-500/[0.04] blur-3xl" />
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <FileCheck className="h-3.5 w-3.5 text-amber-400/70" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Billed</span>
+                  <FileCheck className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Billed</span>
                 </div>
-                <span className="rounded-full bg-amber-400/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-400/80">{billingPercent}%</span>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-600">{billingPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
-              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
+              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500/50 to-amber-400" style={{ width: `${billingPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
+              <p className="mt-1.5 text-sm text-muted-foreground/50"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
             </div>
 
             {/* Collected */}
@@ -198,16 +198,16 @@ export default async function ProjectManagerDetailPage({
               <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-emerald-500/[0.04] blur-3xl" />
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Wallet className="h-3.5 w-3.5 text-emerald-400/70" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Collected</span>
+                  <Wallet className="h-3.5 w-3.5 text-emerald-500" />
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Collected</span>
                 </div>
-                <span className="rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-400/80">{collectionPercent}%</span>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-600">{collectionPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
-              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
+              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-emerald-500/50 to-emerald-400" style={{ width: `${collectionPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
+              <p className="mt-1.5 text-sm text-muted-foreground/50"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
             </div>
 
             {/* Ring Chart */}
@@ -217,16 +217,16 @@ export default async function ProjectManagerDetailPage({
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-white/[0.04]" />
+          <div className="h-px bg-accent" />
 
           {/* Bottom row: Delivery + Overdue + Upcoming — 3 equal columns */}
-          <div className="grid grid-cols-3 divide-x divide-white/[0.04]">
+          <div className="grid grid-cols-3 divide-x divide-border/50">
             {/* Delivery summary */}
             <div className="px-5 py-3">
               <div className="flex items-center gap-2 mb-3">
                 <Target className="h-3.5 w-3.5 text-blue-400/70" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Delivery</span>
-                <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${activeProjects > 0 ? "bg-emerald-400/10 text-emerald-400/80" : "bg-white/[0.06] text-white/40"}`}>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivery</span>
+                <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${activeProjects > 0 ? "bg-emerald-100 text-emerald-600" : "bg-muted text-muted-foreground"}`}>
                   {activeProjects > 0 ? "Active" : "Idle"}
                 </span>
               </div>
@@ -234,18 +234,18 @@ export default async function ProjectManagerDetailPage({
                 {/* Stats row */}
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400/60" />
-                    <span className="text-sm font-bold tabular-nums text-white/90">{completedMilestones}/{totalMilestones}</span>
-                    <span className="text-xs text-white/30">done</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    <span className="text-sm font-bold tabular-nums text-foreground">{completedMilestones}/{totalMilestones}</span>
+                    <span className="text-xs text-muted-foreground">done</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-blue-400/60" />
-                    <span className="text-sm font-bold tabular-nums text-white/90">{inProgressMilestones}</span>
-                    <span className="text-xs text-white/30">wip</span>
+                    <span className="text-sm font-bold tabular-nums text-foreground">{inProgressMilestones}</span>
+                    <span className="text-xs text-muted-foreground">wip</span>
                   </div>
                   {overdueMilestones.length > 0 && (
                     <div className="flex items-center gap-1.5">
-                      <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
+                      <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
                       <span className="text-sm font-bold tabular-nums text-red-400">{overdueMilestones.length}</span>
                       <span className="text-xs text-red-400/50">late</span>
                     </div>
@@ -253,10 +253,10 @@ export default async function ProjectManagerDetailPage({
                 </div>
                 {/* Completion bar */}
                 <div className="flex items-center gap-2.5">
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                     <div className="h-full rounded-full bg-gradient-to-r from-blue-500/50 to-blue-400" style={{ width: `${completionRate}%` }} />
                   </div>
-                  <span className="text-xs font-bold tabular-nums text-white/40">{completionRate}%</span>
+                  <span className="text-xs font-bold tabular-nums text-muted-foreground">{completionRate}%</span>
                 </div>
               </div>
             </div>
@@ -264,9 +264,9 @@ export default async function ProjectManagerDetailPage({
             {/* Overdue */}
             <div className="px-5 py-3">
               <div className="flex items-center gap-1.5 mb-2.5">
-                <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-400/70">Overdue</span>
-                <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-red-400/80">{overdueMilestones.length}</span>
+                <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-500">Overdue</span>
+                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold tabular-nums text-red-600">{overdueMilestones.length}</span>
               </div>
               {overdueMilestones.length > 0 ? (
                 <div className="max-h-[96px] overflow-y-auto space-y-1 pr-0.5">
@@ -274,18 +274,18 @@ export default async function ProjectManagerDetailPage({
                     const proj = milestoneProjectMap.get(m.id);
                     const daysOverdue = daysDifference(m.plannedDate, now);
                     return (
-                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-500/[0.04] px-3 py-2 transition-colors hover:bg-red-500/[0.08]">
+                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 transition-colors hover:bg-red-100">
                         <div className="min-w-0 mr-2">
-                          <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
-                          {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
+                          <p className="text-sm font-medium text-secondary-foreground truncate">{m.name}</p>
+                          {proj && <p className="text-xs text-muted-foreground/50 truncate">{proj.projectName}</p>}
                         </div>
-                        <span className="shrink-0 text-xs font-bold tabular-nums text-red-400/70">{daysOverdue}d</span>
+                        <span className="shrink-0 text-xs font-bold tabular-nums text-red-500">{daysOverdue}d</span>
                       </Link>
                     );
                   })}
                 </div>
               ) : (
-                <div className="flex items-center justify-center rounded-lg bg-white/[0.02] py-5 text-xs text-emerald-400/50">
+                <div className="flex items-center justify-center rounded-lg bg-accent py-5 text-xs text-emerald-400/50">
                   <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                   All on track
                 </div>
@@ -295,9 +295,9 @@ export default async function ProjectManagerDetailPage({
             {/* Upcoming */}
             <div className="px-5 py-3">
               <div className="flex items-center gap-1.5 mb-2.5">
-                <Clock className="h-3.5 w-3.5 text-teal-400/80" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-teal-400/70">Upcoming</span>
-                <span className="rounded-full bg-teal-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-teal-400/80">{upcomingMilestones.length}</span>
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-primary/70">Upcoming</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary">{upcomingMilestones.length}</span>
               </div>
               {upcomingMilestones.length > 0 ? (
                 <div className="max-h-[96px] overflow-y-auto space-y-1 pr-0.5">
@@ -305,12 +305,12 @@ export default async function ProjectManagerDetailPage({
                     const proj = milestoneProjectMap.get(m.id);
                     const daysUntil = -daysDifference(m.plannedDate, now);
                     return (
-                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]">
+                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-accent px-3 py-2 transition-colors hover:bg-accent">
                         <div className="min-w-0 mr-2">
-                          <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
-                          {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
+                          <p className="text-sm font-medium text-secondary-foreground truncate">{m.name}</p>
+                          {proj && <p className="text-xs text-muted-foreground/50 truncate">{proj.projectName}</p>}
                         </div>
-                        <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-400/70" : "text-white/30"}`}>
+                        <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-500" : "text-muted-foreground"}`}>
                           {daysUntil === 0 ? "Today" : `${daysUntil}d`}
                         </span>
                       </Link>
@@ -318,7 +318,7 @@ export default async function ProjectManagerDetailPage({
                   })}
                 </div>
               ) : (
-                <div className="flex items-center justify-center rounded-lg bg-white/[0.02] py-5 text-xs text-white/20">
+                <div className="flex items-center justify-center rounded-lg bg-accent py-5 text-xs text-muted-foreground/50">
                   No upcoming deadlines
                 </div>
               )}
@@ -328,14 +328,14 @@ export default async function ProjectManagerDetailPage({
       )}
 
       {/* ── C. Projects table ── */}
-      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
+      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-lg bg-teal-500/12 p-2">
-              <FolderKanban className="h-4 w-4 text-teal-400" />
+            <div className="rounded-lg bg-accent0/12 p-2">
+              <FolderKanban className="h-4 w-4 text-primary" />
             </div>
             <span className="text-base font-bold text-foreground">Assigned Projects</span>
-            <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
+            <span className="rounded-md bg-muted px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
               {pm.projects.length}
             </span>
           </div>
@@ -372,10 +372,10 @@ export default async function ProjectManagerDetailPage({
                 return (
                   <tr
                     key={project.id}
-                    className={`group transition-colors hover:bg-teal-500/[0.03] ${idx < pm.projects.length - 1 ? "border-b border-border/10" : ""}`}
+                    className={`group transition-colors hover:bg-accent ${idx < pm.projects.length - 1 ? "border-b border-border/10" : ""}`}
                   >
                     <td className="px-6 py-4">
-                      <Link href={`/projects/${project.id}`} className="text-[15px] font-semibold text-foreground hover:text-teal-400 transition-colors">
+                      <Link href={`/projects/${project.id}`} className="text-[15px] font-semibold text-foreground hover:text-primary/80 transition-colors">
                         {project.name}
                       </Link>
                     </td>
@@ -389,15 +389,15 @@ export default async function ProjectManagerDetailPage({
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-20 overflow-hidden rounded-full bg-white/[0.06]">
-                          <div className="h-full rounded-full bg-teal-500/70 transition-all" style={{ width: `${pct}%` }} />
+                        <div className="h-2 w-20 overflow-hidden rounded-full bg-muted">
+                          <div className="h-full rounded-full bg-accent0/70 transition-all" style={{ width: `${pct}%` }} />
                         </div>
                         <span className="text-xs font-medium tabular-nums text-muted-foreground/60">{done}/{project.milestones.length}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="h-2 w-16 overflow-hidden rounded-full bg-muted">
                           <div className={`h-full rounded-full transition-all ${timePct >= 90 ? "bg-red-500/70" : timePct >= 70 ? "bg-amber-500/70" : "bg-blue-500/50"}`} style={{ width: `${timePct}%` }} />
                         </div>
                         <span className="text-xs tabular-nums text-muted-foreground/50">{timePct}%</span>
@@ -419,14 +419,14 @@ export default async function ProjectManagerDetailPage({
       </div>
 
       {/* ── D. Invoices Table ── */}
-      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
+      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/20 bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-lg bg-white/[0.06] p-2">
+            <div className="rounded-lg bg-muted p-2">
               <Receipt className="h-4 w-4 text-muted-foreground/60" />
             </div>
             <span className="text-base font-bold text-foreground">Invoices</span>
-            <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
+            <span className="rounded-md bg-muted px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
               {invoices.length}
             </span>
           </div>
@@ -451,7 +451,7 @@ export default async function ProjectManagerDetailPage({
                   return (
                     <tr
                       key={inv.id}
-                      className={`group transition-colors hover:bg-white/[0.03] ${
+                      className={`group transition-colors hover:bg-accent ${
                         idx < invoices.length - 1 ? "border-b border-border/10" : ""
                       }`}
                     >
@@ -488,7 +488,7 @@ export default async function ProjectManagerDetailPage({
               </tbody>
               {/* Summary row */}
               <tfoot>
-                <tr className="border-t border-border/20 bg-white/[0.02]">
+                <tr className="border-t border-border/20 bg-accent">
                   <td className="px-6 py-3.5 text-sm font-bold text-foreground" colSpan={3}>Total</td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-foreground">
                     {invoiceTotalPayable.toLocaleString()}
@@ -500,7 +500,7 @@ export default async function ProjectManagerDetailPage({
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-14 text-center">
-            <div className="mb-3 rounded-full bg-white/[0.04] p-3">
+            <div className="mb-3 rounded-full bg-accent p-3">
               <Receipt className="h-5 w-5 text-muted-foreground/25" />
             </div>
             <p className="text-sm text-muted-foreground/60">No invoices yet</p>

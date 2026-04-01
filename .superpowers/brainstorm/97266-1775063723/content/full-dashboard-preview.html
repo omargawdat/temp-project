@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #0f172a; min-height: 100vh; display:flex; }
+
+  /* Dark Sidebar */
+  .sidebar { width:220px; background:#0f172a; padding:12px; display:flex; flex-direction:column; border-right:1px solid #1e293b; min-height:100vh; position:fixed; top:0; left:0; }
+  .logo { padding:12px 10px 20px; display:flex; align-items:center; gap:10px; font-weight:800; font-size:16px; color:#fff; border-bottom:1px solid #1e293b; margin-bottom:12px; }
+  .logo-icon { width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg,#6366f1,#4f46e5); display:flex; align-items:center; justify-content:center; color:white; font-size:14px; font-weight:800; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; font-size:13px; font-weight:500; color:#64748b; margin-bottom:2px; }
+  .nav-item:hover { background:#1e293b; color:#94a3b8; }
+  .nav-item.active { background:#1e293b; color:#ffffff; }
+  .nav-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; background:#1e293b; }
+  .nav-item.active .nav-icon { background:#4f46e5; color:white; }
+  .sidebar-footer { margin-top:auto; padding:12px 10px; border-top:1px solid #1e293b; display:flex; align-items:center; gap:10px; }
+  .avatar { width:32px; height:32px; border-radius:99px; background:linear-gradient(135deg,#6366f1,#818cf8); display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:700; }
+  .user-name { font-size:12px; color:#e2e8f0; font-weight:600; }
+  .user-role { font-size:11px; color:#64748b; }
+
+  /* Main Content */
+  .main { margin-left:220px; background:#f1f5f9; flex:1; min-height:100vh; padding:28px 32px; }
+  .page-title { font-size:22px; font-weight:800; color:#0f172a; margin-bottom:4px; }
+  .page-sub { font-size:13px; color:#64748b; margin-bottom:24px; }
+
+  /* Stat Cards Row */
+  .stats-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#ffffff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04); }
+  .stat-header { display:flex; justify-content:space-between; align-items:flex-start; }
+  .stat-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; }
+  .stat-value { font-size:20px; font-weight:800; color:#0f172a; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .stat-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .stat-sub { font-size:11px; color:#94a3b8; margin-top:6px; }
+  .stat-badge { display:inline-block; padding:2px 8px; border-radius:99px; font-size:10px; font-weight:600; margin-left:4px; }
+
+  /* Chart Row */
+  .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+  .chart-card { background:#ffffff; border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04); }
+  .chart-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; margin-bottom:16px; display:flex; align-items:center; gap:6px; }
+  .chart-title-icon { color:#6366f1; }
+
+  /* Mock bar chart */
+  .bar-chart { display:flex; align-items:flex-end; gap:20px; height:140px; padding:0 10px; }
+  .bar-group { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; }
+  .bar { border-radius:6px 6px 0 0; width:100%; min-width:40px; }
+  .bar-label { font-size:10px; color:#94a3b8; font-weight:500; }
+
+  /* Mock donut */
+  .donut-row { display:flex; gap:16px; }
+  .donut-container { flex:1; display:flex; flex-direction:column; align-items:center; }
+  .donut { width:120px; height:120px; border-radius:50%; position:relative; display:flex; align-items:center; justify-content:center; }
+  .donut-center { font-size:16px; font-weight:800; color:#0f172a; }
+  .donut-label { font-size:10px; color:#94a3b8; margin-top:8px; text-align:center; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+  .legend { display:flex; flex-direction:column; gap:6px; margin-top:12px; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:#64748b; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; }
+
+  /* Pipeline bar */
+  .pipeline { display:flex; height:28px; border-radius:8px; overflow:hidden; margin-top:8px; }
+  .pipeline-seg { display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; color:white; }
+
+  /* Alerts / Timeline */
+  .alert-item { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; margin-bottom:6px; }
+  .alert-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+  .alert-title { font-size:12px; font-weight:600; color:#0f172a; }
+  .alert-sub { font-size:11px; color:#94a3b8; }
+  .alert-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; margin-left:auto; white-space:nowrap; }
+
+  /* Table */
+  .table-header { display:grid; padding:10px 16px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; border-bottom:1px solid #f1f5f9; }
+  .table-row { display:grid; padding:10px 16px; font-size:12px; color:#334155; border-bottom:1px solid #f8fafc; align-items:center; }
+  .table-row:hover { background:#f8fafc; }
+
+  .status-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 10px; border-radius:99px; font-size:10px; font-weight:600; }
+  .status-dot { width:6px; height:6px; border-radius:50%; }
+
+  .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; display:flex; align-items:center; gap:6px; }
+  .section-link { font-size:11px; color:#6366f1; font-weight:600; text-decoration:none; }
+
+  .count-badge { background:#eef2ff; color:#4f46e5; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; }
+</style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo"><div class="logo-icon">B</div> Delivery Hub</div>
+    <div class="nav-item active"><div class="nav-icon">&#9632;</div> Overview</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Clients</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Projects</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Milestones</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Invoices</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Team</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Notes</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Countries</div>
+    <div class="nav-item"><div class="nav-icon">&#9632;</div> Audit Log</div>
+    <div class="sidebar-footer">
+      <div class="avatar">OG</div>
+      <div><div class="user-name">Omar Gawdat</div><div class="user-role">Project Director</div></div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Portfolio overview and key metrics</div>
+
+    <!-- ROW 1: Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-label">Portfolio Value</div>
+            <div class="stat-value">SAR 2.45M</div>
+          </div>
+          <div class="stat-icon" style="background:#eef2ff;color:#6366f1;">&#9670;</div>
+        </div>
+        <div class="stat-sub">6 total projects</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-label">Total Billed</div>
+            <div class="stat-value">SAR 1.68M</div>
+          </div>
+          <div class="stat-icon" style="background:#fef3c7;color:#d97706;">&#9670;</div>
+        </div>
+        <div class="stat-sub">68% of portfolio <span class="stat-badge" style="background:#f0fdf4;color:#16a34a;">68%</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-label">Total Collected</div>
+            <div class="stat-value">SAR 980K</div>
+          </div>
+          <div class="stat-icon" style="background:#ecfdf5;color:#10b981;">&#9670;</div>
+        </div>
+        <div class="stat-sub">40% of portfolio <span class="stat-badge" style="background:#ecfdf5;color:#10b981;">40%</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <div>
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value">4</div>
+          </div>
+          <div class="stat-icon" style="background:#eef2ff;color:#6366f1;">&#9670;</div>
+        </div>
+        <div class="stat-sub">1 on hold</div>
+      </div>
+      <div class="stat-card" style="border-left:3px solid #ef4444;">
+        <div class="stat-header">
+          <div>
+            <div class="stat-label">Overdue Items</div>
+            <div class="stat-value" style="color:#ef4444;">3</div>
+          </div>
+          <div class="stat-icon" style="background:#fef2f2;color:#ef4444;">&#9888;</div>
+        </div>
+        <div class="stat-sub">2 milestones, 1 invoice</div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Charts -->
+    <div class="charts-grid">
+      <!-- Cash Flow -->
+      <div class="chart-card">
+        <div class="chart-title"><span class="chart-title-icon">&#9679;</span> Cash Flow Overview</div>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar" style="height:100%;background:linear-gradient(180deg,#818cf8,#6366f1);"></div>
+            <div class="bar-label">Portfolio</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:68%;background:linear-gradient(180deg,#fbbf24,#d97706);"></div>
+            <div class="bar-label">Billed</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height:40%;background:linear-gradient(180deg,#34d399,#10b981);"></div>
+            <div class="bar-label">Collected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing & Status -->
+      <div class="chart-card">
+        <div class="chart-title"><span class="chart-title-icon">&#9679;</span> Billing & Status</div>
+        <div class="donut-row">
+          <div class="donut-container">
+            <div class="donut" style="background:conic-gradient(#10b981 0% 40%, #fbbf24 40% 68%, #e2e8f0 68% 100%);">
+              <div style="width:80px;height:80px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;">
+                <div class="donut-center">40%</div>
+              </div>
+            </div>
+            <div class="donut-label">Collection Rate</div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Collected</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;"></div> Outstanding</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#e2e8f0;"></div> Unbilled</div>
+            </div>
+          </div>
+          <div class="donut-container">
+            <div class="donut" style="background:conic-gradient(#6366f1 0% 30%, #3b82f6 30% 45%, #10b981 45% 65%, #a78bfa 65% 80%, #e2e8f0 80% 100%);">
+              <div style="width:80px;height:80px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;">
+                <div class="donut-center">17</div>
+              </div>
+            </div>
+            <div class="donut-label">Milestone Status</div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#6366f1;"></div> Invoiced</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> In Progress</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Completed</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;"></div> Ready</div>
+            </div>
+          </div>
+        </div>
+        <!-- Invoice Pipeline -->
+        <div style="margin-top:16px;">
+          <div style="font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Invoice Pipeline</div>
+          <div class="pipeline">
+            <div class="pipeline-seg" style="width:15%;background:#94a3b8;">2</div>
+            <div class="pipeline-seg" style="width:20%;background:#f59e0b;">3</div>
+            <div class="pipeline-seg" style="width:15%;background:#f97316;">1</div>
+            <div class="pipeline-seg" style="width:25%;background:#10b981;">2</div>
+            <div class="pipeline-seg" style="width:20%;background:#6366f1;">3</div>
+            <div class="pipeline-seg" style="width:5%;background:#ef4444;">1</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;">
+            <div class="legend-item"><div class="legend-dot" style="background:#94a3b8;"></div> Draft</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Submitted</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div> Review</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Approved</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#6366f1;"></div> Paid</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div> Rejected</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3: Alerts & Timeline -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="section-header">
+          <div class="section-title">&#9888; Action Items <span class="count-badge" style="background:#fef2f2;color:#ef4444;">3</span></div>
+        </div>
+        <div class="alert-item" style="background:#fef2f2;">
+          <div class="alert-icon" style="background:#fee2e2;color:#ef4444;">&#9679;</div>
+          <div><div class="alert-title">Phase 2 Implementation</div><div class="alert-sub">NEOM Smart City</div></div>
+          <div class="alert-badge" style="background:#fee2e2;color:#ef4444;">12d overdue</div>
+        </div>
+        <div class="alert-item" style="background:#fef2f2;">
+          <div class="alert-icon" style="background:#fee2e2;color:#ef4444;">&#9679;</div>
+          <div><div class="alert-title">INV-2026-004</div><div class="alert-sub">Ministry of Transport</div></div>
+          <div class="alert-badge" style="background:#fee2e2;color:#ef4444;">5d past due</div>
+        </div>
+        <div class="alert-item" style="background:#f5f3ff;">
+          <div class="alert-icon" style="background:#ede9fe;color:#7c3aed;">&#9679;</div>
+          <div><div class="alert-title">UAT Testing</div><div class="alert-sub">STC Digital Platform</div></div>
+          <div class="alert-badge" style="background:#ede9fe;color:#7c3aed;">Sent</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="section-header">
+          <div class="section-title">&#128197; Upcoming Deadlines <span class="count-badge">4</span></div>
+          <span class="section-link">View all →</span>
+        </div>
+        <div class="alert-item" style="background:#fff7ed;">
+          <div style="background:#fef3c7;border-radius:8px;padding:6px 10px;text-align:center;min-width:48px;">
+            <div style="font-size:14px;font-weight:800;color:#d97706;">3d</div>
+            <div style="font-size:9px;color:#b45309;">Apr 4</div>
+          </div>
+          <div><div class="alert-title">Security Audit</div><div class="alert-sub">STC Digital Platform</div></div>
+        </div>
+        <div class="alert-item" style="background:#f8fafc;">
+          <div style="background:#f1f5f9;border-radius:8px;padding:6px 10px;text-align:center;min-width:48px;">
+            <div style="font-size:14px;font-weight:800;color:#64748b;">8d</div>
+            <div style="font-size:9px;color:#94a3b8;">Apr 9</div>
+          </div>
+          <div><div class="alert-title">Data Migration</div><div class="alert-sub">NEOM Smart City</div></div>
+        </div>
+        <div class="alert-item" style="background:#f8fafc;">
+          <div style="background:#f1f5f9;border-radius:8px;padding:6px 10px;text-align:center;min-width:48px;">
+            <div style="font-size:14px;font-weight:800;color:#64748b;">15d</div>
+            <div style="font-size:9px;color:#94a3b8;">Apr 16</div>
+          </div>
+          <div><div class="alert-title">Phase 3 Delivery</div><div class="alert-sub">Aramco Portal</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 4: Breakdowns -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title"><span class="chart-title-icon">&#9679;</span> Revenue by Client</div>
+        <!-- Horizontal bars -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:#334155;font-weight:600;">NEOM</span><span style="color:#94a3b8;">SAR 890K</span></div>
+            <div style="display:flex;height:20px;border-radius:6px;overflow:hidden;background:#f1f5f9;">
+              <div style="width:45%;background:#10b981;"></div>
+              <div style="width:25%;background:#fbbf24;"></div>
+              <div style="width:30%;background:#e2e8f0;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:#334155;font-weight:600;">STC</span><span style="color:#94a3b8;">SAR 650K</span></div>
+            <div style="display:flex;height:20px;border-radius:6px;overflow:hidden;background:#f1f5f9;">
+              <div style="width:60%;background:#10b981;"></div>
+              <div style="width:30%;background:#fbbf24;"></div>
+              <div style="width:10%;background:#e2e8f0;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;"><span style="color:#334155;font-weight:600;">Aramco</span><span style="color:#94a3b8;">SAR 520K</span></div>
+            <div style="display:flex;height:20px;border-radius:6px;overflow:hidden;background:#f1f5f9;">
+              <div style="width:35%;background:#10b981;"></div>
+              <div style="width:40%;background:#fbbf24;"></div>
+              <div style="width:25%;background:#e2e8f0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="section-header">
+          <div class="section-title">&#128101; Team Workload</div>
+          <span class="section-link">View all →</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="avatar" style="width:36px;height:36px;font-size:11px;">AH</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;font-weight:600;color:#0f172a;">Ahmed Hassan</span>
+                <span class="stat-badge" style="background:#eef2ff;color:#4f46e5;font-size:10px;">3 active</span>
+              </div>
+              <div style="height:4px;border-radius:99px;background:#f1f5f9;margin-top:6px;"><div style="width:72%;height:100%;border-radius:99px;background:#6366f1;"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="avatar" style="width:36px;height:36px;font-size:11px;background:linear-gradient(135deg,#f59e0b,#d97706);">SK</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;font-weight:600;color:#0f172a;">Sara Khan</span>
+                <span class="stat-badge" style="background:#eef2ff;color:#4f46e5;font-size:10px;">2 active</span>
+              </div>
+              <div style="height:4px;border-radius:99px;background:#f1f5f9;margin-top:6px;"><div style="width:55%;height:100%;border-radius:99px;background:#6366f1;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 5: Recent Activity -->
+    <div class="charts-grid">
+      <div class="chart-card" style="padding:0;overflow:hidden;">
+        <div style="padding:16px 20px;">
+          <div class="section-header" style="margin-bottom:0;">
+            <div class="section-title">&#128193; Recent Projects</div>
+            <span class="section-link">View all →</span>
+          </div>
+        </div>
+        <div class="table-header" style="grid-template-columns:2fr 1.5fr 1fr 1fr;">
+          <span>Project</span><span>Client</span><span>Progress</span><span>Status</span>
+        </div>
+        <div class="table-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr;">
+          <span style="color:#6366f1;font-weight:600;">NEOM Smart City</span>
+          <span>NEOM Co.</span>
+          <span><div style="height:4px;border-radius:99px;background:#f1f5f9;width:60px;"><div style="width:60%;height:100%;border-radius:99px;background:#6366f1;"></div></div></span>
+          <span><span class="status-badge" style="background:#ecfdf5;color:#10b981;"><span class="status-dot" style="background:#10b981;"></span> Active</span></span>
+        </div>
+        <div class="table-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr;">
+          <span style="color:#6366f1;font-weight:600;">STC Platform</span>
+          <span>STC</span>
+          <span><div style="height:4px;border-radius:99px;background:#f1f5f9;width:60px;"><div style="width:85%;height:100%;border-radius:99px;background:#10b981;"></div></div></span>
+          <span><span class="status-badge" style="background:#ecfdf5;color:#10b981;"><span class="status-dot" style="background:#10b981;"></span> Active</span></span>
+        </div>
+        <div class="table-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr;">
+          <span style="color:#6366f1;font-weight:600;">Aramco Portal</span>
+          <span>Aramco</span>
+          <span><div style="height:4px;border-radius:99px;background:#f1f5f9;width:60px;"><div style="width:100%;height:100%;border-radius:99px;background:#94a3b8;"></div></div></span>
+          <span><span class="status-badge" style="background:#f1f5f9;color:#94a3b8;"><span class="status-dot" style="background:#94a3b8;"></span> Closed</span></span>
+        </div>
+      </div>
+
+      <div class="chart-card" style="padding:0;overflow:hidden;">
+        <div style="padding:16px 20px;">
+          <div class="section-header" style="margin-bottom:0;">
+            <div class="section-title">&#128206; Recent Invoices</div>
+            <span class="section-link">View all →</span>
+          </div>
+        </div>
+        <div class="table-header" style="grid-template-columns:1.2fr 1.5fr 1fr 1fr;">
+          <span>Invoice</span><span>Project</span><span>Amount</span><span>Status</span>
+        </div>
+        <div class="table-row" style="grid-template-columns:1.2fr 1.5fr 1fr 1fr;">
+          <span style="font-family:monospace;font-size:11px;font-weight:600;color:#334155;">INV-2026-007</span>
+          <span>NEOM Smart City</span>
+          <span style="font-weight:600;">SAR 245K</span>
+          <span><span class="status-badge" style="background:#ecfdf5;color:#10b981;"><span class="status-dot" style="background:#10b981;"></span> Paid</span></span>
+        </div>
+        <div class="table-row" style="grid-template-columns:1.2fr 1.5fr 1fr 1fr;">
+          <span style="font-family:monospace;font-size:11px;font-weight:600;color:#334155;">INV-2026-006</span>
+          <span>STC Platform</span>
+          <span style="font-weight:600;">SAR 180K</span>
+          <span><span class="status-badge" style="background:#fef3c7;color:#d97706;"><span class="status-dot" style="background:#d97706;"></span> Submitted</span></span>
+        </div>
+        <div class="table-row" style="grid-template-columns:1.2fr 1.5fr 1fr 1fr;">
+          <span style="font-family:monospace;font-size:11px;font-weight:600;color:#334155;">INV-2026-005</span>
+          <span>Aramco Portal</span>
+          <span style="font-weight:600;">SAR 320K</span>
+          <span><span class="status-badge" style="background:#f1f5f9;color:#94a3b8;"><span class="status-dot" style="background:#94a3b8;"></span> Draft</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

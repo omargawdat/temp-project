@@ -22,7 +22,7 @@ export default async function CountriesPage() {
       </PageHeader>
 
       {countries.length > 0 ? (
-        <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
+        <div className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated">
           <table className="w-full" style={{ tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: "8%" }} />
@@ -54,7 +54,7 @@ export default async function CountriesPage() {
               {countries.map((country, idx) => (
                 <tr
                   key={country.id}
-                  className={`group transition-colors hover:bg-teal-500/[0.03] ${
+                  className={`group transition-colors hover:bg-accent ${
                     idx < countries.length - 1 ? "border-b border-border/10" : ""
                   }`}
                 >
@@ -68,7 +68,7 @@ export default async function CountriesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <code className="rounded bg-white/[0.06] px-2 py-0.5 text-xs font-mono text-muted-foreground">
+                    <code className="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
                       {country.code}
                     </code>
                   </td>
@@ -89,9 +89,9 @@ export default async function CountriesPage() {
           </table>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card/40 py-20">
-          <div className="rounded-2xl bg-teal-500/10 p-4">
-            <Globe className="h-8 w-8 text-teal-400" />
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card card-elevated py-20">
+          <div className="rounded-2xl bg-accent p-4">
+            <Globe className="h-8 w-8 text-primary" />
           </div>
           <div className="text-center">
             <p className="text-base font-semibold text-foreground">

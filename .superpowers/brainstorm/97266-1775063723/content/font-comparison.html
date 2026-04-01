@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: #f1f5f9; min-height: 100vh; padding: 32px; font-family: system-ui; }
+  h1 { text-align:center; color:#0f172a; font-size:24px; margin-bottom:8px; font-family: system-ui; }
+  .sub { text-align:center; color:#64748b; font-size:14px; margin-bottom:32px; font-family: system-ui; }
+
+  .options { display:flex; gap:24px; max-width:1300px; margin:0 auto; }
+  .option-box { flex:1; cursor:pointer; border-radius:16px; overflow:hidden; border:3px solid transparent; transition: all 0.2s; background:white; }
+  .option-box:hover { border-color:#6366f1; transform:translateY(-2px); }
+  .option-box.selected { border-color:#6366f1; box-shadow: 0 0 0 2px #6366f1; }
+
+  .option-label { padding:12px 16px; background:#0f172a; color:white; font-weight:700; font-size:15px; font-family: system-ui; }
+  .option-label span { font-weight:400; font-size:12px; color:#94a3b8; display:block; margin-top:4px; }
+
+  .preview { padding:24px; background: #f8fafc; }
+
+  .mock-dashboard { background:white; border-radius:12px; padding:20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+  .dash-title { font-size:20px; font-weight:800; color:#0f172a; margin-bottom:4px; }
+  .dash-sub { font-size:13px; color:#64748b; margin-bottom:20px; font-weight:500; }
+
+  .stats { display:flex; gap:12px; margin-bottom:16px; }
+  .stat { flex:1; background:#f8fafc; border-radius:10px; padding:12px; }
+  .stat-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; }
+  .stat-value { font-size:22px; font-weight:800; color:#0f172a; margin-top:2px; }
+  .stat-sub { font-size:11px; color:#94a3b8; margin-top:2px; font-weight:500; }
+
+  .table-head { display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; padding:8px 12px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; border-bottom:1px solid #f1f5f9; }
+  .table-row { display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; padding:10px 12px; font-size:12px; color:#334155; border-bottom:1px solid #f8fafc; align-items:center; }
+  .table-row .name { font-weight:600; color:#6366f1; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:99px; font-size:10px; font-weight:600; background:#ecfdf5; color:#10b981; }
+  .badge-dot { width:5px; height:5px; border-radius:50%; background:#10b981; }
+
+  .nav-items { display:flex; gap:6px; margin-bottom:16px; }
+  .nav-pill { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; color:#64748b; background:#f1f5f9; }
+  .nav-pill.active { background:#eef2ff; color:#6366f1; }
+
+  .key-diff { padding:10px 14px; background:#fefce8; border-left:3px solid #eab308; font-size:12px; color:#713f12; border-radius:0 8px 8px 0; flex:1; font-family: system-ui; }
+</style>
+</head>
+<body>
+  <h1>Font Comparison</h1>
+  <p class="sub">Each card shows the same dashboard content in a different font</p>
+
+  <div class="options">
+    <!-- A: Nunito -->
+    <div class="option-box" onclick="document.querySelectorAll('.option-box').forEach(o=>o.classList.remove('selected'));this.classList.add('selected')">
+      <div class="option-label">A — Nunito<span>Rounded terminals, warm & balanced. Very readable at all sizes.</span></div>
+      <div class="preview" style="font-family:'Nunito',sans-serif;">
+        <div class="mock-dashboard">
+          <div class="dash-title">Dashboard</div>
+          <div class="dash-sub">Portfolio overview and key metrics</div>
+          <div class="nav-items">
+            <div class="nav-pill active">Overview</div>
+            <div class="nav-pill">Projects</div>
+            <div class="nav-pill">Invoices</div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Portfolio</div>
+              <div class="stat-value">SAR 2.45M</div>
+              <div class="stat-sub">6 projects</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Billed</div>
+              <div class="stat-value">SAR 1.68M</div>
+              <div class="stat-sub">68% of portfolio</div>
+            </div>
+          </div>
+          <div class="table-head"><span>Project</span><span>Client</span><span>Value</span><span>Status</span></div>
+          <div class="table-row"><span class="name">NEOM Smart City</span><span>NEOM Co.</span><span>SAR 890K</span><span><span class="badge"><span class="badge-dot"></span>Active</span></span></div>
+          <div class="table-row"><span class="name">STC Platform</span><span>STC</span><span>SAR 650K</span><span><span class="badge"><span class="badge-dot"></span>Active</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: Poppins -->
+    <div class="option-box" onclick="document.querySelectorAll('.option-box').forEach(o=>o.classList.remove('selected'));this.classList.add('selected')">
+      <div class="option-label">B — Poppins<span>Geometric rounded. Clean and modern. Very popular in dashboards.</span></div>
+      <div class="preview" style="font-family:'Poppins',sans-serif;">
+        <div class="mock-dashboard">
+          <div class="dash-title">Dashboard</div>
+          <div class="dash-sub">Portfolio overview and key metrics</div>
+          <div class="nav-items">
+            <div class="nav-pill active">Overview</div>
+            <div class="nav-pill">Projects</div>
+            <div class="nav-pill">Invoices</div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Portfolio</div>
+              <div class="stat-value">SAR 2.45M</div>
+              <div class="stat-sub">6 projects</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Billed</div>
+              <div class="stat-value">SAR 1.68M</div>
+              <div class="stat-sub">68% of portfolio</div>
+            </div>
+          </div>
+          <div class="table-head"><span>Project</span><span>Client</span><span>Value</span><span>Status</span></div>
+          <div class="table-row"><span class="name">NEOM Smart City</span><span>NEOM Co.</span><span>SAR 890K</span><span><span class="badge"><span class="badge-dot"></span>Active</span></span></div>
+          <div class="table-row"><span class="name">STC Platform</span><span>STC</span><span>SAR 650K</span><span><span class="badge"><span class="badge-dot"></span>Active</span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Quicksand -->
+    <div class="option-box" onclick="document.querySelectorAll('.option-box').forEach(o=>o.classList.remove('selected'));this.classList.add('selected')">
+      <div class="option-label">C — Quicksand<span>Very rounded, playful. Lightest weight of the three. Most "friendly."</span></div>
+      <div class="preview" style="font-family:'Quicksand',sans-serif;">
+        <div class="mock-dashboard">
+          <div class="dash-title">Dashboard</div>
+          <div class="dash-sub">Portfolio overview and key metrics</div>
+          <div class="nav-items">
+            <div class="nav-pill active">Overview</div>
+            <div class="nav-pill">Projects</div>
+            <div class="nav-pill">Invoices</div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Portfolio</div>
+              <div class="stat-value">SAR 2.45M</div>
+              <div class="stat-sub">6 projects</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Billed</div>
+              <div class="stat-value">SAR 1.68M</div>
+              <div class="stat-sub">68% of portfolio</div>
+            </div>
+          </div>
+          <div class="table-head"><span>Project</span><span>Client</span><span>Value</span><span>Status</span></div>
+          <div class="table-row"><span class="name">NEOM Smart City</span><span>NEOM Co.</span><span>SAR 890K</span><span><span class="badge"><span class="badge-dot"></span>Active</span></span></div>
+          <div class="table-row"><span class="name">STC Platform</span><span>STC</span><span>SAR 650K</span><span><span class="badge"><span class="badge-dot"></span>Active</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1300px;margin:20px auto 0;display:flex;gap:24px;">
+    <div class="key-diff"><strong>A Nunito:</strong> Rounded but sturdy. Best readability at small sizes. Great for data-heavy UIs.</div>
+    <div class="key-diff"><strong>B Poppins:</strong> Geometric circles. Most "designed" feel. Slightly wider spacing. Very popular.</div>
+    <div class="key-diff"><strong>C Quicksand:</strong> Most playful/rounded. Lighter strokes. Feels less corporate, more casual.</div>
+  </div>
+</body>
+</html>

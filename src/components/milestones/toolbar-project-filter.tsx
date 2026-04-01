@@ -49,14 +49,14 @@ export function ToolbarProjectFilter({
         size="sm"
         className={cn(
           "h-10 gap-2 px-4 text-sm font-medium",
-          value.length > 0 && "border-teal-500/30 text-teal-400",
+          value.length > 0 && "border-primary/30 text-primary",
         )}
         onClick={() => setOpen(!open)}
       >
         <FolderKanban className="h-3.5 w-3.5 text-muted-foreground/50" />
         Project
         {value.length > 0 && (
-          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-500/15 px-1 text-[10px] font-bold text-teal-400">
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-primary">
             {value.length}
           </span>
         )}
@@ -93,7 +93,7 @@ export function ToolbarProjectFilter({
                   <div className={cn(
                     "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
                     selected
-                      ? "border-teal-500 bg-teal-500"
+                      ? "border-primary bg-accent0"
                       : "border-border/50 bg-transparent",
                   )}>
                     {selected && <Check className="h-3 w-3 text-white" />}

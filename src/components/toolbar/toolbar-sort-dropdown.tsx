@@ -56,11 +56,11 @@ export function ToolbarSortDropdown({
               >
                 <span className={cn(
                   "text-foreground/70",
-                  sort === option.value && "text-teal-400 font-medium",
+                  sort === option.value && "text-primary font-medium",
                 )}>
                   {option.label}
                 </span>
-                {sort === option.value && <Check className="h-3.5 w-3.5 text-teal-400" />}
+                {sort === option.value && <Check className="h-3.5 w-3.5 text-primary" />}
               </button>
             ))}
           </div>
@@ -76,7 +76,7 @@ export function ToolbarSortDropdown({
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-colors",
                   dir === "asc"
-                    ? "bg-teal-500/10 text-teal-400"
+                    ? "bg-accent text-primary"
                     : "text-muted-foreground/50 hover:text-muted-foreground",
                 )}
               >
@@ -89,7 +89,7 @@ export function ToolbarSortDropdown({
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-colors",
                   dir === "desc"
-                    ? "bg-teal-500/10 text-teal-400"
+                    ? "bg-accent text-primary"
                     : "text-muted-foreground/50 hover:text-muted-foreground",
                 )}
               >

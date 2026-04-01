@@ -11,19 +11,19 @@ interface MilestoneListItemProps {
 
 const variantStyles = {
   overdue: {
-    bg: "bg-red-500/[0.04]",
+    bg: "bg-red-50",
     hover: "hover:bg-red-500/[0.08]",
-    badge: "text-red-400/70",
+    badge: "text-red-500",
   },
   upcoming: {
-    bg: "bg-white/[0.02]",
-    hover: "hover:bg-white/[0.04]",
-    badge: "text-white/30",
+    bg: "bg-accent",
+    hover: "hover:bg-accent",
+    badge: "text-muted-foreground",
   },
   default: {
-    bg: "bg-white/[0.02]",
-    hover: "hover:bg-white/[0.04]",
-    badge: "text-white/30",
+    bg: "bg-accent",
+    hover: "hover:bg-accent",
+    badge: "text-muted-foreground",
   },
 };
 
@@ -43,13 +43,13 @@ export function MilestoneListItem({
       className={`flex items-center justify-between rounded-lg ${v.bg} px-3 py-2 transition-colors ${v.hover}`}
     >
       <div className="min-w-0 mr-2">
-        <p className="text-sm font-medium text-white/80 truncate">{name}</p>
+        <p className="text-sm font-medium text-secondary-foreground truncate">{name}</p>
         {subtitle && (
-          <p className="text-xs text-white/25 truncate">{subtitle}</p>
+          <p className="text-xs text-muted-foreground/50 truncate">{subtitle}</p>
         )}
       </div>
       <span
-        className={`shrink-0 text-xs font-bold tabular-nums ${badgeUrgent ? "text-amber-400/70" : v.badge}`}
+        className={`shrink-0 text-xs font-bold tabular-nums ${badgeUrgent ? "text-amber-500" : v.badge}`}
       >
         {badge}
       </span>

@@ -139,11 +139,11 @@ export default async function AuditLogPage({
 
         {logs.length === 0 && filteredCount === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
-            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-500/10" : "bg-slate-500/10"}`}>
+            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent0/10"}`}>
               {filtersActive ? (
                 <SearchX className="h-8 w-8 text-amber-400" />
               ) : (
-                <ScrollText className="h-8 w-8 text-slate-400" />
+                <ScrollText className="h-8 w-8 text-muted-foreground" />
               )}
             </div>
             <div className="text-center">

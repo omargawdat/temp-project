@@ -124,7 +124,7 @@ export default async function ClientDetailPage({
   return (
     <div className="space-y-6">
       {/* ── A. Header ── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06]" style={{ background: "linear-gradient(168deg, rgba(14,20,36,0.95) 0%, rgba(10,16,28,0.98) 100%)" }}>
+      <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
         <div className="relative px-6 py-5">
           <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-orange-500/[0.06] blur-3xl" />
 
@@ -138,20 +138,20 @@ export default async function ClientDetailPage({
                 className="h-14 w-14 rounded-xl object-cover ring-2 ring-orange-500/20"
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base font-bold text-white ring-2 ring-orange-500/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base font-bold text-foreground ring-2 ring-orange-500/20">
                 {initials}
               </div>
             )}
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-white">{client.name}</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">{client.name}</h1>
                 <span className="rounded-md bg-orange-500/10 px-2.5 py-0.5 text-xs font-semibold text-orange-400">
                   {sectorLabel}
                 </span>
               </div>
-              <div className="mt-1.5 flex items-center gap-3 text-sm text-white/40">
-                <span className="font-mono text-xs tracking-wide text-white/30">{client.code}</span>
-                <span className="h-1 w-1 rounded-full bg-white/15" />
+              <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
+                <span className="font-mono text-xs tracking-wide text-muted-foreground">{client.code}</span>
+                <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={client.country.flag} alt={client.country.name} className="h-3 w-5 rounded-[2px] object-cover" />
                 <span>{client.country.name}</span>
@@ -160,20 +160,20 @@ export default async function ClientDetailPage({
           </div>
 
           {/* Contact details grid */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 rounded-xl bg-white/[0.03] px-4 py-3.5">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 rounded-xl bg-accent px-4 py-3.5">
             <ContactDetailRow value={client.email} icon="mail" href={`mailto:${client.email}`} />
             {client.phone && (
               <ContactDetailRow value={client.phone} icon="phone" href={`tel:${client.phone}`} />
             )}
             <div className="flex items-center gap-2.5 text-sm">
-              <Building2 className="h-4 w-4 text-white/20" />
-              <span className="text-white/30">Primary:</span>
-              <span className="font-medium text-white/70">{client.primaryContact}</span>
+              <Building2 className="h-4 w-4 text-muted-foreground/50" />
+              <span className="text-muted-foreground">Primary:</span>
+              <span className="font-medium text-secondary-foreground">{client.primaryContact}</span>
             </div>
             <div className="flex items-center gap-2.5 text-sm">
-              <FileText className="h-4 w-4 text-white/20" />
-              <span className="text-white/30">Finance:</span>
-              <span className="font-medium text-white/70">{client.financeContact}</span>
+              <FileText className="h-4 w-4 text-muted-foreground/50" />
+              <span className="text-muted-foreground">Finance:</span>
+              <span className="font-medium text-secondary-foreground">{client.financeContact}</span>
             </div>
           </div>
 
@@ -184,7 +184,7 @@ export default async function ClientDetailPage({
                 href={client.portalLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-white/50 transition-colors hover:bg-white/[0.08] hover:text-white/80"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-secondary-foreground"
               >
                 <Globe className="h-3.5 w-3.5" />
                 {client.portalName}
@@ -197,22 +197,22 @@ export default async function ClientDetailPage({
 
       {/* ── B. Financial & Delivery Dashboard ── */}
       {totalProjects > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-white/[0.06]" style={{ background: "linear-gradient(168deg, rgba(14,20,36,0.95) 0%, rgba(10,16,28,0.98) 100%)" }}>
+        <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
 
           {/* Top row: Financial metrics + Chart */}
-          <div className="grid grid-cols-[1fr_1fr_1fr_auto] divide-x divide-white/[0.04]">
+          <div className="grid grid-cols-[1fr_1fr_1fr_auto] divide-x divide-border/50">
             {/* Portfolio */}
             <div className="relative px-5 py-3">
               <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-orange-500/[0.05] blur-3xl" />
               <div className="flex items-center gap-2 mb-3">
                 <Briefcase className="h-3.5 w-3.5 text-orange-400/70" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Portfolio</span>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Portfolio</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
+              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-sm tabular-nums text-white/35">{totalProjects} projects</span>
-                <span className="h-1 w-1 rounded-full bg-white/15" />
-                <span className="text-sm font-medium text-emerald-400/70">{activeProjects} active</span>
+                <span className="text-sm tabular-nums text-muted-foreground">{totalProjects} projects</span>
+                <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+                <span className="text-sm font-medium text-emerald-500">{activeProjects} active</span>
               </div>
             </div>
 
@@ -221,16 +221,16 @@ export default async function ClientDetailPage({
               <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-amber-500/[0.04] blur-3xl" />
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <FileCheck className="h-3.5 w-3.5 text-amber-400/70" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Billed</span>
+                  <FileCheck className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Billed</span>
                 </div>
-                <span className="rounded-full bg-amber-400/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-400/80">{billingPercent}%</span>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-600">{billingPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
-              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
+              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500/50 to-amber-400" style={{ width: `${billingPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
+              <p className="mt-1.5 text-sm text-muted-foreground/50"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
             </div>
 
             {/* Collected */}
@@ -238,16 +238,16 @@ export default async function ClientDetailPage({
               <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-emerald-500/[0.04] blur-3xl" />
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Wallet className="h-3.5 w-3.5 text-emerald-400/70" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Collected</span>
+                  <Wallet className="h-3.5 w-3.5 text-emerald-500" />
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Collected</span>
                 </div>
-                <span className="rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-400/80">{collectionPercent}%</span>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-600">{collectionPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
-              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
+              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-emerald-500/50 to-emerald-400" style={{ width: `${collectionPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-white/25"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
+              <p className="mt-1.5 text-sm text-muted-foreground/50"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
             </div>
 
             {/* Ring Chart */}
@@ -257,16 +257,16 @@ export default async function ClientDetailPage({
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-white/[0.04]" />
+          <div className="h-px bg-accent" />
 
           {/* Bottom row: Delivery + Overdue + Upcoming — 3 equal columns */}
-          <div className="grid grid-cols-3 divide-x divide-white/[0.04]">
+          <div className="grid grid-cols-3 divide-x divide-border/50">
             {/* Delivery summary */}
             <div className="px-5 py-3">
               <div className="flex items-center gap-2 mb-3">
                 <Target className="h-3.5 w-3.5 text-blue-400/70" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Delivery</span>
-                <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${activeProjects > 0 ? "bg-emerald-400/10 text-emerald-400/80" : "bg-white/[0.06] text-white/40"}`}>
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivery</span>
+                <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${activeProjects > 0 ? "bg-emerald-100 text-emerald-600" : "bg-muted text-muted-foreground"}`}>
                   {activeProjects > 0 ? "Active" : "Idle"}
                 </span>
               </div>
@@ -274,18 +274,18 @@ export default async function ClientDetailPage({
                 {/* Stats row */}
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400/60" />
-                    <span className="text-sm font-bold tabular-nums text-white/90">{completedMilestones}/{totalMilestones}</span>
-                    <span className="text-xs text-white/30">done</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    <span className="text-sm font-bold tabular-nums text-foreground">{completedMilestones}/{totalMilestones}</span>
+                    <span className="text-xs text-muted-foreground">done</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-blue-400/60" />
-                    <span className="text-sm font-bold tabular-nums text-white/90">{inProgressMilestones}</span>
-                    <span className="text-xs text-white/30">wip</span>
+                    <span className="text-sm font-bold tabular-nums text-foreground">{inProgressMilestones}</span>
+                    <span className="text-xs text-muted-foreground">wip</span>
                   </div>
                   {overdueMilestones.length > 0 && (
                     <div className="flex items-center gap-1.5">
-                      <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
+                      <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
                       <span className="text-sm font-bold tabular-nums text-red-400">{overdueMilestones.length}</span>
                       <span className="text-xs text-red-400/50">late</span>
                     </div>
@@ -293,10 +293,10 @@ export default async function ClientDetailPage({
                 </div>
                 {/* Completion bar */}
                 <div className="flex items-center gap-2.5">
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                     <div className="h-full rounded-full bg-gradient-to-r from-blue-500/50 to-blue-400" style={{ width: `${completionRate}%` }} />
                   </div>
-                  <span className="text-xs font-bold tabular-nums text-white/40">{completionRate}%</span>
+                  <span className="text-xs font-bold tabular-nums text-muted-foreground">{completionRate}%</span>
                 </div>
               </div>
             </div>
@@ -304,9 +304,9 @@ export default async function ClientDetailPage({
             {/* Overdue */}
             <div className="px-5 py-3">
               <div className="flex items-center gap-1.5 mb-2.5">
-                <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-400/70">Overdue</span>
-                <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-red-400/80">{overdueMilestones.length}</span>
+                <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+                <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-500">Overdue</span>
+                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold tabular-nums text-red-600">{overdueMilestones.length}</span>
               </div>
               {overdueMilestones.length > 0 ? (
                 <div className="max-h-[96px] overflow-y-auto space-y-1 pr-0.5">
@@ -314,18 +314,18 @@ export default async function ClientDetailPage({
                     const proj = milestoneProjectMap.get(m.id);
                     const daysOverdue = daysDifference(m.plannedDate);
                     return (
-                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-500/[0.04] px-3 py-2 transition-colors hover:bg-red-500/[0.08]">
+                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 transition-colors hover:bg-red-100">
                         <div className="min-w-0 mr-2">
-                          <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
-                          {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
+                          <p className="text-sm font-medium text-secondary-foreground truncate">{m.name}</p>
+                          {proj && <p className="text-xs text-muted-foreground/50 truncate">{proj.projectName}</p>}
                         </div>
-                        <span className="shrink-0 text-xs font-bold tabular-nums text-red-400/70">{daysOverdue}d</span>
+                        <span className="shrink-0 text-xs font-bold tabular-nums text-red-500">{daysOverdue}d</span>
                       </Link>
                     );
                   })}
                 </div>
               ) : (
-                <div className="flex items-center justify-center rounded-lg bg-white/[0.02] py-5 text-xs text-emerald-400/50">
+                <div className="flex items-center justify-center rounded-lg bg-accent py-5 text-xs text-emerald-400/50">
                   <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                   All on track
                 </div>
@@ -345,12 +345,12 @@ export default async function ClientDetailPage({
                     const proj = milestoneProjectMap.get(m.id);
                     const daysUntil = -daysDifference(m.plannedDate);
                     return (
-                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2 transition-colors hover:bg-white/[0.04]">
+                      <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-accent px-3 py-2 transition-colors hover:bg-accent">
                         <div className="min-w-0 mr-2">
-                          <p className="text-sm font-medium text-white/80 truncate">{m.name}</p>
-                          {proj && <p className="text-xs text-white/25 truncate">{proj.projectName}</p>}
+                          <p className="text-sm font-medium text-secondary-foreground truncate">{m.name}</p>
+                          {proj && <p className="text-xs text-muted-foreground/50 truncate">{proj.projectName}</p>}
                         </div>
-                        <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-400/70" : "text-white/30"}`}>
+                        <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-500" : "text-muted-foreground"}`}>
                           {daysUntil === 0 ? "Today" : `${daysUntil}d`}
                         </span>
                       </Link>
@@ -358,7 +358,7 @@ export default async function ClientDetailPage({
                   })}
                 </div>
               ) : (
-                <div className="flex items-center justify-center rounded-lg bg-white/[0.02] py-5 text-xs text-white/20">
+                <div className="flex items-center justify-center rounded-lg bg-accent py-5 text-xs text-muted-foreground/50">
                   No upcoming deadlines
                 </div>
               )}
@@ -368,14 +368,14 @@ export default async function ClientDetailPage({
       )}
 
       {/* ── E. Projects Table ── */}
-      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
+      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-orange-500/12 p-2">
               <FolderKanban className="h-4 w-4 text-orange-400" />
             </div>
             <span className="text-base font-bold text-foreground">Projects</span>
-            <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
+            <span className="rounded-md bg-muted px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
               {client.projects.length}
             </span>
           </div>
@@ -421,7 +421,7 @@ export default async function ClientDetailPage({
                       <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-[15px] font-semibold text-foreground hover:text-orange-400 transition-colors">
                         {project.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-white/10 shrink-0" />
+                          <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-ring/20 shrink-0" />
                         ) : (
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-[10px] font-bold text-orange-400 ring-1 ring-orange-500/20 shrink-0">
                             {project.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
@@ -434,9 +434,9 @@ export default async function ClientDetailPage({
                       <Link href={`/project-managers/${project.projectManager.id}`} className="flex items-center gap-2 transition-colors hover:text-foreground/70">
                         {project.projectManager.photoUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10" />
+                          <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-ring/20" />
                         ) : (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.08] text-[9px] font-bold text-foreground/60 ring-1 ring-white/[0.08]">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-foreground/60 ring-1 ring-ring/20">
                             {pmInitials}
                           </div>
                         )}
@@ -456,7 +456,7 @@ export default async function ClientDetailPage({
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-20 overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="h-2 w-20 overflow-hidden rounded-full bg-muted">
                           <div className="h-full rounded-full bg-orange-500/70 transition-all" style={{ width: `${pct}%` }} />
                         </div>
                         <span className="text-xs font-medium tabular-nums text-muted-foreground/60">{done}/{project.milestones.length}</span>
@@ -464,7 +464,7 @@ export default async function ClientDetailPage({
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="h-2 w-16 overflow-hidden rounded-full bg-muted">
                           <div className={`h-full rounded-full transition-all ${timePct >= 90 ? "bg-red-500/70" : timePct >= 70 ? "bg-amber-500/70" : "bg-blue-500/50"}`} style={{ width: `${timePct}%` }} />
                         </div>
                         <span className="text-xs tabular-nums text-muted-foreground/50">{timePct}%</span>
@@ -486,14 +486,14 @@ export default async function ClientDetailPage({
       </div>
 
       {/* ── F. Invoices Table ── */}
-      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/20 bg-card/40 scroll-mt-6">
+      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/20 bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-lg bg-white/[0.06] p-2">
+            <div className="rounded-lg bg-muted p-2">
               <Receipt className="h-4 w-4 text-muted-foreground/60" />
             </div>
             <span className="text-base font-bold text-foreground">Invoices</span>
-            <span className="rounded-md bg-white/[0.06] px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
+            <span className="rounded-md bg-muted px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground/60">
               {invoices.length}
             </span>
           </div>
@@ -518,7 +518,7 @@ export default async function ClientDetailPage({
                   return (
                     <tr
                       key={inv.id}
-                      className={`group transition-colors hover:bg-white/[0.03] ${
+                      className={`group transition-colors hover:bg-accent ${
                         idx < invoices.length - 1 ? "border-b border-border/10" : ""
                       }`}
                     >
@@ -555,7 +555,7 @@ export default async function ClientDetailPage({
               </tbody>
               {/* Summary row */}
               <tfoot>
-                <tr className="border-t border-border/20 bg-white/[0.02]">
+                <tr className="border-t border-border/20 bg-accent">
                   <td className="px-6 py-3.5 text-sm font-bold text-foreground" colSpan={3}>Total</td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-foreground">
                     {invoiceTotalPayable.toLocaleString()}
@@ -567,7 +567,7 @@ export default async function ClientDetailPage({
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-14 text-center">
-            <div className="mb-3 rounded-full bg-white/[0.04] p-3">
+            <div className="mb-3 rounded-full bg-accent p-3">
               <Receipt className="h-5 w-5 text-muted-foreground/25" />
             </div>
             <p className="text-sm text-muted-foreground/60">No invoices yet</p>
@@ -585,13 +585,13 @@ export default async function ClientDetailPage({
       {(client.billingAddress || client.notes) && (
         <div className="grid gap-4 lg:grid-cols-2">
           {client.billingAddress && (
-            <div className="rounded-xl border border-border/15 bg-card/30 p-5 lg:col-span-2">
+            <div className="rounded-xl border border-border/15 bg-card card-elevated p-5 lg:col-span-2">
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/50">Billing Address</p>
               <p className="whitespace-pre-line text-sm text-foreground/70">{client.billingAddress}</p>
             </div>
           )}
           {client.notes && (
-            <div className="rounded-xl border border-border/15 bg-card/30 p-5">
+            <div className="rounded-xl border border-border/15 bg-card card-elevated p-5">
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/50">Notes</p>
               <p className="whitespace-pre-line text-sm text-foreground/70">{client.notes}</p>
             </div>

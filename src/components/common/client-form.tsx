@@ -58,7 +58,7 @@ function CountrySelect({
         {countries.map((c) => (
           <label
             key={c.id}
-            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-teal-500/50 has-[:checked]:bg-teal-500/10 has-[:checked]:text-teal-400"
+            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-teal-500/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
           >
             <input
               type="radio"
@@ -88,8 +88,8 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
         disabled={pending || !enabled}
         className={`w-full border-0 py-3 font-semibold transition-all ${
           enabled
-            ? "btn-gradient text-white shadow-lg shadow-teal-500/25"
-            : "bg-white/[0.06] text-muted-foreground/40 shadow-none"
+            ? "btn-gradient text-foreground shadow-lg shadow-teal-500/25"
+            : "bg-muted text-muted-foreground/40 shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -111,7 +111,7 @@ function SectorSelect({ defaultValue }: { defaultValue?: string }) {
       {SECTORS.map((s) => (
         <label
           key={s.value}
-          className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-teal-500/50 has-[:checked]:bg-teal-500/10 has-[:checked]:text-teal-400"
+          className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-teal-500/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
         >
           <input
             type="radio"
@@ -197,7 +197,7 @@ export function ClientForm({
                 <img
                   src={imagePreview}
                   alt="Client"
-                  className="h-16 w-16 rounded-xl object-cover ring-1 ring-white/10"
+                  className="h-16 w-16 rounded-xl object-cover ring-1 ring-ring/20"
                 />
                 <button
                   type="button"
@@ -206,7 +206,7 @@ export function ClientForm({
                     if (imageInputRef.current) imageInputRef.current.value = "";
                     setIsDirty(true);
                   }}
-                  className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-white transition-colors hover:bg-red-500"
+                  className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-foreground transition-colors hover:bg-red-500"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -215,7 +215,7 @@ export function ClientForm({
               <button
                 type="button"
                 onClick={() => imageInputRef.current?.click()}
-                className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-teal-400/50"
+                className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-primary/50"
               >
                 <ImagePlus className="h-5 w-5" />
               </button>

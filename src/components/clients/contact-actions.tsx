@@ -15,7 +15,7 @@ function ActionRow({
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 rounded-md px-1.5 -mx-1.5 py-1 text-[12px] text-white/40">
+    <div className="flex items-center gap-2 rounded-md px-1.5 -mx-1.5 py-1 text-[12px] text-muted-foreground">
       <Icon className="h-3.5 w-3.5 shrink-0" />
       <span className="truncate">{value}</span>
       <div className="ml-auto flex items-center gap-1 shrink-0">
@@ -28,7 +28,7 @@ function ActionRow({
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
           }}
-          className="rounded p-1 transition-colors hover:bg-white/[0.06] hover:text-white/50"
+          className="rounded p-1 transition-colors hover:bg-muted hover:text-muted-foreground"
         >
           {copied ? (
             <Check className="h-3 w-3 text-emerald-400" />
@@ -43,7 +43,7 @@ function ActionRow({
             e.stopPropagation();
             window.open(href, "_blank", "noopener");
           }}
-          className="rounded p-1 transition-colors hover:bg-white/[0.06] hover:text-white/50"
+          className="rounded p-1 transition-colors hover:bg-muted hover:text-muted-foreground"
         >
           <ExternalLink className="h-3 w-3" />
         </button>
@@ -63,10 +63,10 @@ export function ContactActions({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <div className="flex items-center gap-2 px-1.5 -mx-1.5 py-1 text-[12px] text-white/40">
+      <div className="flex items-center gap-2 px-1.5 -mx-1.5 py-1 text-[12px] text-muted-foreground">
         <User className="h-3.5 w-3.5 shrink-0" />
         <span>{contact}</span>
-        <span className="text-[10px] text-white/20">Primary Contact</span>
+        <span className="text-[10px] text-muted-foreground/50">Primary Contact</span>
       </div>
       {email && <ActionRow value={email} icon={Mail} href={`mailto:${email}`} />}
       {phone && <ActionRow value={phone} icon={Phone} href={`tel:${phone}`} />}

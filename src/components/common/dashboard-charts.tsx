@@ -14,12 +14,12 @@ import {
 } from "recharts";
 
 const TOOLTIP_STYLE = {
-  backgroundColor: "#141e30",
-  border: "1px solid rgba(36,55,82,0.6)",
+  backgroundColor: "#ffffff",
+  border: "1px solid #e2e8f0",
   borderRadius: "8px",
   fontSize: "12px",
-  color: "#dfe1e8",
-  boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
+  color: "#334155",
+  boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
 };
 
 // ── Cash Flow Funnel Chart ──
@@ -31,15 +31,15 @@ export function CashFlowFunnelChart({
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} barSize={48}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
         <XAxis
           dataKey="name"
-          tick={{ fontSize: 11, fill: "rgba(255,255,255,0.35)" }}
+          tick={{ fontSize: 11, fill: "#64748b" }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fontSize: 10, fill: "rgba(255,255,255,0.25)" }}
+          tick={{ fontSize: 10, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => {
@@ -52,22 +52,22 @@ export function CashFlowFunnelChart({
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
           formatter={(value) => [`$${Number(value).toLocaleString()}`, "Amount"]}
-          labelStyle={{ color: "#dfe1e8", fontWeight: 600 }}
-          itemStyle={{ color: "#dfe1e8" }}
-          cursor={{ fill: "rgba(255,255,255,0.02)" }}
+          labelStyle={{ color: "#0f172a", fontWeight: 600 }}
+          itemStyle={{ color: "#334155" }}
+          cursor={{ fill: "rgba(99,102,241,0.04)" }}
         />
         <defs>
           <linearGradient id="cfPortfolio" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2dd4bf" stopOpacity={0.9} />
-            <stop offset="100%" stopColor="#0d9488" stopOpacity={0.7} />
+            <stop offset="0%" stopColor="#818cf8" stopOpacity={0.95} />
+            <stop offset="100%" stopColor="#6366f1" stopOpacity={0.8} />
           </linearGradient>
           <linearGradient id="cfBilled" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.9} />
-            <stop offset="100%" stopColor="#d97706" stopOpacity={0.7} />
+            <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.95} />
+            <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.8} />
           </linearGradient>
           <linearGradient id="cfCollected" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#34d399" stopOpacity={0.9} />
-            <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
+            <stop offset="0%" stopColor="#34d399" stopOpacity={0.95} />
+            <stop offset="100%" stopColor="#10b981" stopOpacity={0.8} />
           </linearGradient>
         </defs>
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
@@ -112,7 +112,7 @@ export function DashboardBillingRing({
   const colors = data.map((d) => {
     if (d.name === "Collected") return "#34d399";
     if (d.name === "Outstanding") return "#fbbf24";
-    return "#1e2f4a";
+    return "#e2e8f0";
   });
 
   return (
@@ -138,22 +138,22 @@ export function DashboardBillingRing({
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-white">{collectedPct}%</span>
-          <span className="text-[10px] text-white/30">collected</span>
+          <span className="text-3xl font-bold text-foreground">{collectedPct}%</span>
+          <span className="text-[10px] text-muted-foreground">collected</span>
         </div>
       </div>
       <div className="mt-3 flex items-center gap-4 text-[11px]">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          <span className="text-white/40">Collected</span>
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="text-muted-foreground">Collected</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-amber-400" />
-          <span className="text-white/40">Outstanding</span>
+          <span className="text-muted-foreground">Outstanding</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#1e2f4a]" />
-          <span className="text-white/40">Unbilled</span>
+          <span className="h-2 w-2 rounded-full bg-border" />
+          <span className="text-muted-foreground">Unbilled</span>
         </span>
       </div>
     </div>
@@ -209,8 +209,8 @@ export function MilestoneStatusDonut({
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-bold text-white">{total}</span>
-          <span className="text-[8px] text-white/25">total</span>
+          <span className="text-lg font-bold text-foreground">{total}</span>
+          <span className="text-[8px] text-muted-foreground">total</span>
         </div>
       </div>
       <div className="flex flex-col gap-1">
@@ -220,8 +220,8 @@ export function MilestoneStatusDonut({
               className="h-1.5 w-1.5 rounded-full"
               style={{ backgroundColor: MILESTONE_COLORS[entry.name] ?? "#475569" }}
             />
-            <span className="text-white/40">{MILESTONE_LABELS[entry.name] ?? entry.name}</span>
-            <span className="ml-auto tabular-nums font-medium text-white/60">{entry.value}</span>
+            <span className="text-muted-foreground">{MILESTONE_LABELS[entry.name] ?? entry.name}</span>
+            <span className="ml-auto tabular-nums font-medium text-secondary-foreground">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -238,7 +238,7 @@ export function RevenueByClientChart({
   return (
     <ResponsiveContainer width="100%" height={data.length * 44 + 20}>
       <BarChart data={data} layout="vertical" barSize={16} barGap={2}>
-        <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis
           type="number"
           tickFormatter={(v) => {
@@ -246,14 +246,14 @@ export function RevenueByClientChart({
             if (v >= 1000) return `$${Math.round(v / 1000)}k`;
             return `$${v}`;
           }}
-          tick={{ fontSize: 10, fill: "rgba(255,255,255,0.25)" }}
+          tick={{ fontSize: 10, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           type="category"
           dataKey="name"
-          tick={{ fontSize: 11, fill: "rgba(255,255,255,0.5)" }}
+          tick={{ fontSize: 11, fill: "#64748b" }}
           axisLine={false}
           tickLine={false}
           width={140}
@@ -261,13 +261,13 @@ export function RevenueByClientChart({
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
           formatter={(value) => [`$${Number(value).toLocaleString()}`]}
-          labelStyle={{ color: "#dfe1e8", fontWeight: 600 }}
-          itemStyle={{ color: "#dfe1e8" }}
+          labelStyle={{ color: "#0f172a", fontWeight: 600 }}
+          itemStyle={{ color: "#334155" }}
           cursor={false}
         />
-        <Bar dataKey="collected" stackId="a" fill="#34d399" radius={[0, 0, 0, 0]} name="Collected" />
+        <Bar dataKey="collected" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} name="Collected" />
         <Bar dataKey="outstanding" stackId="a" fill="#fbbf24" radius={[0, 0, 0, 0]} name="Outstanding" />
-        <Bar dataKey="unbilled" stackId="a" fill="#1e2f4a" radius={[0, 4, 4, 0]} name="Unbilled" />
+        <Bar dataKey="unbilled" stackId="a" fill="#e2e8f0" radius={[0, 4, 4, 0]} name="Unbilled" />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -275,12 +275,12 @@ export function RevenueByClientChart({
 
 // ── Invoice Pipeline Bar ──
 const INVOICE_COLORS: Record<string, string> = {
-  DRAFT: "rgba(255,255,255,0.12)",
+  DRAFT: "#cbd5e1",
   SUBMITTED: "#f59e0b",
   UNDER_REVIEW: "#f97316",
-  APPROVED: "#34d399",
-  PAID: "#2dd4bf",
-  REJECTED: "#f43f5e",
+  APPROVED: "#10b981",
+  PAID: "#6366f1",
+  REJECTED: "#ef4444",
 };
 
 const INVOICE_LABELS: Record<string, string> = {
@@ -325,8 +325,8 @@ export function InvoicePipelineBar({
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ backgroundColor: INVOICE_COLORS[d.status] ?? "#475569" }}
               />
-              <span className="text-white/35">{INVOICE_LABELS[d.status] ?? d.status}</span>
-              <span className="tabular-nums font-medium text-white/55">{d.count}</span>
+              <span className="text-muted-foreground">{INVOICE_LABELS[d.status] ?? d.status}</span>
+              <span className="tabular-nums font-medium text-secondary-foreground">{d.count}</span>
             </div>
           ))}
       </div>

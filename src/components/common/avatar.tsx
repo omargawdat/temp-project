@@ -32,14 +32,14 @@ export function Avatar({
       <img
         src={src}
         alt={name}
-        className={`${s.container} ${radius} shrink-0 object-cover ${s.ring} ring-white/10 ${className ?? ""}`}
+        className={`${s.container} ${radius} shrink-0 object-cover ${s.ring} ring-ring/20 ${className ?? ""}`}
       />
     );
   }
 
   return (
     <div
-      className={`flex ${s.container} shrink-0 items-center justify-center ${radius} bg-white/[0.08] ${s.text} font-bold text-foreground/60 ${s.ring} ring-white/[0.08] ${className ?? ""}`}
+      className={`flex ${s.container} shrink-0 items-center justify-center ${radius} bg-muted ${s.text} font-bold text-foreground/60 ${s.ring} ring-ring/20 ${className ?? ""}`}
     >
       {getInitials(name)}
     </div>

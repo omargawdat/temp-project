@@ -19,8 +19,8 @@ export function ContactDetailRow({
 
   return (
     <div className="flex items-center gap-2.5 text-sm group">
-      <Icon className="h-4 w-4 text-white/20 shrink-0" />
-      <span className="text-white/55">{value}</span>
+      <Icon className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+      <span className="text-muted-foreground">{value}</span>
       <div className="ml-auto flex items-center gap-0.5 shrink-0">
         <button
           type="button"
@@ -29,20 +29,20 @@ export function ContactDetailRow({
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
           }}
-          className="rounded p-1 transition-colors hover:bg-white/[0.08] hover:text-white/60"
+          className="rounded p-1 transition-colors hover:bg-muted hover:text-secondary-foreground"
         >
           {copied ? (
             <Check className="h-3.5 w-3.5 text-emerald-400" />
           ) : (
-            <Copy className="h-3.5 w-3.5 text-white/30" />
+            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
           )}
         </button>
         <button
           type="button"
           onClick={() => window.open(href, "_blank", "noopener")}
-          className="rounded p-1 transition-colors hover:bg-white/[0.08] hover:text-white/60"
+          className="rounded p-1 transition-colors hover:bg-muted hover:text-secondary-foreground"
         >
-          <ExternalLink className="h-3.5 w-3.5 text-white/30" />
+          <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
       </div>
     </div>

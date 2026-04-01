@@ -42,7 +42,7 @@ export function ProgressBar({
   const bg = barColorMap[color] ?? barColorMap.teal;
   return (
     <div
-      className={`${h} w-full overflow-hidden rounded-full bg-white/[0.06] ${className ?? ""}`}
+      className={`${h} w-full overflow-hidden rounded-full bg-muted ${className ?? ""}`}
       role="progressbar"
       aria-valuenow={value}
       aria-valuemin={0}
@@ -76,7 +76,7 @@ export function StackedProgressBar({
   const total = layers.reduce((sum, l) => sum + l.value, 0);
   return (
     <div
-      className={`${h} w-full overflow-hidden rounded-full bg-white/[0.04] ${className ?? ""}`}
+      className={`${h} w-full overflow-hidden rounded-full bg-accent ${className ?? ""}`}
       role="progressbar"
       aria-valuenow={total}
       aria-valuemin={0}
