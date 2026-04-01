@@ -26,6 +26,7 @@ export default async function AuditLogPage({
     q: typeof params.q === "string" ? params.q : undefined,
     entityType: typeof params.entityType === "string" ? params.entityType : undefined,
     action: typeof params.action === "string" ? params.action : undefined,
+    performedBy: typeof params.performedBy === "string" ? params.performedBy : undefined,
     dateFrom: typeof params.dateFrom === "string" ? params.dateFrom : undefined,
     dateTo: typeof params.dateTo === "string" ? params.dateTo : undefined,
   };
@@ -39,10 +40,20 @@ export default async function AuditLogPage({
   const filtersActive = hasActiveAuditLogFilters(filterParams);
   const rawPage = parsePage(params.page);
 
-  const [totalCount, filteredCount] = await Promise.all([
+  const [totalCount, filteredCount, distinctUsers] = await Promise.all([
     prisma.auditLog.count(),
     prisma.auditLog.count({ where }),
+    prisma.auditLog.findMany({
+      distinct: ["performedBy"],
+      select: { performedBy: true },
+      orderBy: { performedBy: "asc" },
+    }),
   ]);
+
+  const users = distinctUsers.map((u) => ({
+    id: u.performedBy,
+    name: u.performedBy,
+  }));
 
   const pagination = getPaginationMeta(rawPage, filteredCount);
 
@@ -61,7 +72,7 @@ export default async function AuditLogPage({
         breadcrumbs={[]}
       />
 
-      <AuditToolbar resultCount={filteredCount} />
+      <AuditToolbar resultCount={filteredCount} users={users} />
 
       {/* Table */}
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">

@@ -28,6 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type CountryOption = { id: string; name: string; code: string; flag: string };
 
@@ -157,11 +158,15 @@ export function ClientForm({
   const fieldError = (field: string) =>
     state && !state.success ? state.fieldErrors?.[field]?.[0] : undefined;
 
+  const toastedState = React.useRef<typeof state>(null);
+
   React.useEffect(() => {
-    if (state?.success && state.data?.id) {
+    if (state?.success && state.data?.id && toastedState.current !== state) {
+      toastedState.current = state;
+      toast.success(isEdit ? "Client updated" : "Client created");
       onSuccess?.(state.data.id);
     }
-  }, [state, onSuccess]);
+  }, [state, onSuccess, isEdit]);
 
   return (
     <form key={client?.id ?? "new"} action={formAction} className="space-y-5" onChange={() => setIsDirty(true)}>

@@ -6,7 +6,7 @@ import type { ActionResult } from "@/types";
 import { revalidatePath } from "next/cache";
 import { noteFormSchema, noteEntitySchema } from "@/schemas/note";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
-import { createAuditLog } from "@/lib/audit";
+
 
 function revalidateParent(entityType: string, entityId: string) {
   if (entityType === "CLIENT") {
@@ -16,6 +16,7 @@ function revalidateParent(entityType: string, entityId: string) {
   } else if (entityType === "PROJECT_MANAGER") {
     revalidatePath(`/project-managers/${entityId}`);
   }
+  revalidatePath("/notes");
 }
 
 async function validateEntityExists(entityType: string, entityId: string): Promise<boolean> {
@@ -66,14 +67,6 @@ export async function createNote(
       },
     });
 
-    void createAuditLog({
-      action: "CREATE",
-      entityType: "Note",
-      entityId: note.id,
-      entityName: `${entityResult.data.entityType} note`,
-      metadata: { parentEntityType: entityResult.data.entityType, parentEntityId: entityResult.data.entityId },
-    });
-
     revalidateParent(entityResult.data.entityType, entityResult.data.entityId);
     return { success: true, data: { id: note.id } };
   });
@@ -94,16 +87,15 @@ export async function updateNote(
       };
     }
 
+    const data: { content: string; noteType?: string } = { content };
+    const noteType = typeof raw.noteType === "string" ? raw.noteType.trim() : undefined;
+    if (noteType) {
+      data.noteType = noteType;
+    }
+
     const note = await prisma.note.update({
       where: { id },
-      data: { content },
-    });
-
-    void createAuditLog({
-      action: "UPDATE",
-      entityType: "Note",
-      entityId: id,
-      entityName: `${note.entityType} note`,
+      data,
     });
 
     revalidateParent(note.entityType, note.entityId);
@@ -119,13 +111,6 @@ export async function deleteNote(id: string): Promise<ActionResult> {
     }
 
     await prisma.note.delete({ where: { id } });
-
-    void createAuditLog({
-      action: "DELETE",
-      entityType: "Note",
-      entityId: id,
-      entityName: `${note.entityType} note`,
-    });
 
     revalidateParent(note.entityType, note.entityId);
     return { success: true, data: undefined };

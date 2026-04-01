@@ -109,3 +109,27 @@ export const AUDIT_ENTITY_TYPES = [
   { id: "Note", name: "Note" },
   { id: "CompanySettings", name: "Settings" },
 ] as const;
+
+export const NOTE_TYPE_STATUSES = [
+  { key: "GENERAL", label: "General", dot: "bg-zinc-400" },
+  { key: "MEETING", label: "Meeting", dot: "bg-blue-400" },
+  { key: "DECISION", label: "Decision", dot: "bg-purple-400" },
+  { key: "RISK", label: "Risk", dot: "bg-red-400" },
+  { key: "ACTION", label: "Action Item", dot: "bg-amber-400" },
+  { key: "FINANCE", label: "Finance", dot: "bg-emerald-400" },
+] as const;
+
+export const NOTE_TYPE_STYLES: Record<string, StatusStyle> = {
+  GENERAL: { bg: "bg-white/5", text: "text-white/50", dot: "bg-zinc-400" },
+  MEETING: { bg: "bg-blue-500/10", text: "text-blue-400", dot: "bg-blue-400" },
+  DECISION: { bg: "bg-purple-500/10", text: "text-purple-400", dot: "bg-purple-400" },
+  RISK: { bg: "bg-red-500/10", text: "text-red-400", dot: "bg-red-400" },
+  ACTION: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-400" },
+  FINANCE: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-400" },
+};
+
+export const NOTE_ENTITY_TYPES = [
+  { id: "CLIENT", name: "Client" },
+  { id: "PROJECT", name: "Project" },
+  { id: "PROJECT_MANAGER", name: "Project Manager" },
+] as const;

@@ -9,6 +9,7 @@ import {
   ListChecks,
   Receipt,
   Users2,
+  StickyNote,
   Globe,
   ScrollText,
   Settings,
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/milestones", label: "Milestones", icon: ListChecks, color: "#fbbf24" },
   { href: "/invoices", label: "Invoices", icon: Receipt, color: "#f472b6" },
   { href: "/project-managers", label: "Team", icon: Users2, color: "#a78bfa" },
+  { href: "/notes", label: "Notes", icon: StickyNote, color: "#f59e0b" },
   { href: "/countries", label: "Countries", icon: Globe, color: "#06b6d4" },
   { href: "/audit-log", label: "Audit Log", icon: ScrollText, color: "#94a3b8" },
 ];

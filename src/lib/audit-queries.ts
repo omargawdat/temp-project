@@ -4,6 +4,7 @@ interface AuditLogFilterParams {
   q?: string;
   entityType?: string;
   action?: string;
+  performedBy?: string;
   dateFrom?: string;
   dateTo?: string;
 }
@@ -37,6 +38,11 @@ export function buildAuditLogWhere(
   const actionFilter = params.action?.split(",").filter(Boolean) ?? [];
   if (actionFilter.length > 0) {
     conditions.push({ action: { in: actionFilter as AuditAction[] } });
+  }
+
+  const performedByFilter = params.performedBy?.split(",").filter(Boolean) ?? [];
+  if (performedByFilter.length > 0) {
+    conditions.push({ performedBy: { in: performedByFilter } });
   }
 
   if (params.dateFrom || params.dateTo) {
@@ -81,6 +87,7 @@ export function hasActiveAuditLogFilters(
     params.q?.trim() ||
     params.entityType ||
     params.action ||
+    params.performedBy ||
     params.dateFrom ||
     params.dateTo
   );

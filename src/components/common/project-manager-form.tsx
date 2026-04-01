@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { FieldWrapper } from "@/components/common/field-wrapper";
 import type { ActionResult } from "@/types";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   Loader2,
   AlertCircle,
@@ -139,11 +140,15 @@ export function ProjectManagerForm({
   const fieldError = (field: string) =>
     state && !state.success ? state.fieldErrors?.[field]?.[0] : undefined;
 
+  const toastedState = React.useRef<typeof state>(null);
+
   React.useEffect(() => {
-    if (state?.success && state.data?.id) {
+    if (state?.success && state.data?.id && toastedState.current !== state) {
+      toastedState.current = state;
+      toast.success(isEdit ? "Team member updated" : "Team member added");
       onSuccess?.(state.data.id);
     }
-  }, [state, onSuccess]);
+  }, [state, onSuccess, isEdit]);
 
   return (
     <form key={pm?.id ?? "new"} action={formAction} className="space-y-5" onChange={() => setIsDirty(true)}>

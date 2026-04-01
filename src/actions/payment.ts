@@ -6,7 +6,7 @@ import { withErrorHandling, revalidateEntity } from "@/lib/actions";
 import { recalculateProjectStatus } from "./project";
 import { paymentFormSchema } from "@/schemas/payment";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
-import { createAuditLog } from "@/lib/audit";
+
 
 export async function createPayment(
   formData: FormData,
@@ -61,14 +61,6 @@ export async function createPayment(
       }
 
       return created;
-    });
-
-    void createAuditLog({
-      action: "CREATE",
-      entityType: "Payment",
-      entityId: payment.id,
-      entityName: reference,
-      metadata: { invoiceId, invoiceNumber: invoice.invoiceNumber, amount: String(amount) },
     });
 
     const projectId = invoice.milestones[0]?.projectId;

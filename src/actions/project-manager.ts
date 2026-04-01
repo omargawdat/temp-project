@@ -6,7 +6,7 @@ import { handleImageUpload } from "@/lib/image-upload";
 import type { ActionResult } from "@/types";
 import { projectManagerFormSchema } from "@/schemas/project-manager";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
-import { createAuditLog, diffFields } from "@/lib/audit";
+
 
 export async function createProjectManager(
   formData: FormData,
@@ -36,13 +36,6 @@ export async function createProjectManager(
 
     const pm = await prisma.projectManager.create({
       data: { name, email, phone, title, photoUrl },
-    });
-
-    void createAuditLog({
-      action: "CREATE",
-      entityType: "ProjectManager",
-      entityId: pm.id,
-      entityName: name,
     });
 
     revalidateEntity("project-managers");
@@ -88,17 +81,6 @@ export async function updateProjectManager(
       data: { name, email, phone, title, photoUrl },
     });
 
-    void createAuditLog({
-      action: "UPDATE",
-      entityType: "ProjectManager",
-      entityId: id,
-      entityName: name,
-      changes: diffFields(
-        { name: currentPm.name, email: currentPm.email, phone: currentPm.phone ?? "", title: currentPm.title ?? "" },
-        { name, email, phone: phone ?? "", title: title ?? "" },
-      ),
-    });
-
     revalidateEntity("project-managers", id);
     return { success: true, data: { id } };
   });
@@ -123,13 +105,6 @@ export async function deleteProjectManager(id: string): Promise<ActionResult> {
     }
 
     await prisma.projectManager.delete({ where: { id } });
-
-    void createAuditLog({
-      action: "DELETE",
-      entityType: "ProjectManager",
-      entityId: id,
-      entityName: pm.name,
-    });
 
     revalidateEntity("project-managers");
     return { success: true, data: undefined };

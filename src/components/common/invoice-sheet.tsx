@@ -23,6 +23,7 @@ import {
   Percent,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface MilestoneItem {
   id: string;
@@ -102,9 +103,11 @@ export function InvoiceSheet({
     startTransition(async () => {
       const result: ActionResult<{ id: string }> = await createInvoice(formData);
       if (result.success) {
+        toast.success("Invoice created");
         setCreatedInvoiceId(result.data?.id ?? null);
         router.refresh();
       } else {
+        toast.error(result.error ?? "Something went wrong.");
         setError(result.error ?? "Something went wrong.");
       }
     });

@@ -25,7 +25,8 @@ import {
   isCompleted,
   isOverdue,
 } from "@/lib/milestones";
-import { getInitials, safePercent, addToCurrency, formatMultiCurrency, sumCurrencyTotals, type CurrencyTotals } from "@/lib/format";
+import { getInitials, safePercent, addToCurrency, sumCurrencyTotals, type CurrencyTotals } from "@/lib/format";
+import { MultiCurrencyDisplay } from "@/components/common/multi-currency-display";
 import {
   CashFlowFunnelChart,
   DashboardBillingRing,
@@ -266,7 +267,7 @@ export default async function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Portfolio</span>
             </div>
           </div>
-          <p className="text-xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
+          <div className="tracking-tight text-white"><MultiCurrencyDisplay totals={portfolioByCurrency} size="md" /></div>
           <p className="mt-1 text-xs text-white/35">{totalProjects} projects</p>
         </div>
 
@@ -282,7 +283,7 @@ export default async function DashboardPage() {
             </div>
             <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-bold tabular-nums text-amber-400/80">{billedPct}%</span>
           </div>
-          <p className="text-xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
+          <div className="tracking-tight text-white"><MultiCurrencyDisplay totals={billedByCurrency} size="md" /></div>
           <p className="mt-1 text-xs text-white/35">of portfolio</p>
         </div>
 
@@ -298,7 +299,7 @@ export default async function DashboardPage() {
             </div>
             <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[11px] font-bold tabular-nums text-emerald-400/80">{collectedPct}%</span>
           </div>
-          <p className="text-xl font-bold tracking-tight text-white tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
+          <div className="tracking-tight text-white"><MultiCurrencyDisplay totals={collectedByCurrency} size="md" /></div>
           <p className="mt-1 text-xs text-white/35">of portfolio</p>
         </div>
 
@@ -347,20 +348,20 @@ export default async function DashboardPage() {
             <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/30">Cash Flow Overview</span>
           </div>
           <CashFlowFunnelChart data={cashFlowData} />
-          <div className="mt-3 flex items-center justify-center gap-6">
+          <div className="mt-3 flex items-start justify-center gap-6">
             <div className="text-center">
               <p className="text-xs text-white/35">Portfolio</p>
-              <p className="text-xs font-bold tabular-nums text-teal-400/80">{formatMultiCurrency(portfolioByCurrency)}</p>
+              <MultiCurrencyDisplay totals={portfolioByCurrency} size="sm" colorClass="text-teal-400/80" />
             </div>
             <div className="h-4 w-px bg-white/[0.06]" />
             <div className="text-center">
               <p className="text-xs text-white/35">Billed</p>
-              <p className="text-xs font-bold tabular-nums text-amber-400/80">{formatMultiCurrency(billedByCurrency)}</p>
+              <MultiCurrencyDisplay totals={billedByCurrency} size="sm" colorClass="text-amber-400/80" />
             </div>
             <div className="h-4 w-px bg-white/[0.06]" />
             <div className="text-center">
               <p className="text-xs text-white/35">Collected</p>
-              <p className="text-xs font-bold tabular-nums text-emerald-400/80">{formatMultiCurrency(collectedByCurrency)}</p>
+              <MultiCurrencyDisplay totals={collectedByCurrency} size="sm" colorClass="text-emerald-400/80" />
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import type { ActionResult } from "@/types";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
 import { settingsFormSchema } from "@/schemas/settings";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
-import { createAuditLog } from "@/lib/audit";
+
 
 export async function getCompanySettings() {
   return prisma.companySettings.findUnique({ where: { id: "default" } });
@@ -30,13 +30,6 @@ export async function updateCompanySettings(
       where: { id: "default" },
       update: data,
       create: { id: "default", ...data },
-    });
-
-    void createAuditLog({
-      action: "UPDATE",
-      entityType: "CompanySettings",
-      entityId: "default",
-      entityName: "Company Settings",
     });
 
     revalidateEntity("settings");

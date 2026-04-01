@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { CompanySettings } from "@prisma/client";
 import type { ActionResult } from "@/types";
 import { Building2, CreditCard, FileText, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function SettingsForm({ settings }: { settings: CompanySettings | null }) {
   const router = useRouter();
@@ -21,9 +22,11 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
     startTransition(async () => {
       const result: ActionResult = await updateCompanySettings(formData);
       if (result.success) {
+        toast.success("Settings saved");
         setIsDirty(false);
         router.refresh();
       } else {
+        toast.error(result.error ?? "Something went wrong.");
         setError(result.error ?? "Something went wrong.");
       }
     });

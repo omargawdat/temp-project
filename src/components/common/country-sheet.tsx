@@ -20,6 +20,7 @@ import {
 import { FieldWrapper } from "@/components/common/field-wrapper";
 import type { ActionResult } from "@/types";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   Plus,
   Pencil,
@@ -142,11 +143,15 @@ function CountryForm({
 
   const [state, formAction] = useActionState(handleAction, null);
 
+  const toastedState = React.useRef<typeof state>(null);
+
   React.useEffect(() => {
-    if (state?.success && state.data?.id) {
+    if (state?.success && state.data?.id && toastedState.current !== state) {
+      toastedState.current = state;
+      toast.success(isEdit ? "Country updated" : "Country created");
       onSuccess?.(state.data.id);
     }
-  }, [state, onSuccess]);
+  }, [state, onSuccess, isEdit]);
 
   return (
     <form key={country?.id ?? "new"} action={formAction} className="space-y-5" onChange={() => setIsDirty(true)}>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ProjectDatePicker } from "@/components/ui/date-picker";
 import type { ActionResult } from "@/types";
 import { Loader2, Plus, Check } from "lucide-react";
+import { toast } from "sonner";
 
 function formatWithCommas(val: string): string {
   const num = val.replace(/[^0-9.]/g, "");
@@ -44,6 +45,7 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
     startTransition(async () => {
       const result: ActionResult<{ id: string }> = await createMilestone(formData);
       if (result.success) {
+        toast.success("Milestone added");
         setName("");
         setDisplayValue("");
         setDn(false);
@@ -51,6 +53,7 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 1500);
       } else {
+        toast.error(result.error ?? "Something went wrong.");
         setName(currentName);
         setDisplayValue(currentDisplayValue);
         setError(result.error ?? "Something went wrong.");

@@ -9,7 +9,7 @@ import { MilestoneStatus } from "@prisma/client";
 import { MILESTONE_TRANSITIONS } from "@/schemas/transitions";
 import { milestoneFormSchema, milestoneUpdateSchema } from "@/schemas/milestone";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
-import { createAuditLog, diffFields } from "@/lib/audit";
+
 
 function validateMilestoneValueWithinContract(
   newValue: number,
@@ -87,14 +87,6 @@ export async function createMilestone(
       },
     });
 
-    void createAuditLog({
-      action: "CREATE",
-      entityType: "Milestone",
-      entityId: milestone.id,
-      entityName: name,
-      metadata: { projectId, projectName: project.name },
-    });
-
     revalidateEntity("projects", projectId);
     revalidateEntity("milestones");
 
@@ -161,18 +153,6 @@ export async function updateMilestone(
       },
     });
 
-    void createAuditLog({
-      action: "UPDATE",
-      entityType: "Milestone",
-      entityId: id,
-      entityName: name,
-      changes: diffFields(
-        { name: milestone.name, value: String(milestone.value), requiresDeliveryNote: String(milestone.requiresDeliveryNote) },
-        { name, value: String(value), requiresDeliveryNote: String(requiresDeliveryNote) },
-      ),
-      metadata: { projectId: milestone.projectId },
-    });
-
     revalidateEntity("projects", milestone.projectId);
     revalidateEntity("milestones");
 
@@ -217,15 +197,6 @@ export async function updateMilestoneStatus(
       data: { status: newStatus },
     });
 
-    void createAuditLog({
-      action: "STATUS_CHANGE",
-      entityType: "Milestone",
-      entityId: id,
-      entityName: milestone.name,
-      changes: { before: { status: milestone.status }, after: { status: newStatus } },
-      metadata: { projectId: milestone.projectId },
-    });
-
     revalidateEntity("projects", milestone.projectId);
     revalidateEntity("milestones");
 
@@ -253,13 +224,6 @@ export async function deleteMilestone(id: string): Promise<ActionResult> {
 
     await prisma.milestone.delete({ where: { id } });
 
-    void createAuditLog({
-      action: "DELETE",
-      entityType: "Milestone",
-      entityId: id,
-      entityName: milestone.name,
-      metadata: { projectId: milestone.projectId },
-    });
     await recalculateProjectStatus(milestone.projectId);
 
     revalidateEntity("projects", milestone.projectId);

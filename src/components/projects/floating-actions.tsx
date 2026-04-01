@@ -8,6 +8,7 @@ import { ProjectForm } from "@/components/common/project-form";
 import { FloatingActionBar, scrollToSection, type FloatingAction } from "@/components/common/floating-action-bar";
 import { updateProjectStatus } from "@/actions/project";
 import { type Project, ProjectStatus } from "@prisma/client";
+import { toast } from "sonner";
 import type { Serialized } from "@/lib/serialize";
 
 interface FloatingActionsProps {
@@ -30,7 +31,12 @@ export function FloatingActions({
   function handleStatusChange(target: ProjectStatus) {
     startTransition(async () => {
       const result = await updateProjectStatus(project.id, target);
-      if (result.success) router.refresh();
+      if (result.success) {
+        toast.success("Project status updated");
+        router.refresh();
+      } else {
+        toast.error(result.error);
+      }
     });
   }
 

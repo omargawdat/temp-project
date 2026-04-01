@@ -6,7 +6,7 @@ import { handleImageUpload } from "@/lib/image-upload";
 import type { ActionResult } from "@/types";
 import { clientFormSchema } from "@/schemas/client";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
-import { createAuditLog, diffFields } from "@/lib/audit";
+
 
 export async function createClient(
   formData: FormData,
@@ -37,13 +37,6 @@ export async function createClient(
 
     const client = await prisma.client.create({
       data: { ...fields, imageUrl },
-    });
-
-    void createAuditLog({
-      action: "CREATE",
-      entityType: "Client",
-      entityId: client.id,
-      entityName: fields.name,
     });
 
     revalidateEntity("clients");
@@ -87,17 +80,6 @@ export async function updateClient(
     await prisma.client.update({
       where: { id },
       data: { ...fields, imageUrl },
-    });
-
-    void createAuditLog({
-      action: "UPDATE",
-      entityType: "Client",
-      entityId: id,
-      entityName: fields.name,
-      changes: diffFields(
-        { name: current.name, code: current.code, email: current.email, phone: current.phone },
-        { name: fields.name, code: fields.code, email: fields.email, phone: fields.phone },
-      ),
     });
 
     revalidateEntity("clients", id);

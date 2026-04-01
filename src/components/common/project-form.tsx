@@ -36,6 +36,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }) {
   const { pending } = useFormStatus();
@@ -140,15 +141,18 @@ export function ProjectForm({
   }
 
   const [state, formAction] = useActionState(handleAction, null);
+  const toastedState = React.useRef<typeof state>(null);
 
   const fieldError = (field: string) =>
     state && !state.success ? state.fieldErrors?.[field]?.[0] : undefined;
 
   React.useEffect(() => {
-    if (state?.success && state.data?.id) {
+    if (state?.success && state.data?.id && toastedState.current !== state) {
+      toastedState.current = state;
+      toast.success(isEdit ? "Project updated" : "Project created");
       onSuccess?.(state.data.id);
     }
-  }, [state, onSuccess]);
+  }, [state, onSuccess, isEdit]);
 
   const selectClass =
     "flex h-10 w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";

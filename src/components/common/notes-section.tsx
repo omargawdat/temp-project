@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface NoteData {
   id: string;
@@ -79,6 +80,7 @@ function NoteItem({
       const formData = new FormData();
       formData.set("content", content.trim());
       await updateNote(note.id, formData);
+      toast.success("Note updated");
       setEditing(false);
       router.refresh();
     });
@@ -87,6 +89,7 @@ function NoteItem({
   function handleDelete() {
     startTransition(async () => {
       await deleteNote(note.id);
+      toast.success("Note deleted");
       router.refresh();
     });
   }
@@ -195,6 +198,7 @@ export function NotesSection({
       formData.set("createdBy", "System"); // TODO: replace with authenticated user
       formData.set("noteType", noteType);
       await createNote(entityType, entityId, formData);
+      toast.success("Note added");
       setContent("");
       setNoteType("GENERAL");
       setAdding(false);
@@ -203,7 +207,7 @@ export function NotesSection({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border/25 bg-card/50">
+    <div id="notes" className="scroll-mt-8 overflow-hidden rounded-xl border border-border/25 bg-card/50">
       <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
         <div className="flex items-center gap-2.5">
           <div className="rounded-lg bg-white/[0.06] p-2">

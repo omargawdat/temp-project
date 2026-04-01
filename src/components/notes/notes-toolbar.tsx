@@ -6,10 +6,9 @@ import { X, Layers, User } from "lucide-react";
 import { ToolbarSearch } from "@/components/toolbar/toolbar-search";
 import { ToolbarStatusPills } from "@/components/toolbar/toolbar-status-pills";
 import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
-import { ToolbarDateRange } from "@/components/milestones/toolbar-date-range";
-import { AUDIT_ACTION_STATUSES, AUDIT_ENTITY_TYPES } from "@/lib/status-config";
+import { NOTE_TYPE_STATUSES, NOTE_ENTITY_TYPES } from "@/lib/status-config";
 
-export function AuditToolbar({
+export function NotesToolbar({
   resultCount,
   users,
 }: {
@@ -20,25 +19,18 @@ export function AuditToolbar({
   const searchParams = useSearchParams();
 
   const q = searchParams.get("q") ?? "";
-  const actionFilter =
-    searchParams.get("action")?.split(",").filter(Boolean) ?? [];
+  const noteTypeFilter =
+    searchParams.get("noteType")?.split(",").filter(Boolean) ?? [];
   const entityTypeFilter =
     searchParams.get("entityType")?.split(",").filter(Boolean) ?? [];
-  const performedByFilter =
-    searchParams.get("performedBy")?.split(",").filter(Boolean) ?? [];
-  const dateFrom = searchParams.get("dateFrom") ?? "";
-  const dateTo = searchParams.get("dateTo") ?? "";
+  const createdByFilter =
+    searchParams.get("createdBy")?.split(",").filter(Boolean) ?? [];
 
   const hasFilters =
-    q ||
-    actionFilter.length > 0 ||
-    entityTypeFilter.length > 0 ||
-    performedByFilter.length > 0 ||
-    dateFrom ||
-    dateTo;
+    q || noteTypeFilter.length > 0 || entityTypeFilter.length > 0 || createdByFilter.length > 0;
 
   const clearAll = useCallback(() => {
-    router.replace("/audit-log", { scroll: false });
+    router.replace("/notes", { scroll: false });
   }, [router]);
 
   const updateParams = useCallback(
@@ -53,24 +45,24 @@ export function AuditToolbar({
       }
       params.delete("page");
       const qs = params.toString();
-      router.replace(`/audit-log${qs ? `?${qs}` : ""}`, { scroll: false });
+      router.replace(`/notes${qs ? `?${qs}` : ""}`, { scroll: false });
     },
     [router, searchParams],
   );
 
   return (
     <div className="relative z-20 mb-5 space-y-3">
-      {/* Row 1: Search, entity type filter, date range, results */}
+      {/* Row 1: Search, entity type filter, results */}
       <div className="flex items-center gap-2.5">
         <ToolbarSearch
           value={q}
           onChange={(v) => updateParams({ q: v || null })}
-          placeholder="Search audit log..."
+          placeholder="Search notes..."
         />
         <ToolbarMultiSelect
           label="Entity"
           icon={Layers}
-          items={AUDIT_ENTITY_TYPES.map((e) => ({ id: e.id, name: e.name }))}
+          items={NOTE_ENTITY_TYPES.map((e) => ({ id: e.id, name: e.name }))}
           value={entityTypeFilter}
           onChange={(v) =>
             updateParams({ entityType: v.length > 0 ? v.join(",") : null })
@@ -78,19 +70,14 @@ export function AuditToolbar({
           showAvatar={false}
         />
         <ToolbarMultiSelect
-          label="By"
+          label="Created By"
           icon={User}
           items={users}
-          value={performedByFilter}
+          value={createdByFilter}
           onChange={(v) =>
-            updateParams({ performedBy: v.length > 0 ? v.join(",") : null })
+            updateParams({ createdBy: v.length > 0 ? v.join(",") : null })
           }
           showAvatar={false}
-        />
-        <ToolbarDateRange
-          from={dateFrom}
-          to={dateTo}
-          onChange={(from, to) => updateParams({ dateFrom: from, dateTo: to })}
         />
 
         <div className="flex-1" />
@@ -100,13 +87,13 @@ export function AuditToolbar({
         </span>
       </div>
 
-      {/* Row 2: Action pills + clear all */}
+      {/* Row 2: Note type pills + clear all */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border/20 bg-card/40 px-4 py-2.5">
         <ToolbarStatusPills
-          statuses={AUDIT_ACTION_STATUSES}
-          value={actionFilter}
+          statuses={NOTE_TYPE_STATUSES}
+          value={noteTypeFilter}
           onChange={(v) =>
-            updateParams({ action: v.length > 0 ? v.join(",") : null })
+            updateParams({ noteType: v.length > 0 ? v.join(",") : null })
           }
         />
 

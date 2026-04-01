@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { updateProjectStatus } from "@/actions/project";
 import { ProjectStatus } from "@prisma/client";
 import { Pause, Play, Lock, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 
 interface StatusAction {
   label: string;
@@ -83,7 +84,10 @@ export function ProjectStatusActions({
     startTransition(async () => {
       const result = await updateProjectStatus(projectId, target);
       if (result.success) {
+        toast.success("Project status updated");
         router.refresh();
+      } else {
+        toast.error(result.error);
       }
     });
   }
