@@ -68,13 +68,13 @@ export default async function MilestonesPage({
 
       {/* Table */}
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">
-        <div className="grid grid-cols-[1fr_200px_90px_100px_140px_120px] gap-x-4 border-b border-border/20 bg-accent px-6 py-3">
+        <div className="grid grid-cols-[1fr_200px_90px_100px_140px_120px] gap-x-4 border-b border-border bg-accent px-6 py-3">
           <SortableHeader label="Milestone" field="name" basePath="/milestones" defaultSort="plannedDate" />
           <SortableHeader label="Project" field="project" basePath="/milestones" defaultSort="plannedDate" />
           <SortableHeader label="Value" field="value" align="right" basePath="/milestones" defaultSort="plannedDate" />
           <SortableHeader label="Date" field="plannedDate" basePath="/milestones" defaultSort="plannedDate" />
           <SortableHeader label="Status" field="status" basePath="/milestones" defaultSort="plannedDate" />
-          <span className="text-muted-foreground/50 text-center text-[11px] font-semibold tracking-wider uppercase whitespace-nowrap">Delivery Note</span>
+          <span className="text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Delivery Note</span>
         </div>
 
         <div className="divide-border/30 divide-y">
@@ -84,13 +84,13 @@ export default async function MilestonesPage({
               href={`/projects/${milestone.projectId}`}
               className="table-row-hover grid grid-cols-[1fr_200px_90px_100px_140px_120px] gap-x-4 items-center px-6 py-4"
             >
-              <span className="text-foreground text-[15px] font-semibold">
+              <span className="text-foreground text-sm font-semibold">
                 {milestone.name}
               </span>
               <span className="truncate text-sm text-primary">
                 {milestone.project.name}
               </span>
-              <span className="text-foreground text-right font-mono text-[15px] font-semibold">
+              <span className="text-foreground text-right font-mono text-sm font-semibold">
                 {Number(milestone.value).toLocaleString("en-US", {
                   style: "currency",
                   currency: milestone.project.currency,
@@ -113,7 +113,7 @@ export default async function MilestonesPage({
                     Required
                   </span>
                 ) : (
-                  <span className="text-muted-foreground/50 text-xs">—</span>
+                  <span className="text-muted-foreground text-xs">—</span>
                 )}
               </div>
             </Link>

@@ -30,14 +30,14 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
   const { pending } = useFormStatus();
   const enabled = isDirty || !isEdit;
   return (
-    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border/20 bg-card/95 px-4 py-4 backdrop-blur-sm">
+    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border bg-card/95 px-4 py-4 backdrop-blur-sm">
       <Button
         type="submit"
         disabled={pending || !enabled}
         className={`w-full border-0 py-3 font-semibold transition-all ${
           enabled
-            ? "btn-gradient text-foreground shadow-lg shadow-teal-500/25"
-            : "bg-muted text-muted-foreground/40 shadow-none"
+            ? "btn-gradient text-primary-foreground shadow-lg shadow-primary/25"
+            : "bg-muted text-muted-foreground shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -99,14 +99,14 @@ function PhotoUpload({ currentPhotoUrl }: { currentPhotoUrl?: string | null }) {
           </div>
         ) : (
           <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-dashed border-border/40 bg-accent/30">
-            <User className="h-7 w-7 text-muted-foreground/25" />
+            <User className="h-7 w-7 text-muted-foreground/60" />
           </div>
         )}
         <div className="text-center">
           <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
             {preview ? "Change photo" : "Upload photo"}
           </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground/40">
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
             JPG, PNG or WebP
           </p>
         </div>

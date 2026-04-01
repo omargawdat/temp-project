@@ -109,7 +109,7 @@ export default async function ProjectManagersPage({
 
                 // Next deadline formatting
                 let deadlineLabel = "—";
-                let deadlineColor = "text-muted-foreground/30";
+                let deadlineColor = "text-muted-foreground/60";
                 if (pm.nextDeadline) {
                   const d = new Date(pm.nextDeadline);
                   const daysUntil = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -151,11 +151,11 @@ export default async function ProjectManagersPage({
                       <div className="flex flex-col items-center gap-0.5">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-bold text-foreground">{pm.totalProjects}</span>
-                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground/50">total</span>
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">total</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-bold text-emerald-400">{pm.activeProjects}</span>
-                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground/50">active</span>
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">active</span>
                         </div>
                       </div>
                     </td>
@@ -164,9 +164,9 @@ export default async function ProjectManagersPage({
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full bg-accent0/70 transition-all" style={{ width: `${pm.completionPct}%` }} />
+                          <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pm.completionPct}%` }} />
                         </div>
-                        <span className="text-sm tabular-nums text-foreground/70">{pm.completedMilestones}/{pm.totalMilestones}</span>
+                        <span className="text-sm tabular-nums text-secondary-foreground">{pm.completedMilestones}/{pm.totalMilestones}</span>
                         {pm.overdueMilestones > 0 && (
                           <OverdueAlert count={pm.overdueMilestones} details={pm.overdueMilestoneDetails} />
                         )}
@@ -186,7 +186,7 @@ export default async function ProjectManagersPage({
                     {/* Billed */}
                     <td className="px-4 py-4 text-right">
                       <div className="flex flex-col items-end gap-1">
-                        <span className="text-sm font-bold tabular-nums text-foreground/90">{formatMultiCurrency(pm.billedByCurrency)}</span>
+                        <span className="text-sm font-bold tabular-nums text-foreground">{formatMultiCurrency(pm.billedByCurrency)}</span>
                         <div className="flex items-center gap-1.5">
                           <div className="h-1.5 w-12 overflow-hidden rounded-full bg-amber-50">
                             <div className="h-full rounded-full bg-amber-500/70 transition-all" style={{ width: `${pm.billedPct}%` }} />
@@ -204,7 +204,7 @@ export default async function ProjectManagersPage({
         <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
         </>
       ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card card-elevated py-20">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card card-elevated py-20">
           <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent"}`}>
             {filtersActive ? (
               <SearchX className="h-8 w-8 text-amber-400" />

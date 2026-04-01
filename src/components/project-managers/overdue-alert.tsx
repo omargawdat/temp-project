@@ -39,8 +39,8 @@ export function OverdueAlert({
           {details.map((d, i) => (
             <div key={i} className="py-2.5">
               <p className="text-xs font-medium text-foreground">{d.milestoneName}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{d.projectName}</p>
-              <div className="mt-1 flex items-center gap-3 text-[11px]">
+              <p className="mt-0.5 text-xs text-muted-foreground">{d.projectName}</p>
+              <div className="mt-1 flex items-center gap-3 text-xs">
                 <span className="flex items-center gap-1 text-muted-foreground/70">
                   <Calendar className="h-3 w-3" />
                   {new Date(d.plannedDate).toLocaleDateString("en-US", {

@@ -176,10 +176,10 @@ export function ToolbarDateRange({
                 type="button"
                 onClick={() => applyPreset(preset)}
                 className={cn(
-                  "rounded-md border px-2.5 py-1 text-[11px] font-medium transition-all",
+                  "rounded-md border px-2.5 py-1 text-xs font-medium transition-all",
                   isActive
                     ? "border-primary/40 bg-accent text-primary"
-                    : "border-border/40 bg-background/40 text-muted-foreground hover:border-border/70 hover:text-foreground/80",
+                    : "border-border/40 bg-background/40 text-muted-foreground hover:border-border/70 hover:text-secondary-foreground",
                 )}
               >
                 {preset.label}
@@ -197,13 +197,13 @@ export function ToolbarDateRange({
               "flex-1 rounded-lg px-3 py-1.5 text-center text-xs font-medium transition-all",
               picking === "from"
                 ? "bg-accent text-primary ring-1 ring-primary/30"
-                : "text-muted-foreground hover:text-foreground/80",
+                : "text-muted-foreground hover:text-secondary-foreground",
             )}
           >
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">From</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">From</span>
             <span className="mt-0.5 block">{from ? formatDateShort(from) : "—"}</span>
           </button>
-          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
+          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
           <button
             type="button"
             onClick={() => setPicking("to")}
@@ -211,10 +211,10 @@ export function ToolbarDateRange({
               "flex-1 rounded-lg px-3 py-1.5 text-center text-xs font-medium transition-all",
               picking === "to"
                 ? "bg-accent text-primary ring-1 ring-primary/30"
-                : "text-muted-foreground hover:text-foreground/80",
+                : "text-muted-foreground hover:text-secondary-foreground",
             )}
           >
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">To</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">To</span>
             <span className="mt-0.5 block">{to ? formatDateShort(to) : "—"}</span>
           </button>
         </div>
@@ -237,7 +237,7 @@ export function ToolbarDateRange({
           {/* Day headers */}
           <div className="mb-1 grid grid-cols-7 text-center">
             {DAYS.map((d) => (
-              <span key={d} className="py-1 text-[10px] font-semibold text-muted-foreground/40">{d}</span>
+              <span key={d} className="py-1 text-[10px] font-semibold text-muted-foreground">{d}</span>
             ))}
           </div>
 
@@ -257,10 +257,10 @@ export function ToolbarDateRange({
                   className={cn(
                     "flex h-9 w-full items-center justify-center text-xs transition-colors",
                     // Range background
-                    inRange && "bg-accent0/[0.07]",
+                    inRange && "bg-primary/[0.07]",
                     // From/To endpoints
                     (isFrom || isTo)
-                      ? "rounded-md bg-accent0 font-bold text-white"
+                      ? "rounded-md bg-primary font-bold text-white"
                       : isToday
                         ? "rounded-md font-bold text-primary"
                         : "rounded-md text-foreground hover:bg-accent hover:text-primary",
@@ -279,10 +279,10 @@ export function ToolbarDateRange({
             type="button"
             onClick={() => { onChange(null, null); setOpen(false); }}
             className={cn(
-              "rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors",
+              "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
               hasValue
                 ? "text-muted-foreground hover:text-foreground"
-                : "pointer-events-none text-muted-foreground/20",
+                : "pointer-events-none text-muted-foreground/60",
             )}
           >
             Clear
@@ -290,7 +290,7 @@ export function ToolbarDateRange({
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-md bg-accent px-3 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+            className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
           >
             Apply
           </button>

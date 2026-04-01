@@ -69,7 +69,7 @@ export function ToolbarMultiSelect({
         )}
         onClick={() => setOpen(!open)}
       >
-        {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />}
+        {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" />}
         {label}
         {value.length > 0 && (
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-primary">
@@ -83,13 +83,13 @@ export function ToolbarMultiSelect({
         <div className="absolute left-0 top-full z-50 mt-1.5 w-[280px] rounded-xl border border-border/50 bg-card shadow-2xl shadow-black/40">
           <div className="border-b border-border/30 p-2">
             <div className="flex items-center gap-2 rounded-lg bg-background/60 px-2.5 py-1.5">
-              <Search className="h-3 w-3 text-muted-foreground/40" />
+              <Search className="h-3 w-3 text-muted-foreground" />
               <input
                 type="text"
                 placeholder={searchPlaceholder ?? `Filter ${label.toLowerCase()}...`}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/30 outline-none"
+                className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 outline-none"
                 autoFocus
               />
             </div>
@@ -108,7 +108,7 @@ export function ToolbarMultiSelect({
                   <div className={cn(
                     "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
                     selected
-                      ? "border-primary bg-accent0"
+                      ? "border-primary bg-primary"
                       : "border-border/50 bg-transparent",
                   )}>
                     {selected && <Check className="h-3 w-3 text-white" />}
@@ -122,14 +122,14 @@ export function ToolbarMultiSelect({
                         className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-ring/20"
                       />
                     ) : (
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground/50">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
                         {item.name.charAt(0)}
                       </div>
                     )
                   )}
-                  <span className="flex-1 truncate text-sm text-foreground/80">{item.name}</span>
+                  <span className="flex-1 truncate text-sm text-secondary-foreground">{item.name}</span>
                   {item.count !== undefined && (
-                    <span className="text-[11px] tabular-nums text-muted-foreground/35">
+                    <span className="text-xs tabular-nums text-muted-foreground/60">
                       {item.count}
                     </span>
                   )}
@@ -137,7 +137,7 @@ export function ToolbarMultiSelect({
               );
             })}
             {filtered.length === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground/40">No items found</p>
+              <p className="py-4 text-center text-xs text-muted-foreground">No items found</p>
             )}
           </div>
 
@@ -146,7 +146,7 @@ export function ToolbarMultiSelect({
               <button
                 type="button"
                 onClick={() => onChange([])}
-                className="w-full rounded-lg px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="w-full rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Clear all
               </button>

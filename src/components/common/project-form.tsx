@@ -42,14 +42,14 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
   const { pending } = useFormStatus();
   const enabled = isDirty || !isEdit;
   return (
-    <div className="sticky bottom-0 -mx-4 -mb-6 border-t border-border/20 bg-card/95 px-4 py-4 backdrop-blur-sm">
+    <div className="sticky bottom-0 -mx-4 -mb-6 border-t border-border bg-card/95 px-4 py-4 backdrop-blur-sm">
       <Button
         type="submit"
         disabled={pending || !enabled}
         className={`w-full rounded-md py-4.5 text-sm font-semibold tracking-wide transition-all active:scale-[0.99] ${
           enabled
-            ? "bg-gradient-to-r from-teal-600 to-teal-500 text-foreground shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400 hover:shadow-teal-500/30"
-            : "bg-muted text-muted-foreground/40 shadow-none"
+            ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:from-primary/90 hover:to-primary/80 hover:shadow-primary/30"
+            : "bg-muted text-muted-foreground shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -82,7 +82,7 @@ function SectionHeader({
       </div>
       <div className="flex-1">
         <h3 className="text-foreground text-sm font-semibold">{title}</h3>
-        <p className="text-muted-foreground text-[11px]">{subtitle}</p>
+        <p className="text-muted-foreground text-xs">{subtitle}</p>
       </div>
       <span className="bg-accent text-muted-foreground flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold">
         {step}
@@ -186,7 +186,7 @@ export function ProjectForm({
             <label className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
               <ImagePlus className="h-4 w-4 text-muted-foreground" />
               Project Image
-              <span className="text-muted-foreground/40 text-xs font-normal">(optional)</span>
+              <span className="text-muted-foreground text-xs font-normal">(optional)</span>
             </label>
             <div className="flex items-center gap-4">
               {imagePreview ? (
@@ -213,7 +213,7 @@ export function ProjectForm({
                 <button
                   type="button"
                   onClick={() => imageInputRef.current?.click()}
-                  className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-primary/50"
+                  className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border/50 bg-accent text-muted-foreground/60 transition-colors hover:border-primary/30 hover:bg-primary/[0.03] hover:text-primary/50"
                 >
                   <ImagePlus className="h-6 w-6" />
                 </button>
@@ -232,7 +232,7 @@ export function ProjectForm({
                   }
                 }}
               />
-              <div className="text-[11px] text-muted-foreground/40 leading-relaxed">
+              <div className="text-xs text-muted-foreground leading-relaxed">
                 <p>Upload a cover image for this project.</p>
                 <p>JPG, PNG or WebP. Max 5MB.</p>
               </div>
@@ -248,9 +248,9 @@ export function ProjectForm({
                 className={cn(
                   "flex h-10 w-full items-center justify-between rounded-md border px-3 text-sm transition-colors",
                   clientOpen
-                    ? "border-teal-500/40 ring-2 ring-teal-500/20"
+                    ? "border-primary/40 ring-2 ring-primary/20"
                     : "border-border hover:border-border/80",
-                  selectedClient ? "text-foreground" : "text-muted-foreground/50",
+                  selectedClient ? "text-foreground" : "text-muted-foreground",
                 )}
               >
                 <span className="flex items-center gap-2 truncate">
@@ -260,21 +260,21 @@ export function ProjectForm({
                   )}
                   {selectedClient?.name ?? "Select a client"}
                 </span>
-                <ChevronDown className={cn("h-4 w-4 text-muted-foreground/40 transition-transform", clientOpen && "rotate-180")} />
+                <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", clientOpen && "rotate-180")} />
               </button>
 
               {clientOpen && (
                 <div className="absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden rounded-xl border border-border/50 bg-card shadow-2xl shadow-black/40">
                   {/* Search */}
-                  <div className="border-b border-border/20 p-2">
+                  <div className="border-b border-border p-2">
                     <div className="flex items-center gap-2 rounded-lg bg-background/60 px-3 py-2">
-                      <Search className="h-3.5 w-3.5 text-muted-foreground/40" />
+                      <Search className="h-3.5 w-3.5 text-muted-foreground" />
                       <input
                         type="text"
                         placeholder="Search clients..."
                         value={clientSearch}
                         onChange={(e) => setClientSearch(e.target.value)}
-                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/30 outline-none"
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 outline-none"
                         autoFocus
                       />
                     </div>
@@ -298,14 +298,14 @@ export function ProjectForm({
                             "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                             isActive
                               ? "bg-accent text-primary"
-                              : "text-foreground/80 hover:bg-accent",
+                              : "text-secondary-foreground hover:bg-accent",
                           )}
                         >
                           {c.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={c.imageUrl} alt={c.name} className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-ring/20" />
                           ) : (
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground/50">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
                               {c.name.charAt(0)}
                             </div>
                           )}
@@ -315,7 +315,7 @@ export function ProjectForm({
                       );
                     })}
                     {filteredClients.length === 0 && (
-                      <p className="py-4 text-center text-xs text-muted-foreground/40">No clients found</p>
+                      <p className="py-4 text-center text-xs text-muted-foreground">No clients found</p>
                     )}
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export function ProjectForm({
               {CURRENCIES.map((c) => (
                 <label
                   key={c.code}
-                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-teal-500/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
+                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
                 >
                   <input
                     type="radio"
@@ -418,7 +418,7 @@ export function ProjectForm({
             return (
               <label
                 key={pm.id}
-                className="group flex cursor-pointer items-center gap-2 rounded-md border border-border/50 px-2.5 py-2 transition-all has-[:checked]:border-teal-500/40 has-[:checked]:bg-teal-500/5 hover:bg-accent/40"
+                className="group flex cursor-pointer items-center gap-2 rounded-md border border-border/50 px-2.5 py-2 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/5 hover:bg-accent/40"
               >
                 <input
                   type="radio"
@@ -433,18 +433,18 @@ export function ProjectForm({
                   <img
                     src={pm.photoUrl}
                     alt={pm.name}
-                    className="h-7 w-7 flex-shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-has-[:checked]:ring-teal-500"
+                    className="h-7 w-7 flex-shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-has-[:checked]:ring-primary"
                   />
                 ) : (
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-muted-foreground transition-all group-has-[:checked]:bg-teal-500 group-has-[:checked]:text-foreground">
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-muted-foreground transition-all group-has-[:checked]:bg-primary group-has-[:checked]:text-foreground">
                     {initials}
                   </div>
                 )}
                 <div className="min-w-0">
                   <span className="block truncate text-xs font-medium text-foreground">{pm.name}</span>
-                  <span className="block truncate text-[10px] text-muted-foreground/50">{pm.title || "Project Manager"}</span>
+                  <span className="block truncate text-[10px] text-muted-foreground">{pm.title || "Project Manager"}</span>
                 </div>
-                <div className="ml-auto h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 border-border/50 transition-all group-has-[:checked]:border-teal-500 group-has-[:checked]:bg-teal-500 group-has-[:checked]:shadow-[inset_0_0_0_2px_white]" />
+                <div className="ml-auto h-3.5 w-3.5 flex-shrink-0 rounded-full border-2 border-border/50 transition-all group-has-[:checked]:border-primary group-has-[:checked]:bg-primary group-has-[:checked]:shadow-[inset_0_0_0_2px_white]" />
               </label>
             );
           })}
@@ -469,7 +469,7 @@ export function ProjectForm({
               ].map((opt) => (
                 <label
                   key={opt.value}
-                  className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground/50 transition-all hover:text-muted-foreground has-[:checked]:bg-teal-500/15 has-[:checked]:text-primary has-[:checked]:ring-1 has-[:checked]:ring-teal-500/30"
+                  className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground transition-all hover:text-muted-foreground has-[:checked]:bg-primary/15 has-[:checked]:text-primary has-[:checked]:ring-1 has-[:checked]:ring-primary/30"
                 >
                   <input
                     type="radio"

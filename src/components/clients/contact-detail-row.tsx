@@ -19,7 +19,7 @@ export function ContactDetailRow({
 
   return (
     <div className="flex items-center gap-2.5 text-sm group">
-      <Icon className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+      <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
       <span className="text-muted-foreground">{value}</span>
       <div className="ml-auto flex items-center gap-0.5 shrink-0">
         <button

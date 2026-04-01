@@ -84,14 +84,14 @@ export default async function InvoicesPage({
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">
         <div className="border-border/50 bg-accent/50 grid grid-cols-[110px_1fr_1fr_110px_70px_110px_130px_100px] gap-4 border-b px-6 py-3.5">
           <SortableHeader label="Invoice #" field="invoiceNumber" basePath="/invoices" defaultSort="createdAt" />
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
             Project
           </span>
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
             Milestone
           </span>
           <SortableHeader label="Amount" field="amount" align="right" basePath="/invoices" defaultSort="createdAt" />
-          <span className="text-muted-foreground text-right text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-right text-xs font-bold tracking-wider uppercase">
             VAT
           </span>
           <SortableHeader label="Total" field="totalPayable" align="right" basePath="/invoices" defaultSort="createdAt" />

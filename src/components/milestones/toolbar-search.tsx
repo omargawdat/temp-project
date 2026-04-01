@@ -29,9 +29,9 @@ export function ToolbarSearch({
   }, [local, value, onChange]);
 
   return (
-    <InputGroup className="h-10 w-[280px] border-border/20 bg-accent">
+    <InputGroup className="h-10 w-[280px] border-border bg-card">
       <InputGroupAddon>
-        <Search className="h-3.5 w-3.5 text-muted-foreground/40" />
+        <Search className="h-3.5 w-3.5 text-muted-foreground" />
       </InputGroupAddon>
       <InputGroupInput
         placeholder="Search milestones..."

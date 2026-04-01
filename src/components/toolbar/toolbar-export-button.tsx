@@ -84,8 +84,8 @@ export function ToolbarExportButton({
             >
               <fmt.icon className="h-4 w-4 shrink-0 text-muted-foreground" />
               <div>
-                <span className="block text-sm font-medium text-foreground/80">{fmt.label}</span>
-                <span className="block text-[11px] text-muted-foreground/50">{fmt.description}</span>
+                <span className="block text-sm font-medium text-secondary-foreground">{fmt.label}</span>
+                <span className="block text-xs text-muted-foreground">{fmt.description}</span>
               </div>
             </button>
           ))}

@@ -38,7 +38,7 @@ export function ToolbarStatusPills({
               "flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-all",
               active
                 ? "border-primary/40 bg-accent text-primary"
-                : "border-border/40 bg-card card-elevated text-muted-foreground hover:border-border/70 hover:bg-card hover:text-foreground/80",
+                : "border-border/40 bg-card card-elevated text-muted-foreground hover:border-border/70 hover:bg-card hover:text-secondary-foreground",
             )}
           >
             <span className={cn("h-2 w-2 rounded-full", s.dot, !active && "opacity-60")} />

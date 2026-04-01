@@ -128,7 +128,7 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
         {/* Day headers */}
         <div className="mb-1 grid grid-cols-7 text-center">
           {DAYS.map((d) => (
-            <span key={d} className="py-1 text-[10px] font-semibold text-muted-foreground/40">{d}</span>
+            <span key={d} className="py-1 text-[10px] font-semibold text-muted-foreground">{d}</span>
           ))}
         </div>
 
@@ -146,7 +146,7 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
                 onClick={() => selectDate(day)}
                 className={`flex h-8 w-8 items-center justify-center rounded-md text-xs transition-colors ${
                   isSelected(day)
-                    ? "bg-accent0 font-bold text-white"
+                    ? "bg-primary font-bold text-white"
                     : isToday(day)
                       ? "font-bold text-primary"
                       : "text-foreground hover:bg-accent hover:text-primary"
@@ -163,14 +163,14 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
           <button
             type="button"
             onClick={() => { setSelected(new Date()); setOpen(false); onValueChange?.(); }}
-            className="text-[11px] font-medium text-primary transition-colors hover:text-primary"
+            className="text-xs font-medium text-primary transition-colors hover:text-primary"
           >
             Today
           </button>
           <button
             type="button"
             onClick={() => { setSelected(null); setOpen(false); onValueChange?.(); }}
-            className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Clear
           </button>
@@ -183,11 +183,11 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
   return (
     <div>
       {compact ? (
-        <label className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/30">
+        <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
           {label}
         </label>
       ) : (
-        <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <Calendar className="h-3 w-3" />
           {label}
         </label>
@@ -199,14 +199,14 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
         type="button"
         onClick={() => setOpen(!open)}
         className={compact
-          ? "flex w-full items-center justify-between rounded-md border border-border/20 bg-accent px-2.5 text-xs text-foreground transition-all hover:border-border/40 focus:outline-none focus:ring-2 focus:ring-ring h-8 mt-1"
+          ? "flex w-full items-center justify-between rounded-md border border-border bg-accent px-2.5 text-xs text-foreground transition-all hover:border-border/40 focus:outline-none focus:ring-2 focus:ring-ring h-8 mt-1"
           : "flex h-10 w-full items-center justify-between rounded-md border border-border bg-transparent px-3 text-sm text-foreground transition-all hover:border-border/80 focus:outline-none focus:ring-2 focus:ring-ring"
         }
       >
-        <span className={displayValue ? "text-foreground" : "text-muted-foreground/40"}>
+        <span className={displayValue ? "text-foreground" : "text-muted-foreground"}>
           {displayValue || "Pick a date"}
         </span>
-        <Calendar className={compact ? "h-3 w-3 text-muted-foreground/40" : "h-4 w-4 text-muted-foreground"} />
+        <Calendar className={compact ? "h-3 w-3 text-muted-foreground" : "h-4 w-4 text-muted-foreground"} />
       </button>
 
       {/* Hidden input for form */}

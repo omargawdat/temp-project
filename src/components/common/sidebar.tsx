@@ -46,16 +46,16 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
         open ? "w-60" : "w-20",
       )}
       style={{
-        background: "#0f172a",
+        background: "var(--sidebar)",
       }}
     >
       {/* Right border */}
-      <div className="absolute right-0 top-0 bottom-0 w-px bg-white/[0.06]" />
+      <div className="absolute right-0 top-0 bottom-0 w-px bg-sidebar-border" />
 
       {/* Toggle button */}
       <button
         onClick={onToggle}
-        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-white text-slate-400 shadow-sm transition-colors hover:bg-accent hover:text-slate-600"
+        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-secondary-foreground"
       >
         {open ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
       </button>
@@ -66,15 +66,15 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
         <img src="/images/blackstone-logo.svg" alt="BlackStone" className="h-10 w-10 flex-shrink-0" />
         {open && (
           <div className="overflow-hidden">
-            <p className="text-[14px] font-bold text-white tracking-tight">BlackStone</p>
-            <p className="text-[10px] font-medium tracking-widest text-white/25 uppercase">Delivery</p>
+            <p className="text-[14px] font-bold text-sidebar-primary-foreground tracking-tight">BlackStone</p>
+            <p className="text-[10px] font-medium tracking-widest text-sidebar-foreground/40 uppercase">Delivery</p>
           </div>
         )}
       </div>
 
       {/* Nav label */}
       {open && (
-        <p className="px-5 mb-2 text-[10px] font-semibold tracking-widest text-white/20 uppercase">
+        <p className="px-5 mb-2 text-[10px] font-semibold tracking-widest text-sidebar-foreground/30 uppercase">
           Menu
         </p>
       )}
@@ -93,8 +93,8 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                   "group relative flex items-center rounded-xl transition-all duration-200",
                   open ? "gap-3.5 px-3.5 py-3" : "justify-center p-3",
                   isActive
-                    ? "bg-white/[0.06]"
-                    : "hover:bg-white/[0.03]",
+                    ? "bg-sidebar-accent"
+                    : "hover:bg-sidebar-accent/50",
                 )}
               >
                 {/* Icon container */}
@@ -104,7 +104,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     open ? "h-10 w-10" : "h-11 w-11",
                     isActive
                       ? "shadow-lg"
-                      : "bg-white/[0.04] group-hover:bg-white/[0.06]",
+                      : "bg-sidebar-accent/50 group-hover:bg-sidebar-accent",
                   )}
                   style={
                     isActive
@@ -119,16 +119,12 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     className={cn(
                       "transition-colors duration-200",
                       open ? "h-5 w-5" : "h-[22px] w-[22px]",
+                      !isActive && "text-slate-400 group-hover:text-slate-300",
                     )}
                     style={{ color: isActive ? item.color : undefined }}
                     color={isActive ? item.color : undefined}
                     strokeWidth={1.6}
                   />
-                  {!isActive && (
-                    <style>{`
-                      /* fallback for non-active uncolored icons */
-                    `}</style>
-                  )}
                 </div>
 
                 {/* Label */}
@@ -137,7 +133,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     <span
                       className={cn(
                         "text-[13px] font-semibold transition-colors",
-                        isActive ? "text-white" : "text-white/40 group-hover:text-white/60",
+                        isActive ? "text-sidebar-accent-foreground" : "text-slate-400 group-hover:text-slate-300",
                       )}
                     >
                       {item.label}
@@ -170,8 +166,8 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                 "group flex items-center rounded-xl transition-all duration-200",
                 open ? "gap-3.5 px-3.5 py-2.5" : "justify-center p-3",
                 isActive
-                  ? "bg-white/[0.06] text-white"
-                  : "text-white/25 hover:bg-white/[0.03] hover:text-white/45",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground/40 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground/70",
               )}
             >
               <Settings
@@ -184,7 +180,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
         })()}
 
         {/* Separator */}
-        <div className={cn("my-3 h-px bg-white/[0.04]", !open && "mx-2")} />
+        <div className={cn("my-3 h-px bg-sidebar-border", !open && "mx-2")} />
 
         {/* User row */}
         <div
@@ -194,18 +190,18 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
           )}
         >
           <div className="relative flex-shrink-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-[11px] font-bold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sidebar-primary to-sidebar-primary/70 text-[11px] font-bold text-sidebar-primary-foreground">
               OG
             </div>
-            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0f172a] bg-emerald-400" />
+            <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-sidebar bg-emerald-400" />
           </div>
           {open && (
             <>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[12.5px] font-semibold text-white/65">Omar Gawdat</p>
-                <p className="truncate text-[10px] text-white/20">Project Director</p>
+                <p className="truncate text-[12.5px] font-semibold text-sidebar-foreground">Omar Gawdat</p>
+                <p className="truncate text-[10px] text-sidebar-foreground/30">Project Director</p>
               </div>
-              <button className="text-white/15 hover:text-white/40 transition-colors">
+              <button className="text-sidebar-foreground/20 hover:text-sidebar-foreground/60 transition-colors">
                 <LogOut className="h-4 w-4" />
               </button>
             </>

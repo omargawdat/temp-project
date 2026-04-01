@@ -35,9 +35,9 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
   return (
     <form action={handleSubmit} className="space-y-6" onChange={() => setIsDirty(true)}>
       {/* Company Info */}
-      <div className="rounded-xl border border-border/20 bg-card card-elevated p-6">
+      <div className="rounded-xl border border-border bg-card card-elevated p-6">
         <div className="flex items-center gap-2.5 mb-5">
-          <div className="rounded-lg bg-teal-500/12 p-2">
+          <div className="rounded-lg bg-primary/10 p-2">
             <Building2 className="h-4 w-4 text-primary" />
           </div>
           <h2 className="text-base font-bold text-foreground">Company Information</h2>
@@ -55,7 +55,7 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
       </div>
 
       {/* Bank Details */}
-      <div className="rounded-xl border border-border/20 bg-card card-elevated p-6">
+      <div className="rounded-xl border border-border bg-card card-elevated p-6">
         <div className="flex items-center gap-2.5 mb-5">
           <div className="rounded-lg bg-amber-500/12 p-2">
             <CreditCard className="h-4 w-4 text-amber-400" />
@@ -71,7 +71,7 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
       </div>
 
       {/* Invoice Footer */}
-      <div className="rounded-xl border border-border/20 bg-card card-elevated p-6">
+      <div className="rounded-xl border border-border bg-card card-elevated p-6">
         <div className="flex items-center gap-2.5 mb-5">
           <div className="rounded-lg bg-emerald-500/12 p-2">
             <FileText className="h-4 w-4 text-emerald-400" />
@@ -83,20 +83,20 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
           defaultValue={settings?.invoiceFooter ?? ""}
           placeholder="Thank you for your business..."
           rows={3}
-          className="border-border/25 bg-white/[0.02]"
+          className="border-border/25 bg-accent"
         />
       </div>
 
       {error && <p className="text-sm font-medium text-red-400">{error}</p>}
 
-      <div className="sticky bottom-0 -mx-6 -mb-6 border-t border-border/20 bg-background/95 px-6 py-4 backdrop-blur-sm">
+      <div className="sticky bottom-0 -mx-6 -mb-6 border-t border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
         <Button
           type="submit"
           disabled={isPending || !isDirty}
           className={`w-full border-0 px-6 py-2.5 font-semibold transition-all ${
             isDirty
-              ? "btn-gradient text-foreground shadow-lg shadow-teal-500/25"
-              : "bg-muted text-muted-foreground/40 shadow-none"
+              ? "btn-gradient text-primary-foreground shadow-lg shadow-primary/25"
+              : "bg-muted text-muted-foreground shadow-none"
           }`}
         >
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -128,7 +128,7 @@ function Field({
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
         type={type}
-        className="h-10 border-border/25 bg-white/[0.02]"
+        className="h-10 border-border/25 bg-accent"
       />
     </div>
   );

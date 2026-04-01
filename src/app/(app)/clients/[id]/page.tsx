@@ -166,12 +166,12 @@ export default async function ClientDetailPage({
               <ContactDetailRow value={client.phone} icon="phone" href={`tel:${client.phone}`} />
             )}
             <div className="flex items-center gap-2.5 text-sm">
-              <Building2 className="h-4 w-4 text-muted-foreground/50" />
+              <Building2 className="h-4 w-4 text-muted-foreground" />
               <span className="text-muted-foreground">Primary:</span>
               <span className="font-medium text-secondary-foreground">{client.primaryContact}</span>
             </div>
             <div className="flex items-center gap-2.5 text-sm">
-              <FileText className="h-4 w-4 text-muted-foreground/50" />
+              <FileText className="h-4 w-4 text-muted-foreground" />
               <span className="text-muted-foreground">Finance:</span>
               <span className="font-medium text-secondary-foreground">{client.financeContact}</span>
             </div>
@@ -206,9 +206,9 @@ export default async function ClientDetailPage({
               <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-orange-500/[0.05] blur-3xl" />
               <div className="flex items-center gap-2 mb-3">
                 <Briefcase className="h-3.5 w-3.5 text-orange-400/70" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Portfolio</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Portfolio</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
+              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm tabular-nums text-muted-foreground">{totalProjects} projects</span>
                 <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
@@ -222,15 +222,15 @@ export default async function ClientDetailPage({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <FileCheck className="h-3.5 w-3.5 text-amber-500" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Billed</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Billed</span>
                 </div>
                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-600">{billingPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
+              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500/50 to-amber-400" style={{ width: `${billingPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-muted-foreground/50"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
+              <p className="mt-1.5 text-sm text-muted-foreground"><span className="tabular-nums text-amber-400/50">{(totalContractValue - totalInvoiced).toLocaleString()}</span> unbilled</p>
             </div>
 
             {/* Collected */}
@@ -239,15 +239,15 @@ export default async function ClientDetailPage({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Wallet className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Collected</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Collected</span>
                 </div>
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-600">{collectionPercent}%</span>
               </div>
-              <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
+              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-emerald-500/50 to-emerald-400" style={{ width: `${collectionPercent}%` }} />
               </div>
-              <p className="mt-1.5 text-sm text-muted-foreground/50"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
+              <p className="mt-1.5 text-sm text-muted-foreground"><span className="tabular-nums text-emerald-400/50">{(totalInvoiced - totalPaid).toLocaleString()}</span> outstanding</p>
             </div>
 
             {/* Ring Chart */}
@@ -265,7 +265,7 @@ export default async function ClientDetailPage({
             <div className="px-5 py-3">
               <div className="flex items-center gap-2 mb-3">
                 <Target className="h-3.5 w-3.5 text-blue-400/70" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Delivery</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Delivery</span>
                 <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold ${activeProjects > 0 ? "bg-emerald-100 text-emerald-600" : "bg-muted text-muted-foreground"}`}>
                   {activeProjects > 0 ? "Active" : "Idle"}
                 </span>
@@ -305,7 +305,7 @@ export default async function ClientDetailPage({
             <div className="px-5 py-3">
               <div className="flex items-center gap-1.5 mb-2.5">
                 <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-red-500">Overdue</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-red-500">Overdue</span>
                 <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold tabular-nums text-red-600">{overdueMilestones.length}</span>
               </div>
               {overdueMilestones.length > 0 ? (
@@ -317,7 +317,7 @@ export default async function ClientDetailPage({
                       <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-red-50 px-3 py-2 transition-colors hover:bg-red-100">
                         <div className="min-w-0 mr-2">
                           <p className="text-sm font-medium text-secondary-foreground truncate">{m.name}</p>
-                          {proj && <p className="text-xs text-muted-foreground/50 truncate">{proj.projectName}</p>}
+                          {proj && <p className="text-xs text-muted-foreground truncate">{proj.projectName}</p>}
                         </div>
                         <span className="shrink-0 text-xs font-bold tabular-nums text-red-500">{daysOverdue}d</span>
                       </Link>
@@ -336,7 +336,7 @@ export default async function ClientDetailPage({
             <div className="px-5 py-3">
               <div className="flex items-center gap-1.5 mb-2.5">
                 <Clock className="h-3.5 w-3.5 text-orange-400/80" />
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-orange-400/70">Upcoming</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-orange-400/70">Upcoming</span>
                 <span className="rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-bold tabular-nums text-orange-400/80">{upcomingMilestones.length}</span>
               </div>
               {upcomingMilestones.length > 0 ? (
@@ -348,7 +348,7 @@ export default async function ClientDetailPage({
                       <Link key={m.id} href={`/projects/${proj?.projectId}`} className="flex items-center justify-between rounded-lg bg-accent px-3 py-2 transition-colors hover:bg-accent">
                         <div className="min-w-0 mr-2">
                           <p className="text-sm font-medium text-secondary-foreground truncate">{m.name}</p>
-                          {proj && <p className="text-xs text-muted-foreground/50 truncate">{proj.projectName}</p>}
+                          {proj && <p className="text-xs text-muted-foreground truncate">{proj.projectName}</p>}
                         </div>
                         <span className={`shrink-0 text-xs font-bold tabular-nums ${daysUntil <= 7 ? "text-amber-500" : "text-muted-foreground"}`}>
                           {daysUntil === 0 ? "Today" : `${daysUntil}d`}
@@ -358,7 +358,7 @@ export default async function ClientDetailPage({
                   })}
                 </div>
               ) : (
-                <div className="flex items-center justify-center rounded-lg bg-accent py-5 text-xs text-muted-foreground/50">
+                <div className="flex items-center justify-center rounded-lg bg-accent py-5 text-xs text-muted-foreground">
                   No upcoming deadlines
                 </div>
               )}
@@ -368,7 +368,7 @@ export default async function ClientDetailPage({
       )}
 
       {/* ── E. Projects Table ── */}
-      <div id="projects-section" className="overflow-hidden rounded-xl border border-border/20 bg-card card-elevated scroll-mt-6">
+      <div id="projects-section" className="overflow-hidden rounded-xl border border-border bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-orange-500/12 p-2">
@@ -418,7 +418,7 @@ export default async function ClientDetailPage({
                     className={`group transition-colors hover:bg-orange-500/[0.03] ${idx < client.projects.length - 1 ? "border-b border-border/10" : ""}`}
                   >
                     <td className="px-6 py-4">
-                      <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-[15px] font-semibold text-foreground hover:text-orange-400 transition-colors">
+                      <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-base font-semibold text-foreground hover:text-orange-400 transition-colors">
                         {project.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-ring/20 shrink-0" />
@@ -431,19 +431,19 @@ export default async function ClientDetailPage({
                       </Link>
                     </td>
                     <td className="px-4 py-4">
-                      <Link href={`/project-managers/${project.projectManager.id}`} className="flex items-center gap-2 transition-colors hover:text-foreground/70">
+                      <Link href={`/project-managers/${project.projectManager.id}`} className="flex items-center gap-2 transition-colors hover:text-secondary-foreground">
                         {project.projectManager.photoUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-ring/20" />
                         ) : (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-foreground/60 ring-1 ring-ring/20">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground ring-1 ring-ring/20">
                             {pmInitials}
                           </div>
                         )}
                         <span className="text-sm text-muted-foreground/70">{project.projectManager.name}</span>
                       </Link>
                     </td>
-                    <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-foreground/80 whitespace-nowrap">
+                    <td className="px-4 py-4 text-right font-mono text-sm font-semibold tabular-nums text-secondary-foreground whitespace-nowrap">
                       {projValue.toLocaleString("en-US", {
                         style: "currency",
                         currency: project.currency,
@@ -451,8 +451,8 @@ export default async function ClientDetailPage({
                       })}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className="font-mono text-sm tabular-nums text-foreground/70">{formatCurrency(projBilled, project.currency)}</span>
-                      <span className="ml-1 text-xs text-muted-foreground/40">({billedPct}%)</span>
+                      <span className="font-mono text-sm tabular-nums text-secondary-foreground">{formatCurrency(projBilled, project.currency)}</span>
+                      <span className="ml-1 text-xs text-muted-foreground">({billedPct}%)</span>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
@@ -467,7 +467,7 @@ export default async function ClientDetailPage({
                         <div className="h-2 w-16 overflow-hidden rounded-full bg-muted">
                           <div className={`h-full rounded-full transition-all ${timePct >= 90 ? "bg-red-500/70" : timePct >= 70 ? "bg-amber-500/70" : "bg-blue-500/50"}`} style={{ width: `${timePct}%` }} />
                         </div>
-                        <span className="text-xs tabular-nums text-muted-foreground/50">{timePct}%</span>
+                        <span className="text-xs tabular-nums text-muted-foreground">{timePct}%</span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
@@ -479,14 +479,14 @@ export default async function ClientDetailPage({
             </tbody>
           </table>
         ) : (
-          <div className="py-14 text-center text-sm text-muted-foreground/40">
+          <div className="py-14 text-center text-sm text-muted-foreground">
             No projects yet.
           </div>
         )}
       </div>
 
       {/* ── F. Invoices Table ── */}
-      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/20 bg-card card-elevated scroll-mt-6">
+      <div id="invoices-section" className="overflow-hidden rounded-xl border border-border bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border/15 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="rounded-lg bg-muted p-2">
@@ -523,12 +523,12 @@ export default async function ClientDetailPage({
                       }`}
                     >
                       <td className="px-6 py-4">
-                        <span className="font-mono text-sm font-semibold text-foreground/80">{inv.invoiceNumber}</span>
+                        <span className="font-mono text-sm font-semibold text-secondary-foreground">{inv.invoiceNumber}</span>
                       </td>
                       <td className="px-4 py-4 text-sm text-muted-foreground/70">
                         {inv.projectName}
                       </td>
-                      <td className="px-4 py-4 text-sm text-foreground/80" title={inv.milestoneNames.join(", ")}>
+                      <td className="px-4 py-4 text-sm text-secondary-foreground" title={inv.milestoneNames.join(", ")}>
                         {inv.milestoneNames[0]}
                         {inv.milestoneNames.length > 1 && (
                           <span className="ml-1 text-muted-foreground/60">+{inv.milestoneNames.length - 1}</span>
@@ -546,7 +546,7 @@ export default async function ClientDetailPage({
                             {formatDate(inv.paymentDueDate, "full")}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground/20">&mdash;</span>
+                          <span className="text-muted-foreground/60">&mdash;</span>
                         )}
                       </td>
                     </tr>
@@ -555,7 +555,7 @@ export default async function ClientDetailPage({
               </tbody>
               {/* Summary row */}
               <tfoot>
-                <tr className="border-t border-border/20 bg-accent">
+                <tr className="border-t border-border bg-accent">
                   <td className="px-6 py-3.5 text-sm font-bold text-foreground" colSpan={3}>Total</td>
                   <td className="px-4 py-3.5 text-right font-mono text-sm font-bold tabular-nums text-foreground">
                     {invoiceTotalPayable.toLocaleString()}
@@ -568,10 +568,10 @@ export default async function ClientDetailPage({
         ) : (
           <div className="flex flex-col items-center justify-center py-14 text-center">
             <div className="mb-3 rounded-full bg-accent p-3">
-              <Receipt className="h-5 w-5 text-muted-foreground/25" />
+              <Receipt className="h-5 w-5 text-muted-foreground/60" />
             </div>
             <p className="text-sm text-muted-foreground/60">No invoices yet</p>
-            <p className="mt-1 text-xs text-muted-foreground/40">Invoices will appear here once milestones are invoiced</p>
+            <p className="mt-1 text-xs text-muted-foreground">Invoices will appear here once milestones are invoiced</p>
           </div>
         )}
       </div>
@@ -586,14 +586,14 @@ export default async function ClientDetailPage({
         <div className="grid gap-4 lg:grid-cols-2">
           {client.billingAddress && (
             <div className="rounded-xl border border-border/15 bg-card card-elevated p-5 lg:col-span-2">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/50">Billing Address</p>
-              <p className="whitespace-pre-line text-sm text-foreground/70">{client.billingAddress}</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Billing Address</p>
+              <p className="whitespace-pre-line text-sm text-secondary-foreground">{client.billingAddress}</p>
             </div>
           )}
           {client.notes && (
             <div className="rounded-xl border border-border/15 bg-card card-elevated p-5">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/50">Notes</p>
-              <p className="whitespace-pre-line text-sm text-foreground/70">{client.notes}</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Notes</p>
+              <p className="whitespace-pre-line text-sm text-secondary-foreground">{client.notes}</p>
             </div>
           )}
         </div>

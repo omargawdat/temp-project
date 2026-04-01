@@ -21,7 +21,7 @@ export function ToolbarToggleFilter({
 }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="mr-1 text-xs font-medium text-muted-foreground/50">{label}</span>
+      <span className="mr-1 text-xs font-medium text-muted-foreground">{label}</span>
       {options.map((opt) => {
         const active = value === opt.key;
         return (
@@ -36,7 +36,7 @@ export function ToolbarToggleFilter({
                   ? "border-red-500/40 bg-red-500/10 text-red-300"
                   : "border-primary/40 bg-accent text-primary"
                 : cn(
-                    "border-border/40 bg-card card-elevated hover:border-border/70 hover:bg-card hover:text-foreground/80",
+                    "border-border/40 bg-card card-elevated hover:border-border/70 hover:bg-card hover:text-secondary-foreground",
                     opt.color
                       ? "text-red-400/70"
                       : "text-muted-foreground",

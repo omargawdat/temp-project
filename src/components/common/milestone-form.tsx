@@ -68,24 +68,24 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
 
       <div className="flex items-end gap-3">
         <div className="min-w-0 flex-[2] space-y-1">
-          <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/40">Name</label>
+          <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Name</label>
           <Input
             name="name"
             placeholder="e.g. Phase 1"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-9 border-border/25 bg-white/[0.02] text-sm placeholder:text-muted-foreground/20"
+            className="h-9 border-border/25 bg-accent text-sm placeholder:text-muted-foreground/70"
           />
         </div>
         <div className="min-w-0 flex-1 space-y-1">
-          <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/40">Value</label>
+          <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Value</label>
           <Input
             placeholder="30,000"
             required
             value={displayValue}
             onChange={handleValueChange}
-            className={`h-9 border-border/25 bg-white/[0.02] text-sm font-semibold tabular-nums placeholder:text-muted-foreground/20 placeholder:font-normal ${error ? "border-red-500/40 ring-1 ring-red-500/20" : ""}`}
+            className={`h-9 border-border/25 bg-accent text-sm font-semibold tabular-nums placeholder:text-muted-foreground/70 placeholder:font-normal ${error ? "border-red-500/40 ring-1 ring-red-500/20" : ""}`}
           />
         </div>
         <div className="min-w-0 flex-1">
@@ -99,8 +99,8 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
           onClick={() => setDn(!dn)}
           className="flex h-8 shrink-0 items-center gap-2 rounded-md px-2.5"
         >
-          <span className={`text-[11px] font-medium transition-colors ${dn ? "text-primary" : "text-muted-foreground/40"}`}>DN</span>
-          <div className={`relative h-4 w-7 rounded-full transition-colors ${dn ? "bg-teal-500" : "bg-border"}`}>
+          <span className={`text-xs font-medium transition-colors ${dn ? "text-primary" : "text-muted-foreground"}`}>DN</span>
+          <div className={`relative h-4 w-7 rounded-full transition-colors ${dn ? "bg-primary" : "bg-border"}`}>
             <div className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-all ${dn ? "left-3.5" : "left-0.5"}`} />
           </div>
         </button>
@@ -108,10 +108,10 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
           type="submit"
           disabled={isPending}
           size="sm"
-          className={`h-8 gap-1.5 shrink-0 rounded-md px-4 text-[11px] font-semibold transition-all duration-300 disabled:opacity-50 ${
+          className={`h-8 gap-1.5 shrink-0 rounded-md px-4 text-xs font-semibold transition-all duration-300 disabled:opacity-50 ${
             showSuccess
               ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
-              : "bg-accent text-primary ring-1 ring-teal-500/20 hover:bg-teal-500/20 hover:text-primary"
+              : "bg-accent text-primary ring-1 ring-primary/20 hover:bg-primary/20 hover:text-primary"
           }`}
         >
           {isPending ? (

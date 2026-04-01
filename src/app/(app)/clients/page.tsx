@@ -176,17 +176,17 @@ export default async function ClientsPage({
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-[17px] font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
+                        <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
                           {client.name}
                         </h3>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={client.country.flag} alt={client.country.name} className="h-3.5 w-5 shrink-0 rounded-[2px] object-cover" />
                       </div>
                       <div className="mt-0.5 flex items-center gap-2">
-                        <span className="font-mono text-[12px] tracking-wide text-muted-foreground">
+                        <span className="font-mono text-xs tracking-wide text-muted-foreground">
                           {client.code}
                         </span>
-                        <span className={cn("text-[11px] font-semibold", sector.text)}>
+                        <span className={cn("text-xs font-semibold", sector.text)}>
                           {formatSector(client.sector)}
                         </span>
                       </div>
@@ -196,21 +196,21 @@ export default async function ClientsPage({
                   {/* Row 3: Stats */}
                   <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-accent">
                     <div className="bg-accent px-3.5 py-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                         Projects
                       </p>
-                      <p className="mt-1 text-[15px] font-bold tabular-nums text-foreground">
+                      <p className="mt-1 text-sm font-bold tabular-nums text-foreground">
                         {client.projects.length}
-                        <span className="ml-1 text-[11px] font-medium text-emerald-500">
+                        <span className="ml-1 text-sm font-medium text-emerald-500">
                           {activeProjects} active
                         </span>
                       </p>
                     </div>
                     <div className="bg-accent px-3.5 py-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                         Contract Value
                       </p>
-                      <p className="mt-1 text-[15px] font-bold tabular-nums text-foreground">
+                      <p className="mt-1 text-sm font-bold tabular-nums text-foreground">
                         {formatMultiCurrency(contractByCurrency)}
                       </p>
                     </div>
@@ -219,10 +219,10 @@ export default async function ClientsPage({
                   {/* Row 4: Financial progress bar */}
                   <div className="mt-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-medium text-muted-foreground/50">
+                      <span className="text-[10px] font-medium text-muted-foreground">
                         Billed / Collected
                       </span>
-                      <span className="text-[10px] tabular-nums text-muted-foreground/50">
+                      <span className="text-[10px] tabular-nums text-muted-foreground">
                         {billedPct}% / {collectedPct}%
                       </span>
                     </div>

@@ -142,7 +142,7 @@ export function DashboardBillingRing({
           <span className="text-[10px] text-muted-foreground">collected</span>
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-4 text-[11px]">
+      <div className="mt-3 flex items-center gap-4 text-xs">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-emerald-500" />
           <span className="text-muted-foreground">Collected</span>
@@ -215,7 +215,7 @@ export function MilestoneStatusDonut({
       </div>
       <div className="flex flex-col gap-1">
         {data.filter((d) => d.value > 0).map((entry) => (
-          <div key={entry.name} className="flex items-center gap-2 text-[11px]">
+          <div key={entry.name} className="flex items-center gap-2 text-xs">
             <span
               className="h-1.5 w-1.5 rounded-full"
               style={{ backgroundColor: MILESTONE_COLORS[entry.name] ?? "#475569" }}

@@ -45,7 +45,7 @@ export function MilestoneListItem({
       <div className="min-w-0 mr-2">
         <p className="text-sm font-medium text-secondary-foreground truncate">{name}</p>
         {subtitle && (
-          <p className="text-xs text-muted-foreground/50 truncate">{subtitle}</p>
+          <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
         )}
       </div>
       <span

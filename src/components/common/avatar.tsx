@@ -2,8 +2,8 @@ import { getInitials } from "@/lib/format";
 
 const sizeMap = {
   xs: { container: "h-4 w-4", text: "text-[7px]", ring: "ring-1" },
-  sm: { container: "h-6 w-6", text: "text-[9px]", ring: "ring-1" },
-  md: { container: "h-7 w-7", text: "text-[9px]", ring: "ring-1" },
+  sm: { container: "h-6 w-6", text: "text-[10px]", ring: "ring-1" },
+  md: { container: "h-7 w-7", text: "text-[10px]", ring: "ring-1" },
   lg: { container: "h-10 w-10", text: "text-sm", ring: "ring-1" },
   xl: { container: "h-14 w-14", text: "text-base", ring: "ring-2" },
 };
@@ -39,7 +39,7 @@ export function Avatar({
 
   return (
     <div
-      className={`flex ${s.container} shrink-0 items-center justify-center ${radius} bg-muted ${s.text} font-bold text-foreground/60 ${s.ring} ring-ring/20 ${className ?? ""}`}
+      className={`flex ${s.container} shrink-0 items-center justify-center ${radius} bg-muted ${s.text} font-bold text-muted-foreground ${s.ring} ring-ring/20 ${className ?? ""}`}
     >
       {getInitials(name)}
     </div>

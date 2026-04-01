@@ -58,7 +58,7 @@ function CountrySelect({
         {countries.map((c) => (
           <label
             key={c.id}
-            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-teal-500/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
+            className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-primary/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
           >
             <input
               type="radio"
@@ -82,14 +82,14 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
   const { pending } = useFormStatus();
   const enabled = isDirty || !isEdit;
   return (
-    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border/20 bg-card/95 px-4 py-4 backdrop-blur-sm">
+    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border bg-card/95 px-4 py-4 backdrop-blur-sm">
       <Button
         type="submit"
         disabled={pending || !enabled}
         className={`w-full border-0 py-3 font-semibold transition-all ${
           enabled
-            ? "btn-gradient text-foreground shadow-lg shadow-teal-500/25"
-            : "bg-muted text-muted-foreground/40 shadow-none"
+            ? "btn-gradient text-primary-foreground shadow-lg shadow-primary/25"
+            : "bg-muted text-muted-foreground shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -111,7 +111,7 @@ function SectorSelect({ defaultValue }: { defaultValue?: string }) {
       {SECTORS.map((s) => (
         <label
           key={s.value}
-          className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-teal-500/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
+          className="flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border/50 px-2 py-2 text-xs transition-all hover:bg-accent/50 has-[:checked]:border-primary/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
         >
           <input
             type="radio"
@@ -188,7 +188,7 @@ export function ClientForm({
           <label className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
             <ImagePlus className="h-4 w-4 text-muted-foreground" />
             Client Logo
-            <span className="text-muted-foreground/40 text-xs font-normal">(optional)</span>
+            <span className="text-muted-foreground text-xs font-normal">(optional)</span>
           </label>
           <div className="flex items-center gap-4">
             {imagePreview ? (
@@ -215,7 +215,7 @@ export function ClientForm({
               <button
                 type="button"
                 onClick={() => imageInputRef.current?.click()}
-                className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border/50 bg-white/[0.02] text-muted-foreground/30 transition-colors hover:border-teal-500/30 hover:bg-teal-500/[0.03] hover:text-primary/50"
+                className="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-border/50 bg-accent text-muted-foreground/60 transition-colors hover:border-primary/30 hover:bg-primary/[0.03] hover:text-primary/50"
               >
                 <ImagePlus className="h-5 w-5" />
               </button>
@@ -234,7 +234,7 @@ export function ClientForm({
                 }
               }}
             />
-            <div className="text-[11px] text-muted-foreground/40 leading-relaxed">
+            <div className="text-xs text-muted-foreground leading-relaxed">
               <p>Upload a logo for this client.</p>
               <p>JPG, PNG or WebP. Max 5MB.</p>
             </div>
@@ -247,7 +247,7 @@ export function ClientForm({
             name="name"
             placeholder="e.g. Saudi Telecom"
             defaultValue={client?.name ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -257,7 +257,7 @@ export function ClientForm({
             name="code"
             placeholder="e.g. STC-001"
             defaultValue={client?.code ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -273,7 +273,7 @@ export function ClientForm({
             name="primaryContact"
             placeholder="e.g. Khalid Al-Otaibi"
             defaultValue={client?.primaryContact ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -283,7 +283,7 @@ export function ClientForm({
             name="financeContact"
             placeholder="e.g. Noura Al-Harbi"
             defaultValue={client?.financeContact ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -294,7 +294,7 @@ export function ClientForm({
             type="email"
             placeholder="e.g. contact@company.com"
             defaultValue={client?.email ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -305,7 +305,7 @@ export function ClientForm({
             type="tel"
             placeholder="e.g. +966 50 123 4567"
             defaultValue={client?.phone ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -316,7 +316,7 @@ export function ClientForm({
             placeholder="e.g. King Fahd Road, Riyadh 12283"
             defaultValue={client?.billingAddress ?? ""}
             required
-            className="flex w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/25 placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-none"
+            className="flex w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-none"
           />
         </FieldWrapper>
         <FieldWrapper icon={Monitor} label="Portal Name (Optional)" htmlFor="portalName">
@@ -325,7 +325,7 @@ export function ClientForm({
             name="portalName"
             placeholder="e.g. Ariba, Etimad"
             defaultValue={client?.portalName ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
           />
         </FieldWrapper>
         <FieldWrapper icon={Link2} label="Portal Link (Optional)" htmlFor="portalLink">
@@ -335,7 +335,7 @@ export function ClientForm({
             type="url"
             placeholder="e.g. https://portal.example.com"
             defaultValue={client?.portalLink ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
           />
         </FieldWrapper>
         <FieldWrapper icon={FileText} label="Notes (Optional)" htmlFor="notes">
@@ -344,7 +344,7 @@ export function ClientForm({
             name="notes"
             placeholder="e.g. Preferred payment method, special requirements..."
             defaultValue={client?.notes ?? ""}
-            className="flex w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/25 placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-none"
+            className="flex w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-none"
           />
         </FieldWrapper>
       </div>

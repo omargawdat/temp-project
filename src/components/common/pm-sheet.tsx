@@ -48,7 +48,7 @@ export function PMSheet({ pm, variant = "create" }: PMSheetProps) {
         </Button>
       ) : (
         <Button
-          className="btn-gradient border-0 px-5 font-semibold text-white shadow-lg shadow-teal-500/20"
+          className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20"
           onClick={() => setOpen(true)}
         >
           <Plus className="mr-1 h-4 w-4" />

@@ -39,7 +39,7 @@ export function PMToolbar({ resultCount }: { resultCount: number }) {
 
         <div className="flex-1" />
 
-        <span className="text-xs tabular-nums text-muted-foreground/40">
+        <span className="text-xs tabular-nums text-muted-foreground">
           {resultCount} result{resultCount !== 1 ? "s" : ""}
         </span>
 

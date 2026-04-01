@@ -66,7 +66,7 @@ export function Pagination({
           className={cn(
             "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
             page <= 1
-              ? "cursor-not-allowed text-muted-foreground/50"
+              ? "cursor-not-allowed text-muted-foreground"
               : "text-muted-foreground hover:bg-muted hover:text-secondary-foreground",
           )}
         >
@@ -77,7 +77,7 @@ export function Pagination({
           p === "ellipsis" ? (
             <span
               key={`e-${i}`}
-              className="flex h-8 w-8 items-center justify-center text-xs text-muted-foreground/50"
+              className="flex h-8 w-8 items-center justify-center text-xs text-muted-foreground"
             >
               ...
             </span>
@@ -89,7 +89,7 @@ export function Pagination({
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold tabular-nums transition-colors",
                 p === page
-                  ? "border border-teal-500/20 bg-teal-500/15 text-primary"
+                  ? "border border-primary/20 bg-primary/15 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-secondary-foreground",
               )}
             >
@@ -105,7 +105,7 @@ export function Pagination({
           className={cn(
             "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
             page >= totalPages
-              ? "cursor-not-allowed text-muted-foreground/50"
+              ? "cursor-not-allowed text-muted-foreground"
               : "text-muted-foreground hover:bg-muted hover:text-secondary-foreground",
           )}
         >
@@ -113,7 +113,7 @@ export function Pagination({
         </button>
       </div>
 
-      <p className="text-xs tabular-nums text-muted-foreground/50">
+      <p className="text-xs tabular-nums text-muted-foreground">
         Showing {from}–{to} of {totalCount}
       </p>
     </div>

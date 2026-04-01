@@ -258,13 +258,13 @@ export default async function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {/* Portfolio Value */}
         <div className="relative overflow-hidden rounded-xl border border-transparent bg-card card-elevated px-4 py-3.5">
-          <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-accent0/[0.06] blur-2xl" />
+          <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-primary/[0.06] blur-2xl" />
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
                 <Briefcase className="h-3.5 w-3.5 text-primary" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Portfolio</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Portfolio</span>
             </div>
           </div>
           <div className="tracking-tight text-foreground"><MultiCurrencyDisplay totals={portfolioByCurrency} size="md" /></div>
@@ -279,9 +279,9 @@ export default async function DashboardPage() {
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50">
                 <FileCheck className="h-3.5 w-3.5 text-amber-400" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Billed</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Billed</span>
             </div>
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold tabular-nums text-amber-600">{billedPct}%</span>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold tabular-nums text-amber-600">{billedPct}%</span>
           </div>
           <div className="tracking-tight text-foreground"><MultiCurrencyDisplay totals={billedByCurrency} size="md" /></div>
           <p className="mt-1 text-xs text-muted-foreground">of portfolio</p>
@@ -295,9 +295,9 @@ export default async function DashboardPage() {
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10">
                 <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Collected</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Collected</span>
             </div>
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold tabular-nums text-emerald-600">{collectedPct}%</span>
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold tabular-nums text-emerald-600">{collectedPct}%</span>
           </div>
           <div className="tracking-tight text-foreground"><MultiCurrencyDisplay totals={collectedByCurrency} size="md" /></div>
           <p className="mt-1 text-xs text-muted-foreground">of portfolio</p>
@@ -311,7 +311,7 @@ export default async function DashboardPage() {
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10">
                 <TrendingUp className="h-3.5 w-3.5 text-blue-400" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Active</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Active</span>
             </div>
           </div>
           <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{activeProjects}</p>
@@ -326,7 +326,7 @@ export default async function DashboardPage() {
               <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${totalOverdueItems > 0 ? "bg-red-100" : "bg-red-50"}`}>
                 <AlertTriangle className={`h-3.5 w-3.5 ${totalOverdueItems > 0 ? "text-red-400" : "text-red-400"}`} />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Overdue</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Overdue</span>
             </div>
             {totalOverdueItems > 0 && (
               <span className="relative flex h-2 w-2">
@@ -345,7 +345,7 @@ export default async function DashboardPage() {
         {/* Cash Flow */}
         <div className="rounded-xl border border-transparent bg-card card-elevated p-5">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Cash Flow Overview</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cash Flow Overview</span>
           </div>
           <CashFlowFunnelChart data={cashFlowData} />
           <div className="mt-3 flex items-start justify-center gap-6">
@@ -369,7 +369,7 @@ export default async function DashboardPage() {
         {/* Billing & Progress */}
         <div className="rounded-xl border border-transparent bg-card card-elevated p-5">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Billing & Progress</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Billing & Progress</span>
           </div>
           <div className="flex flex-col gap-5">
             {/* Top: Billing Ring + Milestone Donut side by side */}
@@ -384,7 +384,7 @@ export default async function DashboardPage() {
             </div>
             {/* Bottom: Invoice Pipeline */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground mb-2">Invoice Pipeline</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Invoice Pipeline</p>
               <InvoicePipelineBar data={invoiceStatusCounts} />
             </div>
           </div>
@@ -394,44 +394,44 @@ export default async function DashboardPage() {
       {/* ── Row 3: Alerts & Timeline ── */}
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Action Items */}
-        <div className={`rounded-xl border p-5 ${totalOverdueItems > 0 ? "border-red-200 bg-red-50/50" : "border-transparent bg-card card-elevated"}`}>
+        <div className="rounded-xl border border-transparent bg-card card-elevated p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Action Items</span>
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Action Items</span>
               {(overdueMilestones.length + overdueInvoices.length + pendingDeliveryNotes.length) > 0 && (
-                <span className="rounded-full bg-red-100 px-1.5 py-px text-[11px] font-bold tabular-nums text-red-600">
+                <span className="rounded-full bg-amber-100 px-1.5 py-px text-xs font-bold tabular-nums text-amber-700">
                   {overdueMilestones.length + overdueInvoices.length + pendingDeliveryNotes.length}
                 </span>
               )}
             </div>
           </div>
-          <div className="max-h-[280px] overflow-y-auto space-y-1.5 pr-1">
+          <div className="max-h-[280px] overflow-y-auto space-y-1 pr-1">
             {overdueMilestones.map((m) => (
               <Link
                 key={`ms-${m.id}`}
                 href={`/projects/${m.projectId}`}
-                className="flex items-center gap-2.5 rounded-lg bg-red-50 px-3 py-2 transition-colors hover:bg-red-100"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent"
               >
-                <Clock className="h-3 w-3 shrink-0 text-red-500" />
+                <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-secondary-foreground truncate">{m.name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{m.name}</p>
                   <p className="text-xs text-muted-foreground">{m.projectName}</p>
                 </div>
-                <span className="shrink-0 text-[11px] font-bold tabular-nums text-red-500">{m.daysOverdue}d overdue</span>
+                <span className="shrink-0 text-xs font-semibold tabular-nums text-red-500">{m.daysOverdue}d overdue</span>
               </Link>
             ))}
             {overdueInvoices.map((inv) => (
               <div
                 key={`inv-${inv.id}`}
-                className="flex items-center gap-2.5 rounded-lg bg-red-50 px-3 py-2"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5"
               >
-                <Receipt className="h-3 w-3 shrink-0 text-red-500" />
+                <Receipt className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-secondary-foreground truncate">{inv.invoiceNumber}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{inv.invoiceNumber}</p>
                   <p className="text-xs text-muted-foreground">{inv.milestones[0]?.project.name ?? "—"}</p>
                 </div>
-                <span className="shrink-0 text-[11px] font-bold tabular-nums text-red-500">
+                <span className="shrink-0 text-xs font-semibold tabular-nums text-red-500">
                   {inv.paymentDueDate ? `${daysDifference(inv.paymentDueDate)}d past due` : "—"}
                 </span>
               </div>
@@ -440,14 +440,14 @@ export default async function DashboardPage() {
               <Link
                 key={`dn-${i}`}
                 href={`/projects/${dn.projectId}`}
-                className="flex items-center gap-2.5 rounded-lg bg-purple-50 px-3 py-2 transition-colors hover:bg-purple-100"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent"
               >
                 <FileSignature className="h-3 w-3 shrink-0 text-purple-500" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-secondary-foreground truncate">{dn.name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{dn.name}</p>
                   <p className="text-xs text-muted-foreground">{dn.projectName}</p>
                 </div>
-                <span className="shrink-0 text-[11px] font-medium text-purple-500">Pending {dn.status.toLowerCase()}</span>
+                <span className="shrink-0 text-xs font-medium text-purple-500">Pending {dn.status.toLowerCase()}</span>
               </Link>
             ))}
             {overdueMilestones.length === 0 && overdueInvoices.length === 0 && pendingDeliveryNotes.length === 0 && (
@@ -465,9 +465,9 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <CalendarClock className="h-3.5 w-3.5 text-amber-500" />
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Upcoming Deadlines</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Upcoming Deadlines</span>
               {upcomingMilestones.length > 0 && (
-                <span className="rounded-full bg-amber-100 px-1.5 py-px text-[11px] font-bold tabular-nums text-amber-600">
+                <span className="rounded-full bg-amber-100 px-1.5 py-px text-xs font-bold tabular-nums text-amber-600">
                   {upcomingMilestones.length}
                 </span>
               )}
@@ -487,25 +487,25 @@ export default async function DashboardPage() {
                 <div className={`flex h-9 w-14 shrink-0 flex-col items-center justify-center rounded-lg text-center ${
                   m.daysUntil <= 3 ? "bg-red-50" : m.daysUntil <= 7 ? "bg-amber-50" : "bg-accent"
                 }`}>
-                  <span className={`text-[11px] font-bold tabular-nums ${
-                    m.daysUntil <= 3 ? "text-red-400" : m.daysUntil <= 7 ? "text-amber-400" : "text-foreground/40"
+                  <span className={`text-xs font-bold tabular-nums ${
+                    m.daysUntil <= 3 ? "text-red-400" : m.daysUntil <= 7 ? "text-amber-400" : "text-muted-foreground"
                   }`}>
                     {m.daysUntil === 0 ? "Today" : `${m.daysUntil}d`}
                   </span>
-                  <span className="text-[9px] text-muted-foreground">
+                  <span className="text-[10px] text-muted-foreground">
                     {new Date(m.plannedDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
                 </div>
                 {/* Milestone info */}
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-secondary-foreground truncate group-hover:text-foreground/90">{m.name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{m.name}</p>
                   <p className="text-xs text-muted-foreground">{m.projectName}</p>
                 </div>
               </Link>
             ))}
             {upcomingMilestones.length === 0 && (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <CalendarClock className="h-6 w-6 text-foreground/10 mb-2" />
+                <CalendarClock className="h-6 w-6 text-muted-foreground/60 mb-2" />
                 <p className="text-xs text-muted-foreground">No upcoming deadlines in the next 30 days</p>
               </div>
             )}
@@ -518,12 +518,12 @@ export default async function DashboardPage() {
         {/* Revenue by Client */}
         <div className="rounded-xl border border-transparent bg-card card-elevated p-5">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Revenue by Client</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Revenue by Client</span>
           </div>
           {revenueByClient.length > 0 ? (
             <RevenueByClientChart data={revenueByClient} />
           ) : (
-            <div className="flex items-center justify-center py-10 text-xs text-muted-foreground/50">No client data yet</div>
+            <div className="flex items-center justify-center py-10 text-xs text-muted-foreground">No client data yet</div>
           )}
         </div>
 
@@ -532,7 +532,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users2 className="h-3.5 w-3.5 text-purple-500" />
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Team Workload</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Team Workload</span>
             </div>
             <Link href="/project-managers" className="text-xs font-semibold text-primary transition-colors hover:text-primary/70">
               View all →
@@ -552,22 +552,22 @@ export default async function DashboardPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={pm.photoUrl} alt={pm.name} className="h-7 w-7 rounded-full object-cover ring-1 ring-ring/20" />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-foreground/50 ring-1 ring-ring/20">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground ring-1 ring-ring/20">
                       {initials}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-secondary-foreground">{pm.name}</span>
-                      <span className="text-[11px] tabular-nums text-muted-foreground">{pm.activeProjects} active</span>
+                      <span className="text-sm font-medium text-foreground">{pm.name}</span>
+                      <span className="text-xs tabular-nums text-muted-foreground">{pm.activeProjects} active</span>
                     </div>
                     <div className="mt-1 flex items-center gap-2">
                       <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
                         <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="text-[11px] tabular-nums text-muted-foreground">{pct}%</span>
+                      <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
                       {pm.overdue > 0 && (
-                        <span className="rounded-full bg-red-100 px-1.5 py-px text-[11px] font-bold tabular-nums text-red-600">{pm.overdue}</span>
+                        <span className="rounded-full bg-red-100 px-1.5 py-px text-xs font-bold tabular-nums text-red-600">{pm.overdue}</span>
                       )}
                     </div>
                   </div>
@@ -575,7 +575,7 @@ export default async function DashboardPage() {
               );
             })}
             {pmWorkload.length === 0 && (
-              <div className="flex items-center justify-center py-8 text-xs text-muted-foreground/50">No team data yet</div>
+              <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">No team data yet</div>
             )}
           </div>
         </div>
@@ -588,7 +588,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between border-b border-border/50 px-5 py-3">
             <div className="flex items-center gap-2">
               <FolderKanban className="h-3.5 w-3.5 text-primary/70" />
-              <span className="text-xs font-semibold text-secondary-foreground">Recent Projects</span>
+              <span className="text-sm font-semibold text-foreground">Recent Projects</span>
             </div>
             <Link href="/projects" className="text-xs font-semibold text-primary transition-colors hover:text-primary/70">
               View all →
@@ -597,17 +597,17 @@ export default async function DashboardPage() {
           <table className="w-full text-sm" aria-label="Recent projects">
             <thead>
               <tr className="border-b border-border/50">
-                <th scope="col" className="px-5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Project</th>
-                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Client</th>
-                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Progress</th>
-                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th scope="col" className="px-5 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Project</th>
+                <th scope="col" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</th>
+                <th scope="col" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Progress</th>
+                <th scope="col" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
               </tr>
             </thead>
             <tbody>
               {recentProjectsWithProgress.map((p, idx) => (
                 <tr key={p.id} className={`transition-colors hover:bg-accent ${idx < recentProjectsWithProgress.length - 1 ? "border-b border-border/50" : ""}`}>
                   <td className="px-5 py-2.5">
-                    <Link href={`/projects/${p.id}`} className="text-xs font-medium text-secondary-foreground hover:text-primary transition-colors">
+                    <Link href={`/projects/${p.id}`} className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                       {p.name}
                     </Link>
                   </td>
@@ -617,7 +617,7 @@ export default async function DashboardPage() {
                       <div className="h-1 w-16 overflow-hidden rounded-full bg-muted">
                         <div className="h-full rounded-full bg-primary" style={{ width: `${p.pct}%` }} />
                       </div>
-                      <span className="text-[11px] tabular-nums text-muted-foreground">{p.done}/{p.total}</span>
+                      <span className="text-xs tabular-nums text-muted-foreground">{p.done}/{p.total}</span>
                     </div>
                   </td>
                   <td className="px-4 py-2.5"><StatusBadge status={p.status} /></td>
@@ -626,7 +626,7 @@ export default async function DashboardPage() {
             </tbody>
           </table>
           {recentProjectsWithProgress.length === 0 && (
-            <p className="py-8 text-center text-xs text-muted-foreground/50">No projects yet</p>
+            <p className="py-8 text-center text-xs text-muted-foreground">No projects yet</p>
           )}
         </div>
 
@@ -635,7 +635,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between border-b border-border/50 px-5 py-3">
             <div className="flex items-center gap-2">
               <Receipt className="h-3.5 w-3.5 text-pink-500" />
-              <span className="text-xs font-semibold text-secondary-foreground">Recent Invoices</span>
+              <span className="text-sm font-semibold text-foreground">Recent Invoices</span>
             </div>
             <Link href="/invoices" className="text-xs font-semibold text-primary transition-colors hover:text-primary/70">
               View all →
@@ -644,11 +644,11 @@ export default async function DashboardPage() {
           <table className="w-full text-sm" aria-label="Recent invoices">
             <thead>
               <tr className="border-b border-border/50">
-                <th scope="col" className="px-5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Invoice</th>
-                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Project</th>
-                <th scope="col" className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Amount</th>
-                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
-                <th scope="col" className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Due</th>
+                <th scope="col" className="px-5 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invoice</th>
+                <th scope="col" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Project</th>
+                <th scope="col" className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Amount</th>
+                <th scope="col" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th scope="col" className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Due</th>
               </tr>
             </thead>
             <tbody>
@@ -657,20 +657,20 @@ export default async function DashboardPage() {
                 return (
                   <tr key={inv.id} className={`transition-colors hover:bg-accent ${idx < recentInvoices.length - 1 ? "border-b border-border/50" : ""}`}>
                     <td className="px-5 py-2.5">
-                      <span className="font-mono text-[11px] font-medium text-foreground/60">{inv.invoiceNumber}</span>
+                      <span className="font-mono text-xs font-medium text-muted-foreground">{inv.invoiceNumber}</span>
                     </td>
                     <td className="px-4 py-2.5 text-xs text-muted-foreground">{inv.milestones[0]?.project.name ?? "—"}</td>
-                    <td className="px-4 py-2.5 text-right font-mono text-[11px] font-medium tabular-nums text-foreground/60">
+                    <td className="px-4 py-2.5 text-right font-mono text-xs font-medium tabular-nums text-muted-foreground">
                       {Number(inv.totalPayable).toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </td>
                     <td className="px-4 py-2.5"><StatusBadge status={inv.status} /></td>
                     <td className="px-4 py-2.5">
                       {inv.paymentDueDate ? (
-                        <span className={`text-[11px] ${isOverdue ? "font-medium text-red-400" : "text-muted-foreground"}`}>
+                        <span className={`text-xs ${isOverdue ? "font-medium text-red-400" : "text-muted-foreground"}`}>
                           {new Date(inv.paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                         </span>
                       ) : (
-                        <span className="text-muted-foreground/50">—</span>
+                        <span className="text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>
@@ -679,7 +679,7 @@ export default async function DashboardPage() {
             </tbody>
           </table>
           {recentInvoices.length === 0 && (
-            <p className="py-8 text-center text-xs text-muted-foreground/50">No invoices yet</p>
+            <p className="py-8 text-center text-xs text-muted-foreground">No invoices yet</p>
           )}
         </div>
       </div>

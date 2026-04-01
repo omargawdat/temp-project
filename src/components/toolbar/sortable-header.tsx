@@ -56,10 +56,10 @@ export function SortableHeader({
       type="button"
       onClick={handleClick}
       className={cn(
-        "group flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase transition-colors cursor-pointer select-none",
+        "group flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer select-none",
         isActive
-          ? "text-foreground/80"
-          : "text-muted-foreground/50 hover:text-muted-foreground/80",
+          ? "text-secondary-foreground"
+          : "text-muted-foreground hover:text-muted-foreground",
         align === "right" && "ml-auto flex-row-reverse",
         align === "center" && "mx-auto",
       )}
@@ -67,7 +67,7 @@ export function SortableHeader({
       {label}
       <span className={cn(
         "flex items-center justify-center rounded transition-all",
-        isActive ? "text-primary" : "text-muted-foreground/25 group-hover:text-muted-foreground/50",
+        isActive ? "text-primary" : "text-muted-foreground/60 group-hover:text-muted-foreground",
       )}>
         {isActive ? (
           currentDir === "asc"

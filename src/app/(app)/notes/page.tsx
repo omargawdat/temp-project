@@ -115,15 +115,15 @@ export default async function NotesPage({
       <div className="border-border/50 bg-card overflow-hidden rounded-xl border shadow-lg shadow-black/10">
         <div className="border-border/50 bg-accent/50 grid grid-cols-[130px_1fr_200px_110px_130px_80px] gap-4 border-b px-6 py-3.5">
           <SortableHeader label="Type" field="noteType" basePath="/notes" defaultSort="createdAt" />
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
             Content
           </span>
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
             Entity
           </span>
           <SortableHeader label="Created By" field="createdBy" basePath="/notes" defaultSort="createdAt" />
           <SortableHeader label="Date" field="createdAt" basePath="/notes" defaultSort="createdAt" />
-          <span className="text-muted-foreground text-center text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-center text-xs font-bold tracking-wider uppercase">
             Actions
           </span>
         </div>
@@ -147,7 +147,7 @@ export default async function NotesPage({
                 {/* Note Type Badge */}
                 <div>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${typeStyle.bg} ${typeStyle.text}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${typeStyle.bg} ${typeStyle.text}`}
                   >
                     <span className={`h-1.5 w-1.5 rounded-full ${typeStyle.dot}`} />
                     {formatStatus(note.noteType)}
@@ -156,7 +156,7 @@ export default async function NotesPage({
 
                 {/* Content */}
                 <p
-                  className="text-foreground/85 truncate text-sm"
+                  className="text-foreground truncate text-sm"
                   title={note.content}
                 >
                   {truncated}
@@ -164,7 +164,7 @@ export default async function NotesPage({
 
                 {/* Entity */}
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">
+                  <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {note.entityType === "PROJECT_MANAGER" ? "PM" : formatStatus(note.entityType)}
                   </span>
                   <span className="truncate text-sm text-primary">

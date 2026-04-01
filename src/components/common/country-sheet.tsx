@@ -36,14 +36,14 @@ function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }
   const { pending } = useFormStatus();
   const enabled = isDirty || !isEdit;
   return (
-    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border/20 bg-card/95 px-4 py-4 backdrop-blur-sm">
+    <div className="sticky bottom-0 -mx-4 -mb-5 border-t border-border bg-card/95 px-4 py-4 backdrop-blur-sm">
       <Button
         type="submit"
         disabled={pending || !enabled}
         className={`w-full border-0 py-3 font-semibold transition-all ${
           enabled
-            ? "btn-gradient text-foreground shadow-lg shadow-teal-500/25"
-            : "bg-muted text-muted-foreground/40 shadow-none"
+            ? "btn-gradient text-primary-foreground shadow-lg shadow-primary/25"
+            : "bg-muted text-muted-foreground shadow-none"
         }`}
       >
         {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -105,14 +105,14 @@ function FlagUpload({ currentFlagUrl }: { currentFlagUrl?: string | null }) {
           </div>
         ) : (
           <div className="flex h-12 w-16 items-center justify-center rounded border-2 border-dashed border-border/40 bg-accent/30">
-            <ImagePlus className="h-5 w-5 text-muted-foreground/25" />
+            <ImagePlus className="h-5 w-5 text-muted-foreground/60" />
           </div>
         )}
         <div>
           <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
             {preview ? "Change flag" : "Upload flag image"}
           </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground/40">
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
             PNG, JPG, SVG or WebP
           </p>
         </div>
@@ -175,7 +175,7 @@ function CountryForm({
             name="name"
             placeholder="e.g. Saudi Arabia"
             defaultValue={country?.name ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -185,7 +185,7 @@ function CountryForm({
             name="code"
             placeholder="e.g. SA"
             defaultValue={country?.code ?? ""}
-            className="h-10 placeholder:text-muted-foreground/25 placeholder:not-italic"
+            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
         </FieldWrapper>
@@ -225,7 +225,7 @@ export function CountrySheet({ country, variant = "create" }: CountrySheetProps)
         </Button>
       ) : (
         <Button
-          className="btn-gradient border-0 px-5 font-semibold text-foreground shadow-lg shadow-teal-500/20"
+          className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20"
           onClick={() => setOpen(true)}
         >
           <Plus className="mr-1 h-4 w-4" />

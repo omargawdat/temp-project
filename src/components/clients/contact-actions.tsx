@@ -15,7 +15,7 @@ function ActionRow({
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 rounded-md px-1.5 -mx-1.5 py-1 text-[12px] text-muted-foreground">
+    <div className="flex items-center gap-2 rounded-md px-1.5 -mx-1.5 py-1 text-xs text-muted-foreground">
       <Icon className="h-3.5 w-3.5 shrink-0" />
       <span className="truncate">{value}</span>
       <div className="ml-auto flex items-center gap-1 shrink-0">
@@ -63,10 +63,10 @@ export function ContactActions({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <div className="flex items-center gap-2 px-1.5 -mx-1.5 py-1 text-[12px] text-muted-foreground">
+      <div className="flex items-center gap-2 px-1.5 -mx-1.5 py-1 text-xs text-muted-foreground">
         <User className="h-3.5 w-3.5 shrink-0" />
         <span>{contact}</span>
-        <span className="text-[10px] text-muted-foreground/50">Primary Contact</span>
+        <span className="text-[10px] text-muted-foreground">Primary Contact</span>
       </div>
       {email && <ActionRow value={email} icon={Mail} href={`mailto:${email}`} />}
       {phone && <ActionRow value={phone} icon={Phone} href={`tel:${phone}`} />}

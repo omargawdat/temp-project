@@ -119,7 +119,7 @@ export function InvoiceSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-all btn-gradient border-0 text-foreground shadow-lg shadow-teal-500/25"
+        className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-all btn-gradient border-0 text-primary-foreground shadow-lg shadow-primary/25"
       >
         <Receipt className="h-4 w-4" strokeWidth={2} />
         Create Invoice
@@ -138,14 +138,14 @@ export function InvoiceSheet({
                   <CheckCircle2 className="h-10 w-10 text-emerald-400" />
                 </div>
                 <p className="text-xl font-bold text-foreground">Invoice Created</p>
-                <p className="mt-2 text-2xl font-bold tabular-nums text-foreground/80">{formatCur(total)}</p>
+                <p className="mt-2 text-2xl font-bold tabular-nums text-secondary-foreground">{formatCur(total)}</p>
               </div>
               <div className="flex gap-3">
                 <a
                   href={`/api/invoices/${createdInvoiceId}/pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl border-0 px-5 py-3.5 text-sm font-bold text-foreground shadow-lg shadow-teal-500/25"
+                  className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl border-0 px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25"
                 >
                   <Download className="h-4 w-4" />
                   Download PDF
@@ -175,7 +175,7 @@ export function InvoiceSheet({
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-foreground">Create Invoice</h2>
-                  <p className="text-xs text-muted-foreground/50">Select milestones and configure VAT</p>
+                  <p className="text-xs text-muted-foreground">Select milestones and configure VAT</p>
                 </div>
               </div>
             </div>
@@ -186,9 +186,9 @@ export function InvoiceSheet({
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-muted-foreground/40" />
+                    <Target className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-semibold text-foreground">Milestones</span>
-                    <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground/50">
+                    <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground">
                       {selectedIds.size}/{eligibleMilestones.length}
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export function InvoiceSheet({
                     <button
                       type="button"
                       onClick={toggleAll}
-                      className="text-[11px] font-semibold text-primary hover:text-primary transition-colors"
+                      className="text-xs font-semibold text-primary hover:text-primary transition-colors"
                     >
                       {selectedIds.size === eligibleMilestones.length ? "Deselect all" : "Select all"}
                     </button>
@@ -215,7 +215,7 @@ export function InvoiceSheet({
                           isInvoiced
                             ? "cursor-not-allowed opacity-60"
                             : isSelected
-                              ? "cursor-pointer bg-teal-500/8 ring-1 ring-teal-500/25"
+                              ? "cursor-pointer bg-primary/5 ring-1 ring-primary/25"
                               : "cursor-pointer hover:bg-accent",
                         )}
                       >
@@ -225,12 +225,12 @@ export function InvoiceSheet({
                             isInvoiced
                               ? "border-border bg-accent"
                               : isSelected
-                                ? "border-teal-500 bg-teal-500"
+                                ? "border-primary bg-primary"
                                 : "border-border group-hover:border-border",
                           )}
                         >
                           {isSelected && (
-                            <svg className="h-3 w-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <svg className="h-3 w-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                           )}
@@ -252,13 +252,13 @@ export function InvoiceSheet({
                           </span>
                         </div>
                         {isInvoiced ? (
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                             Invoiced
                           </span>
                         ) : (
                           <span className={cn(
                             "font-mono text-sm font-semibold tabular-nums transition-colors",
-                            isSelected ? "text-primary" : "text-foreground/60",
+                            isSelected ? "text-primary" : "text-muted-foreground",
                           )}>
                             {formatCur(Number(m.value))}
                           </span>
@@ -270,13 +270,13 @@ export function InvoiceSheet({
               </div>
 
               {/* Financial breakdown */}
-              <div className="rounded-xl border border-border/15 bg-white/[0.02] overflow-hidden">
+              <div className="rounded-xl border border-border/15 bg-accent overflow-hidden">
                 {/* Subtotal */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
                   <span className="text-sm text-muted-foreground/60">Subtotal</span>
                   <span className={cn(
                     "text-lg font-bold tabular-nums transition-colors",
-                    hasSelection ? "text-foreground" : "text-muted-foreground/30",
+                    hasSelection ? "text-foreground" : "text-muted-foreground/60",
                   )}>
                     {formatCur(subtotal)}
                   </span>
@@ -285,7 +285,7 @@ export function InvoiceSheet({
                 {/* VAT row */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/10">
                   <div className="flex items-center gap-2">
-                    <Percent className="h-3.5 w-3.5 text-muted-foreground/40" />
+                    <Percent className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground/60">VAT</span>
                   </div>
                   <div className="flex items-center gap-2.5">
@@ -297,13 +297,13 @@ export function InvoiceSheet({
                         step="0.1"
                         value={vatPercent}
                         onChange={(e) => setVatPercent(e.target.value)}
-                        className="h-8 pr-6 text-right text-xs tabular-nums border-border/20 bg-accent"
+                        className="h-8 pr-6 text-right text-xs tabular-nums border-border bg-accent"
                       />
-                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/40">%</span>
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">%</span>
                     </div>
                     <span className={cn(
                       "text-sm font-semibold tabular-nums min-w-[60px] text-right transition-colors",
-                      hasSelection ? "text-foreground/70" : "text-muted-foreground/30",
+                      hasSelection ? "text-secondary-foreground" : "text-muted-foreground/60",
                     )}>
                       {formatCur(vatAmount)}
                     </span>
@@ -311,11 +311,11 @@ export function InvoiceSheet({
                 </div>
 
                 {/* Total */}
-                <div className="flex items-center justify-between px-5 py-5 bg-teal-500/[0.04]">
+                <div className="flex items-center justify-between px-5 py-5 bg-primary/[0.04]">
                   <span className="text-sm font-bold text-primary">Total Payable</span>
                   <span className={cn(
                     "text-xl font-bold tabular-nums transition-colors",
-                    hasSelection ? "text-foreground" : "text-muted-foreground/30",
+                    hasSelection ? "text-foreground" : "text-muted-foreground/60",
                   )}>
                     {formatCur(total)}
                   </span>
@@ -339,8 +339,8 @@ export function InvoiceSheet({
                 className={cn(
                   "w-full h-12 rounded-xl text-sm font-bold transition-all",
                   hasSelection
-                    ? "bg-gradient-to-r from-teal-600 to-teal-500 text-foreground shadow-lg shadow-teal-600/25 hover:from-teal-500 hover:to-teal-400"
-                    : "bg-muted text-muted-foreground/30 shadow-none",
+                    ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/25 hover:from-primary/90 hover:to-primary/80"
+                    : "bg-muted text-muted-foreground/60 shadow-none",
                 )}
               >
                 {isPending ? (

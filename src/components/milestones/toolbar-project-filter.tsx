@@ -53,7 +53,7 @@ export function ToolbarProjectFilter({
         )}
         onClick={() => setOpen(!open)}
       >
-        <FolderKanban className="h-3.5 w-3.5 text-muted-foreground/50" />
+        <FolderKanban className="h-3.5 w-3.5 text-muted-foreground" />
         Project
         {value.length > 0 && (
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-primary">
@@ -68,13 +68,13 @@ export function ToolbarProjectFilter({
           {/* Search */}
           <div className="border-b border-border/30 p-2">
             <div className="flex items-center gap-2 rounded-lg bg-background/60 px-2.5 py-1.5">
-              <Search className="h-3 w-3 text-muted-foreground/40" />
+              <Search className="h-3 w-3 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Filter projects..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/30 outline-none"
+                className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 outline-none"
               />
             </div>
           </div>
@@ -93,17 +93,17 @@ export function ToolbarProjectFilter({
                   <div className={cn(
                     "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
                     selected
-                      ? "border-primary bg-accent0"
+                      ? "border-primary bg-primary"
                       : "border-border/50 bg-transparent",
                   )}>
                     {selected && <Check className="h-3 w-3 text-white" />}
                   </div>
-                  <span className="truncate text-sm text-foreground/80">{project.name}</span>
+                  <span className="truncate text-sm text-secondary-foreground">{project.name}</span>
                 </button>
               );
             })}
             {filtered.length === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground/40">No projects found</p>
+              <p className="py-4 text-center text-xs text-muted-foreground">No projects found</p>
             )}
           </div>
 
@@ -112,7 +112,7 @@ export function ToolbarProjectFilter({
               <button
                 type="button"
                 onClick={() => onChange([])}
-                className="w-full rounded-lg px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="w-full rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Clear all
               </button>

@@ -82,7 +82,7 @@ export default async function AuditLogPage({
           <SortableHeader label="Entity" field="entityType" basePath="/audit-log" defaultSort="createdAt" />
           <SortableHeader label="Name" field="entityName" basePath="/audit-log" defaultSort="createdAt" />
           <SortableHeader label="By" field="performedBy" basePath="/audit-log" defaultSort="createdAt" />
-          <span className="text-muted-foreground text-[11px] font-bold tracking-wider uppercase">
+          <span className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
             Details
           </span>
         </div>
@@ -101,7 +101,7 @@ export default async function AuditLogPage({
                     day: "numeric",
                     year: "numeric",
                   })}{" "}
-                  <span className="text-muted-foreground/50">
+                  <span className="text-muted-foreground">
                     {new Date(log.createdAt).toLocaleTimeString("en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -112,7 +112,7 @@ export default async function AuditLogPage({
 
                 <div>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${actionStyle.bg} ${actionStyle.text}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${actionStyle.bg} ${actionStyle.text}`}
                   >
                     <span className={`h-1.5 w-1.5 rounded-full ${actionStyle.dot}`} />
                     {formatStatus(log.action)}
@@ -139,7 +139,7 @@ export default async function AuditLogPage({
 
         {logs.length === 0 && filteredCount === 0 && (
           <div className="flex flex-col items-center gap-4 py-20">
-            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent0/10"}`}>
+            <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-primary/10"}`}>
               {filtersActive ? (
                 <SearchX className="h-8 w-8 text-amber-400" />
               ) : (

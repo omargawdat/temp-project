@@ -13,7 +13,7 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const RING_COLORS = ["#fbbf24", "#2dd4bf", "#243752"];
+const RING_COLORS = ["#fbbf24", "#10b981", "#e2e8f0"];
 
 export function BillingRingChart({
   billed,
@@ -41,8 +41,8 @@ export function BillingRingChart({
   const colors = data.map((d) => {
     if (d.name === "Collected") return "#34d399";
     if (d.name === "Outstanding") return "#fbbf24";
-    if (d.name === "Unbilled") return "#1e2f4a";
-    return "#1e2f4a";
+    if (d.name === "Unbilled") return "#e2e8f0";
+    return "#e2e8f0";
   });
 
   const collectedPct = total > 0 ? Math.round((collected / total) * 100) : 0;
@@ -70,7 +70,7 @@ export function BillingRingChart({
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-lg font-bold text-foreground">{collectedPct}%</span>
-          <span className="text-[10px] text-muted-foreground/50">collected</span>
+          <span className="text-[10px] text-muted-foreground">collected</span>
         </div>
       </div>
       <div className="mt-2 flex items-center gap-3 text-xs">
@@ -83,7 +83,7 @@ export function BillingRingChart({
           <span className="text-muted-foreground/60">Outstanding</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#1e2f4a]" />
+          <span className="h-2 w-2 rounded-full bg-border" />
           <span className="text-muted-foreground/60">Unbilled</span>
         </span>
       </div>
@@ -102,35 +102,35 @@ export function ProjectBreakdownChart({ data }: { data: ProjectBarData[] }) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data} layout="vertical" barSize={14} barGap={2}>
-        <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis
           type="number"
           tickFormatter={(v) => `$${v.toLocaleString()}`}
-          tick={{ fontSize: 11, fill: "rgba(136,153,175,0.5)" }}
+          tick={{ fontSize: 11, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           type="category"
           dataKey="name"
-          tick={{ fontSize: 12, fill: "rgba(234,240,248,0.7)" }}
+          tick={{ fontSize: 12, fill: "#64748b" }}
           axisLine={false}
           tickLine={false}
           width={120}
         />
         <Tooltip
           contentStyle={{
-            background: "#141e30",
-            border: "1px solid rgba(36,55,82,0.6)",
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
           }}
           formatter={(value) => [`$${Number(value).toLocaleString()}`]}
-          labelStyle={{ color: "rgba(234,240,248,0.8)", fontWeight: 600 }}
+          labelStyle={{ color: "#0f172a", fontWeight: 600 }}
         />
         <Bar dataKey="collected" stackId="a" fill="#34d399" radius={[0, 0, 0, 0]} name="Collected" />
         <Bar dataKey="outstanding" stackId="a" fill="#fbbf24" radius={[0, 0, 0, 0]} name="Outstanding" />
-        <Bar dataKey="unbilled" stackId="a" fill="#1e2f4a" radius={[0, 4, 4, 0]} name="Unbilled" />
+        <Bar dataKey="unbilled" stackId="a" fill="#e2e8f0" radius={[0, 4, 4, 0]} name="Unbilled" />
       </BarChart>
     </ResponsiveContainer>
   );

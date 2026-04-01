@@ -101,12 +101,12 @@ function NoteItem({
 
   if (editing) {
     return (
-      <div className="rounded-lg border border-teal-500/20 bg-teal-500/[0.03] p-3">
+      <div className="rounded-lg border border-primary/20 bg-primary/[0.03] p-3">
         <textarea
           ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full resize-none rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-teal-500/40 min-h-[60px]"
+          className="w-full resize-none rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-primary/40 min-h-[60px]"
           autoFocus
         />
         <div className="mt-2 flex items-center justify-end gap-2">
@@ -124,7 +124,7 @@ function NoteItem({
   }
 
   return (
-    <div className="group flex gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.02]">
+    <div className="group flex gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent">
       <div className="flex-1 min-w-0">
         {note.noteType && note.noteType !== "GENERAL" && (() => {
           const style = noteTypeStyle(note.noteType);
@@ -138,9 +138,9 @@ function NoteItem({
             </div>
           );
         })()}
-        <p className="text-base text-foreground/85 whitespace-pre-wrap">{note.content}</p>
-        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground/40">
-          <span className="font-medium text-muted-foreground/55">{note.createdBy}</span>
+        <p className="text-base text-foreground whitespace-pre-wrap">{note.content}</p>
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span className="font-medium text-muted-foreground">{note.createdBy}</span>
           <span>&middot;</span>
           <span>{timeAgo(note.createdAt)}</span>
           {new Date(note.updatedAt).getTime() - new Date(note.createdAt).getTime() > 1000 && (
@@ -157,7 +157,7 @@ function NoteItem({
           onClick={() => setEditing(true)}
           disabled={isPending}
           aria-label="Edit note"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground/70"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-secondary-foreground"
         >
           <Pencil className="h-3 w-3" />
         </button>
@@ -166,7 +166,7 @@ function NoteItem({
           onClick={handleDelete}
           disabled={isPending}
           aria-label="Delete note"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-red-50 hover:text-red-400"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-400"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
         </button>
@@ -208,7 +208,7 @@ export function NotesSection({
 
   return (
     <div id="notes" className="scroll-mt-8 overflow-hidden rounded-xl border border-border/25 bg-card/50">
-      <div className="flex items-center justify-between border-b border-border/20 px-6 py-4">
+      <div className="flex items-center justify-between border-b border-border px-6 py-4">
         <div className="flex items-center gap-2.5">
           <div className="rounded-lg bg-muted p-2">
             <StickyNote className="h-4 w-4 text-muted-foreground/60" />
@@ -245,7 +245,7 @@ export function NotesSection({
                     }
                   }}
                   placeholder="Write a note..."
-                  className="w-full resize-none bg-transparent px-4 pt-4 pb-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/30 outline-none min-h-[110px]"
+                  className="w-full resize-none bg-transparent px-4 pt-4 pb-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/70 outline-none min-h-[110px]"
                   autoFocus
                 />
 
@@ -262,10 +262,10 @@ export function NotesSection({
                           type="button"
                           onClick={() => setNoteType(t.value)}
                           className={cn(
-                            "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150",
+                            "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150",
                             isActive
                               ? `${t.color}`
-                              : "text-muted-foreground/50 hover:text-muted-foreground/80 hover:bg-accent",
+                              : "text-muted-foreground hover:text-muted-foreground hover:bg-accent",
                           )}
                         >
                           <Icon className="h-3 w-3" strokeWidth={2} />
@@ -281,7 +281,7 @@ export function NotesSection({
                       type="button"
                       onClick={() => { setAdding(false); setContent(""); setNoteType("GENERAL"); }}
                       disabled={isPending}
-                      className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground/50 transition-colors hover:text-foreground/70"
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-secondary-foreground"
                     >
                       Cancel
                     </button>
@@ -309,7 +309,7 @@ export function NotesSection({
 
         {notes.length === 0 && !adding && (
           <div className="py-10 text-center">
-            <p className="text-sm text-muted-foreground/40">No notes yet</p>
+            <p className="text-sm text-muted-foreground">No notes yet</p>
           </div>
         )}
       </div>

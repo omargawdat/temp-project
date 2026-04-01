@@ -33,19 +33,19 @@ export default async function CountriesPage() {
             </colgroup>
             <thead>
               <tr className="border-b border-border/15">
-                <th className="px-6 py-3.5 text-left text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                <th className="px-6 py-3.5 text-left text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Flag
                 </th>
-                <th className="px-4 py-3.5 text-left text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                <th className="px-4 py-3.5 text-left text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Name
                 </th>
-                <th className="px-4 py-3.5 text-left text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                <th className="px-4 py-3.5 text-left text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Code
                 </th>
-                <th className="px-4 py-3.5 text-center text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                <th className="px-4 py-3.5 text-center text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Clients
                 </th>
-                <th className="px-4 py-3.5 text-right text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
+                <th className="px-4 py-3.5 text-right text-xs font-semibold tracking-wider uppercase text-muted-foreground">
                   Actions
                 </th>
               </tr>
@@ -89,7 +89,7 @@ export default async function CountriesPage() {
           </table>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/20 bg-card card-elevated py-20">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card card-elevated py-20">
           <div className="rounded-2xl bg-accent p-4">
             <Globe className="h-8 w-8 text-primary" />
           </div>

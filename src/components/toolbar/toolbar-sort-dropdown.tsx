@@ -44,7 +44,7 @@ export function ToolbarSortDropdown({
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1.5 w-[200px] rounded-xl border border-border/50 bg-card shadow-2xl shadow-black/40">
           <div className="p-1.5">
-            <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">
+            <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Sort by
             </p>
             {options.map((option) => (
@@ -55,7 +55,7 @@ export function ToolbarSortDropdown({
                 className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent/50"
               >
                 <span className={cn(
-                  "text-foreground/70",
+                  "text-secondary-foreground",
                   sort === option.value && "text-primary font-medium",
                 )}>
                   {option.label}
@@ -66,7 +66,7 @@ export function ToolbarSortDropdown({
           </div>
 
           <div className="border-t border-border/30 p-2">
-            <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">
+            <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Direction
             </p>
             <div className="flex gap-1">
@@ -77,7 +77,7 @@ export function ToolbarSortDropdown({
                   "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-colors",
                   dir === "asc"
                     ? "bg-accent text-primary"
-                    : "text-muted-foreground/50 hover:text-muted-foreground",
+                    : "text-muted-foreground hover:text-muted-foreground",
                 )}
               >
                 <ArrowUp className="h-3 w-3" />
@@ -90,7 +90,7 @@ export function ToolbarSortDropdown({
                   "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-colors",
                   dir === "desc"
                     ? "bg-accent text-primary"
-                    : "text-muted-foreground/50 hover:text-muted-foreground",
+                    : "text-muted-foreground hover:text-muted-foreground",
                 )}
               >
                 <ArrowDown className="h-3 w-3" />

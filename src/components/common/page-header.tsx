@@ -69,7 +69,7 @@ export function PageHeader({
           {children}
           {action && (
             <Link href={action.href}>
-              <Button className="btn-gradient border-0 px-5 font-semibold text-white shadow-lg shadow-teal-500/20">
+              <Button className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20">
                 {action.label}
               </Button>
             </Link>

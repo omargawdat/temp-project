@@ -50,7 +50,7 @@ export function PMCard({ pm, colorIndex }: PMCardProps) {
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900">
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-7xl font-extralight tracking-widest text-muted-foreground/50">{initials}</span>
+            <span className="text-7xl font-extralight tracking-widest text-muted-foreground">{initials}</span>
           </div>
           {/* Subtle geometric decoration */}
           <div className="absolute top-8 right-8 h-32 w-32 rounded-full border border-border" />
@@ -77,7 +77,7 @@ export function PMCard({ pm, colorIndex }: PMCardProps) {
         {pm.projects.length > 0 && (
           <div className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 backdrop-blur-md">
             <FolderOpen className="h-3 w-3 text-secondary-foreground" />
-            <span className="text-[11px] font-medium text-foreground">{pm.projects.length}</span>
+            <span className="text-xs font-medium text-foreground">{pm.projects.length}</span>
           </div>
         )}
       </div>
@@ -102,7 +102,7 @@ export function PMCard({ pm, colorIndex }: PMCardProps) {
               ? `$${formatCompactNumber(totalValue)} managed`
               : "No projects yet"}
           </span>
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-secondary-foreground" />
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-secondary-foreground" />
         </div>
       </div>
     </Link>

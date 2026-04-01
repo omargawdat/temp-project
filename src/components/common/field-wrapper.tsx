@@ -20,7 +20,7 @@ export function FieldWrapper({
     <div className="space-y-1.5">
       <Label
         htmlFor={htmlFor}
-        className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase"
+        className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase"
       >
         <Icon className="h-3 w-3" />
         {label}

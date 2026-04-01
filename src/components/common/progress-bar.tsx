@@ -6,7 +6,7 @@ const heightMap = {
 };
 
 const barColorMap: Record<string, string> = {
-  teal:    "bg-teal-500/70",
+  teal:    "bg-primary/70",
   amber:   "bg-amber-500/70",
   emerald: "bg-emerald-500/70",
   blue:    "bg-blue-500/70",
@@ -16,7 +16,7 @@ const barColorMap: Record<string, string> = {
 };
 
 const stackedColorMap: Record<string, string> = {
-  teal:    "bg-teal-500/80",
+  teal:    "bg-primary/80",
   amber:   "bg-amber-500/80",
   emerald: "bg-emerald-500/80",
   blue:    "bg-blue-500/80",

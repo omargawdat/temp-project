@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
 const colorMap: Record<string, { icon: string; glow: string; iconBg: string; badge?: string }> = {
-  teal:    { icon: "text-primary",    glow: "bg-teal-500/[0.06]",    iconBg: "bg-accent" },
+  teal:    { icon: "text-primary",    glow: "bg-primary/[0.06]",    iconBg: "bg-accent" },
   amber:   { icon: "text-amber-400",   glow: "bg-amber-500/[0.06]",   iconBg: "bg-amber-50",   badge: "bg-amber-100 text-amber-600" },
   emerald: { icon: "text-emerald-400", glow: "bg-emerald-500/[0.06]", iconBg: "bg-emerald-50", badge: "bg-emerald-100 text-emerald-600" },
   blue:    { icon: "text-blue-400",    glow: "bg-blue-500/[0.06]",    iconBg: "bg-blue-500/10" },
@@ -41,7 +41,7 @@ export function StatCard({
           <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${c.iconBg}`}>
             <Icon className={`h-3.5 w-3.5 ${c.icon}`} />
           </div>
-          <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             {label}
           </span>
         </div>

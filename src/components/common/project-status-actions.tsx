@@ -60,9 +60,9 @@ const ACTIONS: Record<string, StatusAction[]> = {
       target: ProjectStatus.ACTIVE,
       bg: "bg-accent",
       text: "text-primary",
-      border: "border-teal-500/25",
-      hoverBg: "hover:bg-teal-500/20",
-      shadow: "hover:shadow-teal-500/10",
+      border: "border-primary/25",
+      hoverBg: "hover:bg-primary/20",
+      shadow: "hover:shadow-primary/10",
     },
   ],
 };
@@ -99,7 +99,7 @@ export function ProjectStatusActions({
           key={action.target}
           disabled={isPending}
           onClick={() => handleAction(action.target)}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-[13px] font-semibold transition-all duration-200 shadow-sm disabled:opacity-50 ${action.bg} ${action.text} ${action.border} ${action.hoverBg} ${action.shadow} hover:shadow-md`}
+          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all duration-200 shadow-sm disabled:opacity-50 ${action.bg} ${action.text} ${action.border} ${action.hoverBg} ${action.shadow} hover:shadow-md`}
         >
           <action.icon className="h-4 w-4" strokeWidth={2} />
           {action.label}

@@ -27,7 +27,7 @@ export function DeleteCountryButton({ countryId }: { countryId: string }) {
     <Button
       variant="ghost"
       size="sm"
-      className="h-8 w-8 p-0 text-muted-foreground/50 hover:text-red-400 hover:bg-red-50"
+      className="h-8 w-8 p-0 text-muted-foreground hover:text-red-400 hover:bg-red-50"
       onClick={handleDelete}
       disabled={isPending}
     >
