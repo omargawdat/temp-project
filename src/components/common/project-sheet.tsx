@@ -72,8 +72,8 @@ export function ProjectSheet({
       >
         {!isEdit && (
           <SheetHeader>
-            <SheetTitle>New Project</SheetTitle>
-            <SheetDescription>Register a new project from a signed contract</SheetDescription>
+            <SheetTitle className="sr-only">New Project</SheetTitle>
+            <SheetDescription className="sr-only">Register a new project from a signed contract</SheetDescription>
           </SheetHeader>
         )}
         <div className={`px-4 pb-6 ${isEdit ? "pt-6" : ""}`}>

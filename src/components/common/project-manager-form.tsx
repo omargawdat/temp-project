@@ -79,7 +79,7 @@ function PhotoUpload({ currentPhotoUrl }: { currentPhotoUrl?: string | null }) {
       />
       <label
         htmlFor="photo-upload"
-        className="group flex cursor-pointer flex-col items-center gap-3 rounded-lg border border-dashed border-border/50 bg-accent/20 px-6 py-5 transition-colors hover:border-border hover:bg-accent/40"
+        className="group flex cursor-pointer flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-accent/20 px-6 py-5 transition-colors hover:border-border hover:bg-accent/40"
       >
         {preview ? (
           <div className="relative">
@@ -92,7 +92,7 @@ function PhotoUpload({ currentPhotoUrl }: { currentPhotoUrl?: string | null }) {
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); handleRemove(); }}
-              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-card border border-border/50 text-muted-foreground transition-colors hover:bg-destructive hover:text-foreground hover:border-destructive"
+              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-card border border-border text-muted-foreground transition-colors hover:bg-destructive hover:text-foreground hover:border-destructive"
             >
               <X className="h-3 w-3" />
             </button>

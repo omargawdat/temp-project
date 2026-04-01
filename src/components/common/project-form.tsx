@@ -182,62 +182,56 @@ export function ProjectForm({
         />
         <div className="space-y-4">
           {/* Project Image */}
-          <div>
-            <label className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
-              <ImagePlus className="h-4 w-4 text-muted-foreground" />
-              Project Image
-              <span className="text-muted-foreground text-xs font-normal">(optional)</span>
-            </label>
-            <div className="flex items-center gap-4">
+          <FieldWrapper icon={ImagePlus} label="Image" htmlFor="image">
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className="flex w-full items-center gap-3 rounded-lg border border-border bg-accent px-3 py-2.5 text-left transition-colors hover:bg-muted"
+            >
               {imagePreview ? (
-                <div className="relative">
+                <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imagePreview}
-                    alt="Project"
-                    className="h-20 w-20 rounded-xl object-cover ring-1 ring-ring/20"
-                  />
+                  <img src={imagePreview} alt="Project" className="h-10 w-10 rounded-lg object-cover ring-1 ring-ring/20" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">Image selected</p>
+                    <p className="text-xs text-muted-foreground">Click to change</p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      setImagePreview(null);
-                      if (imageInputRef.current) imageInputRef.current.value = "";
-                      setIsDirty(true);
-                    }}
-                    className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500/80 text-foreground transition-colors hover:bg-red-500"
+                    onClick={(e) => { e.stopPropagation(); setImagePreview(null); if (imageInputRef.current) imageInputRef.current.value = ""; setIsDirty(true); }}
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
-                </div>
+                </>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => imageInputRef.current?.click()}
-                  className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border/50 bg-accent text-muted-foreground/60 transition-colors hover:border-primary/30 hover:bg-primary/[0.03] hover:text-primary/50"
-                >
-                  <ImagePlus className="h-6 w-6" />
-                </button>
+                <>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                    <ImagePlus className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Upload image <span className="text-xs">(optional)</span></p>
+                    <p className="text-xs text-muted-foreground/60">JPG, PNG or WebP. Max 5MB</p>
+                  </div>
+                </>
               )}
-              <input
-                ref={imageInputRef}
-                type="file"
-                name="image"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImagePreview(URL.createObjectURL(file));
-                    setIsDirty(true);
-                  }
-                }}
-              />
-              <div className="text-xs text-muted-foreground leading-relaxed">
-                <p>Upload a cover image for this project.</p>
-                <p>JPG, PNG or WebP. Max 5MB.</p>
-              </div>
-            </div>
-          </div>
+            </button>
+            <input
+              ref={imageInputRef}
+              id="image"
+              type="file"
+              name="image"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setImagePreview(URL.createObjectURL(file));
+                  setIsDirty(true);
+                }
+              }}
+            />
+          </FieldWrapper>
 
           <FieldWrapper icon={Building2} label="Client" htmlFor="clientId" error={fieldError("clientId")}>
             <input type="hidden" name="clientId" value={selectedClientId} required />
@@ -380,7 +374,7 @@ export function ProjectForm({
               {CURRENCIES.map((c) => (
                 <label
                   key={c.code}
-                  className="border-border/50 hover:bg-accent/50 flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-primary/50 has-[:checked]:bg-accent has-[:checked]:text-primary"
+                  className="border-border bg-accent hover:bg-muted flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary"
                 >
                   <input
                     type="radio"
@@ -418,7 +412,7 @@ export function ProjectForm({
             return (
               <label
                 key={pm.id}
-                className="group flex cursor-pointer items-center gap-2 rounded-md border border-border/50 px-2.5 py-2 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/5 hover:bg-accent/40"
+                className="group flex cursor-pointer items-center gap-2 rounded-md border border-border bg-accent px-2.5 py-2 transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/10 hover:bg-muted"
               >
                 <input
                   type="radio"

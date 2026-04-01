@@ -262,7 +262,7 @@ export default async function ProjectDetailPage({
           </div>
 
           {/* Separator */}
-          <div className="self-stretch w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent" />
+          <div className="self-stretch w-px bg-gradient-to-b from-transparent via-border to-transparent" />
 
           {/* Billed */}
           <div className="flex-1 min-w-0">
@@ -271,7 +271,7 @@ export default async function ProjectDetailPage({
               <span className="text-base font-bold tabular-nums text-foreground">{formatCurrency(billedAmount, project.currency)} <span className="text-muted-foreground font-normal text-sm">/ {contractValueFormatted}</span></span>
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
-              <div className={`h-full rounded-full transition-all ${isOverbilled ? "bg-red-500/60" : "bg-foreground/25"}`} style={{ width: `${billedPercent}%` }} />
+              <div className={`h-full rounded-full transition-all ${isOverbilled ? "bg-red-500/60" : "bg-amber-400"}`} style={{ width: `${billedPercent}%` }} />
             </div>
             <div className="mt-1 flex justify-between text-sm">
               <span className={`font-medium ${isOverbilled ? "text-red-500" : "text-muted-foreground"}`}>{billedPercent}%</span>
@@ -284,7 +284,7 @@ export default async function ProjectDetailPage({
           </div>
 
           {/* Separator */}
-          <div className="self-stretch w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent" />
+          <div className="self-stretch w-px bg-gradient-to-b from-transparent via-border to-transparent" />
 
           {/* Collected */}
           <div className="flex-1 min-w-0">
@@ -294,7 +294,7 @@ export default async function ProjectDetailPage({
             </div>
             <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
               <div className="relative h-full" style={{ width: `${billedPercent}%` }}>
-                <div className="absolute inset-0 rounded-full bg-foreground/10" />
+                <div className="absolute inset-0 rounded-full bg-amber-200" />
                 <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/50 transition-all" style={{ width: billedAmount > 0 ? `${Math.round((collectedAmount / billedAmount) * 100)}%` : "0%" }} />
               </div>
             </div>

@@ -40,7 +40,6 @@ async function main() {
     data: {
       name: "Saudi Telecom (STC)",
       imageUrl: "/images/clients/stc.png",
-      code: "STC-001",
       countryId: countries["SA"].id,
       sector: "SEMI_GOVERNMENT",
       primaryContact: "Khalid Al-Otaibi",
@@ -57,7 +56,6 @@ async function main() {
     data: {
       name: "Emirates NBD",
       imageUrl: "/images/clients/enbd.png",
-      code: "ENBD-001",
       countryId: countries["AE"].id,
       sector: "PRIVATE",
       primaryContact: "Rashed Al-Maktoum",
@@ -74,7 +72,6 @@ async function main() {
     data: {
       name: "NEOM",
       imageUrl: "/images/clients/neom.png",
-      code: "NEOM-001",
       countryId: countries["SA"].id,
       sector: "GOVERNMENT",
       primaryContact: "Faisal Al-Ruwaily",
@@ -92,7 +89,6 @@ async function main() {
     data: {
       name: "Careem Technologies",
       imageUrl: "/images/clients/careem.png",
-      code: "CRM-001",
       countryId: countries["AE"].id,
       sector: "PRIVATE",
       primaryContact: "Youssef El-Naggar",
@@ -107,7 +103,6 @@ async function main() {
     data: {
       name: "Ministry of Finance",
       imageUrl: "/images/clients/mof.png",
-      code: "MOF-001",
       countryId: countries["SA"].id,
       sector: "GOVERNMENT",
       primaryContact: "Abdullah Al-Qahtani",

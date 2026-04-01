@@ -119,7 +119,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     className={cn(
                       "transition-colors duration-200",
                       open ? "h-5 w-5" : "h-[22px] w-[22px]",
-                      !isActive && "text-slate-400 group-hover:text-slate-300",
+                      !isActive && "text-muted-foreground group-hover:text-secondary-foreground",
                     )}
                     style={{ color: isActive ? item.color : undefined }}
                     color={isActive ? item.color : undefined}
@@ -133,7 +133,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     <span
                       className={cn(
                         "text-[13px] font-semibold transition-colors",
-                        isActive ? "text-sidebar-accent-foreground" : "text-slate-400 group-hover:text-slate-300",
+                        isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground group-hover:text-secondary-foreground",
                       )}
                     >
                       {item.label}

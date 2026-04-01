@@ -59,8 +59,8 @@ export function PMSheet({ pm, variant = "create" }: PMSheetProps) {
       <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
         {!isEdit && (
           <SheetHeader>
-            <SheetTitle>Add Team Member</SheetTitle>
-            <SheetDescription>Add a new project manager to the team</SheetDescription>
+            <SheetTitle className="sr-only">Add Team Member</SheetTitle>
+            <SheetDescription className="sr-only">Add a new project manager to the team</SheetDescription>
           </SheetHeader>
         )}
         <div className={`px-4 pb-6 ${isEdit ? "pt-6" : ""}`}>

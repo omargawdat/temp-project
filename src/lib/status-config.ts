@@ -57,11 +57,11 @@ export const formatSector = formatStatus;
 export const PROJECT_STATUSES = [
   { key: "ACTIVE", label: "Active", dot: "bg-emerald-400" },
   { key: "ON_HOLD", label: "On Hold", dot: "bg-amber-400" },
-  { key: "CLOSED", label: "Closed", dot: "bg-zinc-400" },
+  { key: "CLOSED", label: "Closed", dot: "bg-slate-400" },
 ] as const;
 
 export const MILESTONE_STATUSES = [
-  { key: "NOT_STARTED", label: "Not Started", dot: "bg-zinc-400" },
+  { key: "NOT_STARTED", label: "Not Started", dot: "bg-slate-400" },
   { key: "IN_PROGRESS", label: "In Progress", dot: "bg-blue-400" },
   { key: "COMPLETED", label: "Completed", dot: "bg-emerald-400" },
   { key: "READY_FOR_INVOICING", label: "Ready for Invoicing", dot: "bg-purple-400" },
@@ -69,7 +69,7 @@ export const MILESTONE_STATUSES = [
 ] as const;
 
 export const INVOICE_STATUSES = [
-  { key: "DRAFT", label: "Draft", dot: "bg-zinc-400" },
+  { key: "DRAFT", label: "Draft", dot: "bg-slate-400" },
   { key: "SUBMITTED", label: "Submitted", dot: "bg-amber-400" },
   { key: "UNDER_REVIEW", label: "Under Review", dot: "bg-orange-400" },
   { key: "APPROVED", label: "Approved", dot: "bg-emerald-400" },
@@ -111,7 +111,7 @@ export const AUDIT_ENTITY_TYPES = [
 ] as const;
 
 export const NOTE_TYPE_STATUSES = [
-  { key: "GENERAL", label: "General", dot: "bg-zinc-400" },
+  { key: "GENERAL", label: "General", dot: "bg-slate-400" },
   { key: "MEETING", label: "Meeting", dot: "bg-blue-400" },
   { key: "DECISION", label: "Decision", dot: "bg-purple-400" },
   { key: "RISK", label: "Risk", dot: "bg-red-400" },

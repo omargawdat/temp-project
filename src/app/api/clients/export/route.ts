@@ -27,7 +27,6 @@ export async function GET(request: Request) {
 
   const records = clients.map((c) => ({
     Name: c.name,
-    Code: c.code,
     Sector: c.sector.replace(/_/g, " "),
     Country: c.country.name,
     "Primary Contact": c.primaryContact,

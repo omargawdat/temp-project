@@ -3,7 +3,7 @@ import { ClientSector } from "@prisma/client";
 
 export const clientFormSchema = z.object({
   name: z.string().trim().min(1, { error: "Name is required." }),
-  code: z.string().trim().min(1, { error: "Code is required." }),
+
   sector: z.enum(ClientSector, {
     error: "Sector must be one of: Government, Private, Semi Government.",
   }),

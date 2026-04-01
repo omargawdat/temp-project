@@ -67,7 +67,7 @@ model Client {
   id              String       @id @default(cuid())
   name            String
   imageUrl        String?
-  code            String       @unique
+
   countryId       String
   sector          ClientSector
   primaryContact  String

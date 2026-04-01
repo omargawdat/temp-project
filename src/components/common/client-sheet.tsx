@@ -60,8 +60,8 @@ export function ClientSheet({ client, countries, variant = "create" }: ClientShe
       <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
         {!isEdit && (
           <SheetHeader>
-            <SheetTitle>Add Client</SheetTitle>
-            <SheetDescription>Add a new client to the system</SheetDescription>
+            <SheetTitle className="sr-only">Add Client</SheetTitle>
+            <SheetDescription className="sr-only">Add a new client to the system</SheetDescription>
           </SheetHeader>
         )}
         <div className={`px-4 pb-6 ${isEdit ? "pt-6" : ""}`}>

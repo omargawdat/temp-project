@@ -85,37 +85,35 @@ function FlagUpload({ currentFlagUrl }: { currentFlagUrl?: string | null }) {
       />
       <label
         htmlFor="flag-upload"
-        className="group flex cursor-pointer items-center gap-4 rounded-lg border border-dashed border-border/50 bg-accent/20 px-4 py-4 transition-colors hover:border-border hover:bg-accent/40"
+        className="group flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-accent px-3 py-2.5 transition-colors hover:bg-muted"
       >
         {preview ? (
-          <div className="relative">
+          <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={preview}
-              alt="Flag preview"
-              className="h-12 w-16 rounded object-cover"
-            />
+            <img src={preview} alt="Flag preview" className="h-10 w-14 rounded object-cover ring-1 ring-ring/20" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">Flag selected</p>
+              <p className="text-xs text-muted-foreground">Click to change</p>
+            </div>
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); handleRemove(); }}
-              className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-card border border-border/50 text-muted-foreground transition-colors hover:bg-destructive hover:text-foreground hover:border-destructive"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500"
             >
-              <X className="h-3 w-3" />
+              <X className="h-3.5 w-3.5" />
             </button>
-          </div>
+          </>
         ) : (
-          <div className="flex h-12 w-16 items-center justify-center rounded border-2 border-dashed border-border/40 bg-accent/30">
-            <ImagePlus className="h-5 w-5 text-muted-foreground/60" />
-          </div>
+          <>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <ImagePlus className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Upload flag image</p>
+              <p className="text-xs text-muted-foreground/60">PNG, JPG, SVG or WebP</p>
+            </div>
+          </>
         )}
-        <div>
-          <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
-            {preview ? "Change flag" : "Upload flag image"}
-          </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
-            PNG, JPG, SVG or WebP
-          </p>
-        </div>
       </label>
     </div>
   );
@@ -236,8 +234,8 @@ export function CountrySheet({ country, variant = "create" }: CountrySheetProps)
       <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
         {!isEdit && (
           <SheetHeader>
-            <SheetTitle>Add Country</SheetTitle>
-            <SheetDescription>Add a new country to the system</SheetDescription>
+            <SheetTitle className="sr-only">Add Country</SheetTitle>
+            <SheetDescription className="sr-only">Add a new country to the system</SheetDescription>
           </SheetHeader>
         )}
         <div className={`px-4 pb-6 ${isEdit ? "pt-6" : ""}`}>

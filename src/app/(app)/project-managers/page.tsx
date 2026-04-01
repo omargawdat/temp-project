@@ -133,9 +133,9 @@ export default async function ProjectManagersPage({
                       <Link href={`/project-managers/${pm.id}`} className="flex items-center gap-3">
                         {pm.photoUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={pm.photoUrl} alt={pm.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-border/20" />
+                          <img src={pm.photoUrl} alt={pm.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-ring/20" />
                         ) : (
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 text-xs font-bold text-primary ring-2 ring-border/20">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 text-xs font-bold text-primary ring-2 ring-ring/20">
                             {initials}
                           </div>
                         )}
@@ -154,7 +154,7 @@ export default async function ProjectManagersPage({
                           <span className="text-[10px] uppercase tracking-wide text-muted-foreground">total</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-emerald-400">{pm.activeProjects}</span>
+                          <span className="text-sm font-bold text-emerald-500">{pm.activeProjects}</span>
                           <span className="text-[10px] uppercase tracking-wide text-muted-foreground">active</span>
                         </div>
                       </div>

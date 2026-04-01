@@ -35,7 +35,7 @@ export function AuditDetail({ changes, metadata }: AuditDetailProps) {
       </button>
 
       {open && (
-        <div className="mt-2 space-y-3 rounded-lg border border-border bg-black/20 p-3 text-xs">
+        <div className="mt-2 space-y-3 rounded-lg border border-border bg-muted p-3 text-xs">
           {hasChanges && (
             <div>
               <p className="mb-1.5 text-[10px] font-bold tracking-wider uppercase text-muted-foreground/60">

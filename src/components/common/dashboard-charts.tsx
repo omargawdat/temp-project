@@ -22,12 +22,27 @@ const TOOLTIP_STYLE = {
   boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
 };
 
+function getCurrencySymbol(currency: string): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 })
+    .formatToParts(0)
+    .find((p) => p.type === "currency")?.value ?? currency;
+}
+
+function formatAxisValue(v: number, symbol: string): string {
+  if (v >= 1_000_000) return `${symbol}${Math.round(v / 1_000_000)}M`;
+  if (v >= 1000) return `${symbol}${Math.round(v / 1000)}k`;
+  return `${symbol}${v}`;
+}
+
 // ── Cash Flow Funnel Chart ──
 export function CashFlowFunnelChart({
   data,
+  currency = "USD",
 }: {
   data: { name: string; value: number; fill: string }[];
+  currency?: string;
 }) {
+  const sym = getCurrencySymbol(currency);
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} barSize={48}>
@@ -42,16 +57,12 @@ export function CashFlowFunnelChart({
           tick={{ fontSize: 10, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
-          tickFormatter={(v) => {
-            if (v >= 1_000_000) return `$${Math.round(v / 1_000_000)}M`;
-            if (v >= 1000) return `$${Math.round(v / 1000)}k`;
-            return `$${v}`;
-          }}
+          tickFormatter={(v) => formatAxisValue(v, sym)}
           width={52}
         />
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
-          formatter={(value) => [`$${Number(value).toLocaleString()}`, "Amount"]}
+          formatter={(value) => [`${sym}${Number(value).toLocaleString()}`, "Amount"]}
           labelStyle={{ color: "#0f172a", fontWeight: 600 }}
           itemStyle={{ color: "#334155" }}
           cursor={{ fill: "rgba(99,102,241,0.04)" }}
@@ -232,20 +243,19 @@ export function MilestoneStatusDonut({
 // ── Revenue by Client Chart ──
 export function RevenueByClientChart({
   data,
+  currency = "USD",
 }: {
   data: { name: string; collected: number; outstanding: number; unbilled: number }[];
+  currency?: string;
 }) {
+  const sym = getCurrencySymbol(currency);
   return (
     <ResponsiveContainer width="100%" height={data.length * 44 + 20}>
       <BarChart data={data} layout="vertical" barSize={16} barGap={2}>
         <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis
           type="number"
-          tickFormatter={(v) => {
-            if (v >= 1_000_000) return `$${Math.round(v / 1_000_000)}M`;
-            if (v >= 1000) return `$${Math.round(v / 1000)}k`;
-            return `$${v}`;
-          }}
+          tickFormatter={(v) => formatAxisValue(v, sym)}
           tick={{ fontSize: 10, fill: "#94a3b8" }}
           axisLine={false}
           tickLine={false}
@@ -260,7 +270,7 @@ export function RevenueByClientChart({
         />
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
-          formatter={(value) => [`$${Number(value).toLocaleString()}`]}
+          formatter={(value) => [`${sym}${Number(value).toLocaleString()}`]}
           labelStyle={{ color: "#0f172a", fontWeight: 600 }}
           itemStyle={{ color: "#334155" }}
           cursor={false}

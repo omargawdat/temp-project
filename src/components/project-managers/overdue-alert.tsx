@@ -48,7 +48,7 @@ export function OverdueAlert({
                     day: "numeric",
                   })}
                 </span>
-                <span className="font-medium text-red-400/80">{d.daysOverdue}d overdue</span>
+                <span className="font-medium text-red-500">{d.daysOverdue}d overdue</span>
               </div>
             </div>
           ))}

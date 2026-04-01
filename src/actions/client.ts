@@ -24,16 +24,6 @@ export async function createClient(
     const fields = result.data;
     const imageUrl = await handleImageUpload(formData, "image", "clients");
 
-    const existing = await prisma.client.findUnique({
-      where: { code: fields.code },
-    });
-    if (existing) {
-      return {
-        success: false,
-        error: "A client with this code already exists.",
-        fieldErrors: { code: ["A client with this code already exists."] },
-      };
-    }
 
     const client = await prisma.client.create({
       data: { ...fields, imageUrl },
@@ -66,16 +56,6 @@ export async function updateClient(
 
     const imageUrl = await handleImageUpload(formData, "image", "clients", current.imageUrl);
 
-    const existing = await prisma.client.findFirst({
-      where: { code: fields.code, id: { not: id } },
-    });
-    if (existing) {
-      return {
-        success: false,
-        error: "Another client with this code already exists.",
-        fieldErrors: { code: ["Another client with this code already exists."] },
-      };
-    }
 
     await prisma.client.update({
       where: { id },

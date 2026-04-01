@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 const STATUSES = [
-  { key: "NOT_STARTED", label: "Not Started", dot: "bg-zinc-400" },
+  { key: "NOT_STARTED", label: "Not Started", dot: "bg-slate-400" },
   { key: "IN_PROGRESS", label: "In Progress", dot: "bg-blue-400" },
   { key: "COMPLETED", label: "Completed", dot: "bg-emerald-400" },
   { key: "READY_FOR_INVOICING", label: "Ready for Invoicing", dot: "bg-purple-400" },

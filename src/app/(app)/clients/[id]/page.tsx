@@ -124,39 +124,40 @@ export default async function ClientDetailPage({
   return (
     <div className="space-y-6">
       {/* ── A. Header ── */}
-      <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
+      <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-accent">
         <div className="relative px-6 py-5">
           <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-orange-500/[0.06] blur-3xl" />
 
           {/* Top: Avatar + Name + Badge + Code/Country */}
-          <div className="flex items-center gap-4 mb-4">
-            {client.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={client.imageUrl}
-                alt={client.name}
-                className="h-14 w-14 rounded-xl object-cover ring-2 ring-orange-500/20"
-              />
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base font-bold text-foreground ring-2 ring-orange-500/20">
-                {initials}
-              </div>
-            )}
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">{client.name}</h1>
-                <span className="rounded-md bg-orange-500/10 px-2.5 py-0.5 text-xs font-semibold text-orange-400">
-                  {sectorLabel}
-                </span>
-              </div>
-              <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
-                <span className="font-mono text-xs tracking-wide text-muted-foreground">{client.code}</span>
-                <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={client.country.flag} alt={client.country.name} className="h-3 w-5 rounded-[2px] object-cover" />
-                <span>{client.country.name}</span>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-4">
+              {client.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={client.imageUrl}
+                  alt={client.name}
+                  className="h-14 w-14 rounded-xl object-cover ring-2 ring-ring/20"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base font-bold text-foreground ring-2 ring-ring/20">
+                  {initials}
+                </div>
+              )}
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">{client.name}</h1>
+                  <span className="rounded-md bg-orange-500/10 px-2.5 py-0.5 text-xs font-semibold text-orange-400">
+                    {sectorLabel}
+                  </span>
+                </div>
+                <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={client.country.flag} alt={client.country.name} className="h-3 w-5 rounded-[2px] object-cover" />
+                  <span>{client.country.name}</span>
+                </div>
               </div>
             </div>
+            <ClientSheet client={serializeForClient(client)} countries={countries} variant="edit" />
           </div>
 
           {/* Contact details grid */}
@@ -197,13 +198,13 @@ export default async function ClientDetailPage({
 
       {/* ── B. Financial & Delivery Dashboard ── */}
       {totalProjects > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
+        <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-accent">
 
           {/* Top row: Financial metrics + Chart */}
           <div className="grid grid-cols-[1fr_1fr_1fr_auto] divide-x divide-border/50">
             {/* Portfolio */}
             <div className="relative px-5 py-3">
-              <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-orange-500/[0.05] blur-3xl" />
+              <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-orange-500/[0.04] blur-3xl" />
               <div className="flex items-center gap-2 mb-3">
                 <Briefcase className="h-3.5 w-3.5 text-orange-400/70" />
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Portfolio</span>
@@ -423,7 +424,7 @@ export default async function ClientDetailPage({
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-ring/20 shrink-0" />
                         ) : (
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-[10px] font-bold text-orange-400 ring-1 ring-orange-500/20 shrink-0">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-[10px] font-bold text-orange-400 ring-1 ring-ring/20 shrink-0">
                             {project.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
                           </div>
                         )}
@@ -457,7 +458,7 @@ export default async function ClientDetailPage({
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <div className="h-2 w-20 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full bg-orange-500/70 transition-all" style={{ width: `${pct}%` }} />
+                          <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pct}%` }} />
                         </div>
                         <span className="text-xs font-medium tabular-nums text-muted-foreground/60">{done}/{project.milestones.length}</span>
                       </div>
@@ -602,8 +603,6 @@ export default async function ClientDetailPage({
       <div className="h-16" />
 
       <ClientFloatingActions
-        client={serializeForClient(client)}
-        countries={countries}
         notesCount={notes.length}
       />
     </div>

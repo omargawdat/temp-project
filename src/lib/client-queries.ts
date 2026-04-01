@@ -21,7 +21,6 @@ export function buildClientWhere(
     conditions.push({
       OR: [
         { name: { contains: q } },
-        { code: { contains: q } },
         { country: { name: { contains: q } } },
       ],
     });
@@ -45,8 +44,7 @@ export function buildClientOrderBy(
 ): Prisma.ClientOrderByWithRelationInput {
   const dir = params.dir === "desc" ? "desc" : "asc";
   switch (params.sort) {
-    case "code":
-      return { code: dir };
+
     case "country":
       return { country: { name: dir } };
     case "sector":

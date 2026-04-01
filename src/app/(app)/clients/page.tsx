@@ -168,7 +168,7 @@ export default async function ClientsPage({
                         className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-ring/20"
                       />
                     ) : (
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-500/5 ring-1 ring-orange-500/20">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-500/5 ring-1 ring-ring/20">
                         <span className="text-sm font-bold text-orange-400">
                           {initials}
                         </span>
@@ -183,9 +183,6 @@ export default async function ClientsPage({
                         <img src={client.country.flag} alt={client.country.name} className="h-3.5 w-5 shrink-0 rounded-[2px] object-cover" />
                       </div>
                       <div className="mt-0.5 flex items-center gap-2">
-                        <span className="font-mono text-xs tracking-wide text-muted-foreground">
-                          {client.code}
-                        </span>
                         <span className={cn("text-xs font-semibold", sector.text)}>
                           {formatSector(client.sector)}
                         </span>
@@ -258,11 +255,11 @@ export default async function ClientsPage({
         </>
       ) : (
         <div className="border-border/50 bg-card flex flex-col items-center gap-4 rounded-2xl border py-20 shadow-lg shadow-black/10">
-          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-orange-500/10"}`}>
+          <div className={`rounded-2xl p-4 ${filtersActive ? "bg-amber-50" : "bg-accent"}`}>
             {filtersActive ? (
               <SearchX className="h-8 w-8 text-amber-400" />
             ) : (
-              <Building2 className="h-8 w-8 text-orange-400" />
+              <Building2 className="h-8 w-8 text-primary" />
             )}
           </div>
           <div className="text-center">

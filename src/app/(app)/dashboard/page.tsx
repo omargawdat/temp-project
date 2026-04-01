@@ -25,8 +25,8 @@ import {
   isCompleted,
   isOverdue,
 } from "@/lib/milestones";
-import { getInitials, safePercent, addToCurrency, sumCurrencyTotals, type CurrencyTotals } from "@/lib/format";
-import { MultiCurrencyDisplay } from "@/components/common/multi-currency-display";
+import { getInitials, safePercent, formatCurrency } from "@/lib/format";
+import { CurrencyTabs } from "@/components/dashboard/currency-tabs";
 import {
   CashFlowFunnelChart,
   DashboardBillingRing,
@@ -35,7 +35,12 @@ import {
   InvoicePipelineBar,
 } from "@/components/common/dashboard-charts";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
   const now = new Date();
 
   const [allProjects, recentProjects, recentInvoices, overdueInvoices, onHoldCount] =
@@ -97,21 +102,31 @@ export default async function DashboardPage() {
   const allMilestones = allProjects.flatMap((p) => p.milestones);
   const totalMilestones = allMilestones.length;
 
-  // Group financials by currency
-  const portfolioByCurrency: CurrencyTotals = {};
-  const billedByCurrency: CurrencyTotals = {};
-  const collectedByCurrency: CurrencyTotals = {};
+  // Available currencies sorted by total portfolio value (descending)
+  const currencyValueMap = new Map<string, number>();
   for (const p of allProjects) {
-    addToCurrency(portfolioByCurrency, p.currency, Number(p.contractValue));
-    const projMsWithCurrency = p.milestones.map((m) => ({ ...m, _currency: p.currency }));
-    const projBilled = sumUniqueInvoices(projMsWithCurrency);
-    const projCollected = sumUniqueInvoices(projMsWithCurrency, "PAID");
-    addToCurrency(billedByCurrency, p.currency, projBilled);
-    addToCurrency(collectedByCurrency, p.currency, projCollected);
+    currencyValueMap.set(p.currency, (currencyValueMap.get(p.currency) ?? 0) + Number(p.contractValue));
   }
-  const portfolioValue = sumCurrencyTotals(portfolioByCurrency);
-  const totalBilled = sumCurrencyTotals(billedByCurrency);
-  const totalCollected = sumCurrencyTotals(collectedByCurrency);
+  const availableCurrencies = Array.from(currencyValueMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([c]) => c);
+
+  const selectedCurrency = typeof params.currency === "string" && availableCurrencies.includes(params.currency)
+    ? params.currency
+    : availableCurrencies[0] ?? "USD";
+
+  // Filter projects by selected currency
+  const currencyProjects = allProjects.filter((p) => p.currency === selectedCurrency);
+
+  // Financial aggregates for selected currency
+  let portfolioValue = 0;
+  let totalBilled = 0;
+  let totalCollected = 0;
+  for (const p of currencyProjects) {
+    portfolioValue += Number(p.contractValue);
+    totalBilled += sumUniqueInvoices(p.milestones);
+    totalCollected += sumUniqueInvoices(p.milestones, "PAID");
+  }
   const outstandingAmount = totalBilled - totalCollected;
   const unbilledAmount = portfolioValue - totalBilled;
   const billedPct = safePercent(totalBilled, portfolioValue);
@@ -174,9 +189,9 @@ export default async function DashboardPage() {
     }),
   );
 
-  // Revenue by client
+  // Revenue by client (filtered by selected currency)
   const clientMap = new Map<string, { id: string; name: string; collected: number; outstanding: number; unbilled: number }>();
-  allProjects.forEach((p) => {
+  currencyProjects.forEach((p) => {
     const existing = clientMap.get(p.client.id) ?? {
       id: p.client.id,
       name: p.client.name,
@@ -255,6 +270,12 @@ export default async function DashboardPage() {
     <div className="space-y-6">
 
       {/* ── Row 1: Key Metrics ── */}
+      {availableCurrencies.length > 1 && (
+        <div className="flex items-center justify-between">
+          <CurrencyTabs currencies={availableCurrencies} />
+          <span className="text-xs text-muted-foreground">{currencyProjects.length} of {totalProjects} projects</span>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {/* Portfolio Value */}
         <div className="relative overflow-hidden rounded-xl border border-transparent bg-card card-elevated px-4 py-3.5">
@@ -267,8 +288,8 @@ export default async function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Portfolio</span>
             </div>
           </div>
-          <div className="tracking-tight text-foreground"><MultiCurrencyDisplay totals={portfolioByCurrency} size="md" /></div>
-          <p className="mt-1 text-xs text-muted-foreground">{totalProjects} projects</p>
+          <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{formatCurrency(portfolioValue, selectedCurrency)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{currencyProjects.length} projects</p>
         </div>
 
         {/* Total Billed */}
@@ -283,7 +304,7 @@ export default async function DashboardPage() {
             </div>
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold tabular-nums text-amber-600">{billedPct}%</span>
           </div>
-          <div className="tracking-tight text-foreground"><MultiCurrencyDisplay totals={billedByCurrency} size="md" /></div>
+          <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{formatCurrency(totalBilled, selectedCurrency)}</p>
           <p className="mt-1 text-xs text-muted-foreground">of portfolio</p>
         </div>
 
@@ -299,7 +320,7 @@ export default async function DashboardPage() {
             </div>
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold tabular-nums text-emerald-600">{collectedPct}%</span>
           </div>
-          <div className="tracking-tight text-foreground"><MultiCurrencyDisplay totals={collectedByCurrency} size="md" /></div>
+          <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{formatCurrency(totalCollected, selectedCurrency)}</p>
           <p className="mt-1 text-xs text-muted-foreground">of portfolio</p>
         </div>
 
@@ -347,21 +368,21 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cash Flow Overview</span>
           </div>
-          <CashFlowFunnelChart data={cashFlowData} />
+          <CashFlowFunnelChart data={cashFlowData} currency={selectedCurrency} />
           <div className="mt-3 flex items-start justify-center gap-6">
             <div className="text-center">
               <p className="text-xs text-muted-foreground">Portfolio</p>
-              <MultiCurrencyDisplay totals={portfolioByCurrency} size="sm" colorClass="text-primary" />
+              <span className="text-xs font-bold tabular-nums text-primary">{formatCurrency(portfolioValue, selectedCurrency)}</span>
             </div>
             <div className="h-4 w-px bg-muted" />
             <div className="text-center">
               <p className="text-xs text-muted-foreground">Billed</p>
-              <MultiCurrencyDisplay totals={billedByCurrency} size="sm" colorClass="text-amber-600" />
+              <span className="text-xs font-bold tabular-nums text-amber-600">{formatCurrency(totalBilled, selectedCurrency)}</span>
             </div>
             <div className="h-4 w-px bg-muted" />
             <div className="text-center">
               <p className="text-xs text-muted-foreground">Collected</p>
-              <MultiCurrencyDisplay totals={collectedByCurrency} size="sm" colorClass="text-emerald-600" />
+              <span className="text-xs font-bold tabular-nums text-emerald-600">{formatCurrency(totalCollected, selectedCurrency)}</span>
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ import { serializeForClient } from "@/lib/serialize";
 import { BillingRingChart } from "@/components/common/pm-charts";
 import { sumUniqueInvoices, deduplicateInvoices } from "@/lib/financial";
 import { PMFloatingActions } from "@/components/project-managers/floating-actions";
+import { PMSheet } from "@/components/common/pm-sheet";
 import { NotesSection } from "@/components/common/notes-section";
 import { ContactDetailRow } from "@/components/clients/contact-detail-row";
 import { filterOverdue, filterUpcoming, countCompleted, completionPercent, daysDifference } from "@/lib/milestones";
@@ -107,40 +108,43 @@ export default async function ProjectManagerDetailPage({
   return (
     <div className="space-y-6">
       {/* ── A. Header ── */}
-      <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
+      <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-accent">
         <div className="relative px-6 py-5">
           <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-primary/[0.06] blur-3xl" />
 
           {/* Top: Avatar + Name + Badge */}
-          <div className="flex items-center gap-4 mb-4">
-            {pm.photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={pm.photoUrl}
-                alt={pm.name}
-                className="h-14 w-14 rounded-xl object-cover ring-2 ring-primary/20"
-              />
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-base font-bold text-foreground ring-2 ring-primary/20">
-                {initials}
-              </div>
-            )}
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">{pm.name}</h1>
-                {pm.title && (
-                  <span className="rounded-md bg-accent px-2.5 py-0.5 text-xs font-semibold text-primary">
-                    {pm.title}
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-4">
+              {pm.photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={pm.photoUrl}
+                  alt={pm.name}
+                  className="h-14 w-14 rounded-xl object-cover ring-2 ring-primary/20"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-base font-bold text-foreground ring-2 ring-primary/20">
+                  {initials}
+                </div>
+              )}
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">{pm.name}</h1>
+                  {pm.title && (
+                    <span className="rounded-md bg-accent px-2.5 py-0.5 text-xs font-semibold text-primary">
+                      {pm.title}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                    Joined {new Date(pm.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                   </span>
-                )}
-              </div>
-              <div className="mt-1.5 flex items-center gap-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-                  Joined {new Date(pm.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-                </span>
+                </div>
               </div>
             </div>
+            <PMSheet pm={serializeForClient(pm)} variant="edit" />
           </div>
 
           {/* Contact details grid */}
@@ -157,13 +161,13 @@ export default async function ProjectManagerDetailPage({
 
       {/* ── B. Financial & Delivery Dashboard ── */}
       {totalProjects > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-border" style={{ background: "linear-gradient(168deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)" }}>
+        <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-accent">
 
           {/* Top row: Financial metrics + Chart */}
           <div className="grid grid-cols-[1fr_1fr_1fr_auto] divide-x divide-border/50">
             {/* Portfolio */}
             <div className="relative px-5 py-3">
-              <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-primary/[0.05] blur-3xl" />
+              <div className="absolute -top-12 -left-12 h-32 w-32 rounded-full bg-primary/[0.04] blur-3xl" />
               <div className="flex items-center gap-2 mb-3">
                 <Briefcase className="h-3.5 w-3.5 text-primary/70" />
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Portfolio</span>
@@ -516,7 +520,7 @@ export default async function ProjectManagerDetailPage({
 
       <div className="h-16" />
 
-      <PMFloatingActions pm={serializeForClient(pm)} notesCount={notes.length} />
+      <PMFloatingActions notesCount={notes.length} />
     </div>
   );
 }
