@@ -40,6 +40,7 @@ export async function GET(request: Request) {
     "Start Date": new Date(p.startDate).toISOString().split("T")[0],
     "End Date": new Date(p.endDate).toISOString().split("T")[0],
     PM: p.projectManager.name,
+    Type: p.type,
     Status: p.status.replace(/_/g, " "),
   }));
 

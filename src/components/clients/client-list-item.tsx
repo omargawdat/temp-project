@@ -73,6 +73,20 @@ export function ClientListItem({
         <p className="text-sm font-semibold tabular-nums text-foreground">{formatMultiCurrency(contractByCurrency)}</p>
       </div>
 
+      {/* Primary Contact */}
+      <div className="hidden xl:block w-32 shrink-0">
+        <p className="text-xs text-muted-foreground truncate">{primaryContact}</p>
+      </div>
+
+      {/* Overdue indicator */}
+      <div className="w-16 shrink-0 text-center">
+        {overdueMilestones > 0 && (
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-100 px-1.5 text-[10px] font-bold tabular-nums text-red-600">
+            {overdueMilestones}
+          </span>
+        )}
+      </div>
+
       {/* Billed / Collected */}
       <div className="w-24 shrink-0">
         <div className="flex items-center gap-2">
@@ -84,20 +98,6 @@ export function ClientListItem({
           </div>
           <span className="text-xs tabular-nums text-muted-foreground">{billedPct}%</span>
         </div>
-      </div>
-
-      {/* Primary Contact */}
-      <div className="hidden xl:block w-32 shrink-0">
-        <p className="text-xs text-muted-foreground truncate">{primaryContact}</p>
-      </div>
-
-      {/* Overdue indicator */}
-      <div className="w-8 shrink-0 text-center">
-        {overdueMilestones > 0 && (
-          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-100 px-1.5 text-[10px] font-bold tabular-nums text-red-600">
-            {overdueMilestones}
-          </span>
-        )}
       </div>
     </Link>
   );

@@ -146,7 +146,10 @@ export default async function ProjectDetailPage({
               )}
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-3xl font-bold tracking-tight text-foreground">{project.name}</h1>
+                  <h1 className="text-xl font-bold tracking-tight text-foreground">{project.name}</h1>
+                  {project.type === "PRODUCT" && (
+                    <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">Product</span>
+                  )}
                   <StatusBadge status={project.status} />
                 </div>
               </div>
@@ -257,7 +260,7 @@ export default async function ProjectDetailPage({
           {/* Contract value */}
           <div className="shrink-0">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Contract</p>
-            <p className="mt-0.5 text-2xl font-bold tracking-tight text-foreground">{contractValueFormatted}</p>
+            <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground">{contractValueFormatted}</p>
             <p className="text-sm text-muted-foreground">{project.currency} · {project.paymentTerms}</p>
           </div>
 

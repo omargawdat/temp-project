@@ -48,11 +48,10 @@ export function PMSheet({ pm, variant = "create" }: PMSheetProps) {
         </Button>
       ) : (
         <Button
-          className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20"
+          className="border-0 rounded-full h-14 w-14 p-0 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
           onClick={() => setOpen(true)}
         >
-          <Plus className="mr-1 h-4 w-4" />
-          Add PM
+          <Plus className="h-6 w-6" />
         </Button>
       )}
 

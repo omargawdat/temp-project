@@ -9,7 +9,7 @@ import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
 import { ToolbarExportButton } from "@/components/toolbar/toolbar-export-button";
 import { ToolbarSortDropdown } from "@/components/toolbar/toolbar-sort-dropdown";
 import { ToolbarViewToggle } from "@/components/toolbar/toolbar-view-toggle";
-import { PROJECT_STATUSES } from "@/lib/status-config";
+import { PROJECT_STATUSES, PROJECT_TYPES } from "@/lib/status-config";
 
 const SORT_OPTIONS = [
   { label: "Name", value: "name" },
@@ -33,13 +33,14 @@ export function ProjectsToolbar({
 
   const q = searchParams.get("q") ?? "";
   const statusFilter = searchParams.get("status")?.split(",").filter(Boolean) ?? [];
+  const typeFilter = searchParams.get("type")?.split(",").filter(Boolean) ?? [];
   const clientFilter = searchParams.get("client")?.split(",").filter(Boolean) ?? [];
   const pmFilter = searchParams.get("pm")?.split(",").filter(Boolean) ?? [];
   const sort = searchParams.get("sort") ?? "";
   const dir = searchParams.get("dir") ?? "asc";
   const view = searchParams.get("view") ?? "list";
 
-  const hasFilters = q || statusFilter.length > 0 || clientFilter.length > 0 || pmFilter.length > 0;
+  const hasFilters = q || statusFilter.length > 0 || typeFilter.length > 0 || clientFilter.length > 0 || pmFilter.length > 0;
 
   const clearAll = useCallback(() => {
     router.replace("/projects", { scroll: false });
@@ -117,6 +118,14 @@ export function ProjectsToolbar({
           statuses={PROJECT_STATUSES}
           value={statusFilter}
           onChange={(v) => updateParams({ status: v.length > 0 ? v.join(",") : null })}
+        />
+
+        <div className="h-5 w-px bg-border/30" />
+
+        <ToolbarStatusPills
+          statuses={PROJECT_TYPES}
+          value={typeFilter}
+          onChange={(v) => updateParams({ type: v.length > 0 ? v.join(",") : null })}
         />
 
         {hasFilters && (

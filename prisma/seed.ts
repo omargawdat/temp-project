@@ -174,6 +174,7 @@ async function main() {
       paymentTerms: "Net 30",
       clientInvoicingMethod: "PORTAL",
       status: "ACTIVE",
+      type: "PROJECT",
     },
   });
 
@@ -191,6 +192,7 @@ async function main() {
       paymentTerms: "Net 45",
       clientInvoicingMethod: "EMAIL",
       status: "ACTIVE",
+      type: "PRODUCT",
     },
   });
 
@@ -208,6 +210,7 @@ async function main() {
       paymentTerms: "Net 60",
       clientInvoicingMethod: "PORTAL",
       status: "ON_HOLD",
+      type: "PROJECT",
     },
   });
 
@@ -225,6 +228,7 @@ async function main() {
       paymentTerms: "Net 30",
       clientInvoicingMethod: "EMAIL",
       status: "ACTIVE",
+      type: "PROJECT",
     },
   });
 
@@ -242,6 +246,7 @@ async function main() {
       paymentTerms: "Net 30",
       clientInvoicingMethod: "PORTAL",
       status: "CLOSED",
+      type: "PROJECT",
     },
   });
 
@@ -259,6 +264,7 @@ async function main() {
       paymentTerms: "Net 45",
       clientInvoicingMethod: "EMAIL",
       status: "ACTIVE",
+      type: "PRODUCT",
     },
   });
 

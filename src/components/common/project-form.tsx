@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import type { Project } from "@prisma/client";
+import type { Project, ProjectType } from "@prisma/client";
 import type { Serialized } from "@/lib/serialize";
 import { createProject, updateProject } from "@/actions/project";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,8 @@ import {
   ChevronDown,
   Search,
   Check,
+  FolderKanban,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -170,6 +172,34 @@ export function ProjectForm({
           <span className="text-red-300">{state.error}</span>
         </motion.div>
       )}
+
+      {/* Type selector */}
+      <div className="border-border/50 bg-card rounded-lg border p-6 shadow-lg shadow-black/10">
+        <FieldWrapper icon={FolderKanban} label="Type" htmlFor="type">
+          <div className="flex h-10 rounded-md bg-accent/50 p-1">
+            {([
+              { value: "PROJECT" as const, label: "Project", icon: FolderKanban },
+              { value: "PRODUCT" as const, label: "Product", icon: Package },
+            ] satisfies { value: ProjectType; label: string; icon: React.ElementType }[]).map((opt) => (
+              <label
+                key={opt.value}
+                className="group flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-sm text-xs text-muted-foreground transition-all hover:text-muted-foreground has-[:checked]:bg-primary/15 has-[:checked]:text-primary has-[:checked]:ring-1 has-[:checked]:ring-primary/30"
+              >
+                <input
+                  type="radio"
+                  name="type"
+                  value={opt.value}
+                  defaultChecked={(project?.type ?? "PROJECT") === opt.value}
+                  className="sr-only"
+                  required
+                />
+                <opt.icon className="h-3.5 w-3.5" />
+                <span className="font-medium">{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </FieldWrapper>
+      </div>
 
       {/* Section 1: Contract & Client */}
       <div className="border-border/50 bg-card rounded-lg border p-6 shadow-lg shadow-black/10">

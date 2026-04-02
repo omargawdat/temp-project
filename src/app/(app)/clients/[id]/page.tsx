@@ -136,7 +136,7 @@ export default async function ClientDetailPage({
               </div>
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold tracking-tight text-foreground">{client.name}</h1>
+                  <h1 className="text-xl font-bold tracking-tight text-foreground">{client.name}</h1>
                   <span className="rounded-md bg-orange-500/10 px-2.5 py-0.5 text-xs font-semibold text-orange-400">
                     {sectorLabel}
                   </span>
@@ -167,6 +167,13 @@ export default async function ClientDetailPage({
               <span className="text-muted-foreground">Finance:</span>
               <span className="font-medium text-secondary-foreground">{client.financeContact}</span>
             </div>
+            {client.billingAddress && (
+              <div className="col-span-2 flex items-start gap-2.5 text-sm">
+                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+                <span className="text-muted-foreground">Billing:</span>
+                <span className="font-medium text-secondary-foreground whitespace-pre-line">{client.billingAddress}</span>
+              </div>
+            )}
           </div>
 
           {/* Portal link */}
@@ -200,7 +207,7 @@ export default async function ClientDetailPage({
                 <Briefcase className="h-3.5 w-3.5 text-orange-400/70" />
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Portfolio</span>
               </div>
-              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
+              <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(portfolioByCurrency)}</p>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm tabular-nums text-muted-foreground">{totalProjects} projects</span>
                 <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
@@ -218,7 +225,7 @@ export default async function ClientDetailPage({
                 </div>
                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-amber-600">{billingPercent}%</span>
               </div>
-              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
+              <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(billedByCurrency)}</p>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500/50 to-amber-400" style={{ width: `${billingPercent}%` }} />
               </div>
@@ -235,7 +242,7 @@ export default async function ClientDetailPage({
                 </div>
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-emerald-600">{collectionPercent}%</span>
               </div>
-              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
+              <p className="text-xl font-bold tracking-tight text-foreground tabular-nums">{formatMultiCurrency(collectedByCurrency)}</p>
               <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-gradient-to-r from-emerald-500/50 to-emerald-400" style={{ width: `${collectionPercent}%` }} />
               </div>
@@ -273,7 +280,7 @@ export default async function ClientDetailPage({
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3.5 w-3.5 text-blue-400/60" />
                     <span className="text-sm font-bold tabular-nums text-foreground">{inProgressMilestones}</span>
-                    <span className="text-xs text-muted-foreground">wip</span>
+                    <span className="text-xs text-muted-foreground">in progress</span>
                   </div>
                   {overdueMilestones.length > 0 && (
                     <div className="flex items-center gap-1.5">
@@ -410,7 +417,7 @@ export default async function ClientDetailPage({
                     className={`group transition-colors hover:bg-orange-500/[0.03] ${idx < client.projects.length - 1 ? "border-b border-border/10" : ""}`}
                   >
                     <td className="px-6 py-4">
-                      <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-base font-semibold text-foreground hover:text-orange-400 transition-colors">
+                      <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-sm font-semibold text-foreground hover:text-orange-400 transition-colors">
                         {project.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-ring/20 shrink-0" />
@@ -574,20 +581,10 @@ export default async function ClientDetailPage({
       </div>
 
       {/* ── G. Footer Info ── */}
-      {(client.billingAddress || client.notes) && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {client.billingAddress && (
-            <div className="rounded-xl border border-border/15 bg-card card-elevated p-5 lg:col-span-2">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Billing Address</p>
-              <p className="whitespace-pre-line text-sm text-secondary-foreground">{client.billingAddress}</p>
-            </div>
-          )}
-          {client.notes && (
-            <div className="rounded-xl border border-border/15 bg-card card-elevated p-5">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Notes</p>
-              <p className="whitespace-pre-line text-sm text-secondary-foreground">{client.notes}</p>
-            </div>
-          )}
+      {client.notes && (
+        <div className="rounded-xl border border-border/15 bg-card card-elevated p-5">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Notes</p>
+          <p className="whitespace-pre-line text-sm text-secondary-foreground">{client.notes}</p>
         </div>
       )}
 

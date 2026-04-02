@@ -4,12 +4,14 @@ import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ToolbarSearch } from "@/components/toolbar/toolbar-search";
 import { ToolbarExportButton } from "@/components/toolbar/toolbar-export-button";
+import { ToolbarViewToggle } from "@/components/toolbar/toolbar-view-toggle";
 
 export function PMToolbar({ resultCount }: { resultCount: number }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const q = searchParams.get("q") ?? "";
+  const view = searchParams.get("view") ?? "list";
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -42,6 +44,10 @@ export function PMToolbar({ resultCount }: { resultCount: number }) {
         <span className="text-xs tabular-nums text-muted-foreground">
           {resultCount} result{resultCount !== 1 ? "s" : ""}
         </span>
+
+        <div className="h-5 w-px bg-border/15" />
+
+        <ToolbarViewToggle view={view} onChange={(v) => updateParams({ view: v === "list" ? null : v })} />
 
         <div className="h-5 w-px bg-border/15" />
 

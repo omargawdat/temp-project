@@ -15,6 +15,11 @@ enum ClientInvoicingMethod {
   EMAIL
 }
 
+enum ProjectType {
+  PROJECT
+  PRODUCT
+}
+
 enum ProjectStatus {
   ACTIVE
   ON_HOLD
@@ -115,6 +120,7 @@ model Project {
   projectManagerId      String
   paymentTerms          String
   clientInvoicingMethod ClientInvoicingMethod
+  type                  ProjectType           @default(PROJECT)
   status                ProjectStatus         @default(ACTIVE)
 
   client         Client         @relation(fields: [clientId], references: [id])

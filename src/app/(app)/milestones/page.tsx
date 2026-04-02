@@ -26,6 +26,7 @@ export default async function MilestonesPage({
     status: typeof params.status === "string" ? params.status : undefined,
     project: typeof params.project === "string" ? params.project : undefined,
     deliveryNote: typeof params.deliveryNote === "string" ? params.deliveryNote : undefined,
+    overdue: typeof params.overdue === "string" ? params.overdue : undefined,
     dateFrom: typeof params.dateFrom === "string" ? params.dateFrom : undefined,
     dateTo: typeof params.dateTo === "string" ? params.dateTo : undefined,
   };

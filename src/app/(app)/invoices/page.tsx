@@ -32,6 +32,7 @@ export default async function InvoicesPage({
     project: typeof params.project === "string" ? params.project : undefined,
     dateFrom: typeof params.dateFrom === "string" ? params.dateFrom : undefined,
     dateTo: typeof params.dateTo === "string" ? params.dateTo : undefined,
+    overdue: typeof params.overdue === "string" ? params.overdue : undefined,
   };
   const sortParams = {
     sort: typeof params.sort === "string" ? params.sort : undefined,
@@ -47,7 +48,7 @@ export default async function InvoicesPage({
   const [invoices, allProjects, totalCount, filteredCount] = await Promise.all([
     prisma.invoice.findMany({
       where,
-      orderBy,
+      orderBy: !sortParams.sort ? [{ paymentDueDate: "asc" }] : orderBy,
       skip,
       take: PAGE_SIZE,
       include: {
@@ -100,12 +101,15 @@ export default async function InvoicesPage({
         </div>
 
         <div className="divide-border/30 divide-y">
-          {invoices.map((invoice) => (
+          {invoices.map((invoice) => {
+            const isOverdue = invoice.paymentDueDate && new Date(invoice.paymentDueDate) < new Date() && !["PAID", "REJECTED"].includes(invoice.status);
+            const needsAction = ["DRAFT", "SUBMITTED", "UNDER_REVIEW"].includes(invoice.status);
+            return (
             <a
               key={invoice.id}
               href={`/api/invoices/${invoice.id}/pdf`}
               download={`Invoice-${invoice.invoiceNumber}.pdf`}
-              className="table-row-hover grid grid-cols-[110px_1fr_1fr_110px_70px_110px_130px_100px] items-center gap-4 px-6 py-4"
+              className={`table-row-hover grid grid-cols-[110px_1fr_1fr_110px_70px_110px_130px_100px] items-center gap-4 px-6 py-4 ${isOverdue ? "bg-red-50/50 border-l-2 border-l-red-400" : needsAction ? "border-l-2 border-l-amber-400" : ""}`}
             >
               <span className="font-mono text-xs font-bold text-primary">
                 {invoice.invoiceNumber}
@@ -155,7 +159,7 @@ export default async function InvoicesPage({
               <div>
                 <StatusBadge status={invoice.status} />
               </div>
-              <span className="text-muted-foreground text-xs">
+              <span className={`text-xs ${isOverdue ? "font-semibold text-red-500" : "text-muted-foreground"}`}>
                 {invoice.paymentDueDate
                   ? new Date(invoice.paymentDueDate).toLocaleDateString(
                       "en-US",
@@ -166,9 +170,11 @@ export default async function InvoicesPage({
                       },
                     )
                   : "—"}
+                {isOverdue && " · Overdue"}
               </span>
             </a>
-          ))}
+            );
+          })}
         </div>
 
         {invoices.length === 0 && filteredCount === 0 && (

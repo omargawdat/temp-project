@@ -7,6 +7,7 @@ import {
   FolderKanban,
   Building2,
   ListChecks,
+  FileSignature,
   Receipt,
   Users2,
   StickyNote,
@@ -22,8 +23,9 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutGrid, color: "#818cf8" },
   { href: "/clients", label: "Clients", icon: Building2, color: "#f97316" },
-  { href: "/projects", label: "Projects", icon: FolderKanban, color: "#60a5fa" },
+  { href: "/projects", label: "Projects / Products", icon: FolderKanban, color: "#60a5fa" },
   { href: "/milestones", label: "Milestones", icon: ListChecks, color: "#fbbf24" },
+  { href: "/delivery-notes", label: "Delivery Notes", icon: FileSignature, color: "#8b5cf6" },
   { href: "/invoices", label: "Invoices", icon: Receipt, color: "#f472b6" },
   { href: "/project-managers", label: "Team", icon: Users2, color: "#a78bfa" },
   { href: "/notes", label: "Notes", icon: StickyNote, color: "#f59e0b" },

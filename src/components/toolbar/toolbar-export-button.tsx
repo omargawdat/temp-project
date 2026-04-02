@@ -60,7 +60,7 @@ export function ToolbarExportButton({
         size="sm"
         onClick={() => setOpen(!open)}
         disabled={state === "loading"}
-        className="h-8 gap-1.5 text-xs font-medium"
+        className="h-8 gap-1.5 text-xs font-medium border-border text-muted-foreground hover:bg-accent hover:text-foreground"
       >
         {state === "loading" ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />

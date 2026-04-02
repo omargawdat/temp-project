@@ -18,6 +18,7 @@ import {
   ListTodo,
   Banknote,
   Send,
+  CalendarClock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -33,12 +34,13 @@ interface NoteData {
 }
 
 const NOTE_TYPES = [
-  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-muted text-muted-foreground", accent: "white" },
-  { value: "MEETING", label: "Meeting", icon: Users, color: "bg-blue-500/10 text-blue-400", accent: "blue" },
-  { value: "DECISION", label: "Decision", icon: Gavel, color: "bg-purple-500/10 text-purple-400", accent: "purple" },
-  { value: "RISK", label: "Risk", icon: ShieldAlert, color: "bg-red-50 text-red-400", accent: "red" },
-  { value: "ACTION", label: "Action Item", icon: ListTodo, color: "bg-amber-50 text-amber-400", accent: "amber" },
-  { value: "FINANCE", label: "Finance", icon: Banknote, color: "bg-emerald-500/10 text-emerald-400", accent: "emerald" },
+  { value: "GENERAL", label: "General", icon: MessageSquare, color: "bg-slate-100 text-slate-600", accent: "white" },
+  { value: "MEETING", label: "Meeting", icon: Users, color: "bg-blue-50 text-blue-600", accent: "blue" },
+  { value: "DECISION", label: "Decision", icon: Gavel, color: "bg-purple-50 text-purple-600", accent: "purple" },
+  { value: "RISK", label: "Risk", icon: ShieldAlert, color: "bg-red-50 text-red-600", accent: "red" },
+  { value: "ACTION", label: "Action Item", icon: ListTodo, color: "bg-amber-50 text-amber-600", accent: "amber" },
+  { value: "FINANCE", label: "Finance", icon: Banknote, color: "bg-emerald-50 text-emerald-600", accent: "emerald" },
+  { value: "FOLLOW_UP", label: "Follow Up", icon: CalendarClock, color: "bg-cyan-50 text-cyan-600", accent: "cyan" },
 ] as const;
 
 function noteTypeStyle(type?: string) {
@@ -252,7 +254,7 @@ export function NotesSection({
                 {/* Bottom toolbar */}
                 <div className="flex items-center justify-between border-t border-border/15 px-2 py-1.5">
                   {/* Type chips — inline in toolbar */}
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-1">
                     {NOTE_TYPES.map((t) => {
                       const Icon = t.icon;
                       const isActive = noteType === t.value;
@@ -262,14 +264,14 @@ export function NotesSection({
                           type="button"
                           onClick={() => setNoteType(t.value)}
                           className={cn(
-                            "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150",
+                            "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-150",
                             isActive
-                              ? `${t.color}`
-                              : "text-muted-foreground hover:text-muted-foreground hover:bg-accent",
+                              ? `${t.color} border-current/20`
+                              : "border-border text-muted-foreground hover:bg-accent",
                           )}
                         >
                           <Icon className="h-3 w-3" strokeWidth={2} />
-                          <span className={cn(isActive ? "inline" : "hidden sm:inline")}>{t.label}</span>
+                          <span>{t.label}</span>
                         </button>
                       );
                     })}

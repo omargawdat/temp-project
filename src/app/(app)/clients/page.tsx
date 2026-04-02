@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { ClientsToolbar } from "@/components/clients/clients-toolbar";
 import { ClientSheet } from "@/components/common/client-sheet";
+import { FloatingAdd } from "@/components/common/floating-add";
 import { Building2, SearchX } from "lucide-react";
 import { OverdueAlert } from "@/components/project-managers/overdue-alert";
 import { ContactActions } from "@/components/clients/contact-actions";
@@ -91,9 +92,10 @@ export default async function ClientsPage({
         title="Clients"
         description={`${totalCount} client${totalCount !== 1 ? "s" : ""} across all sectors`}
         breadcrumbs={[]}
-      >
+      />
+      <FloatingAdd>
         <ClientSheet countries={countries} />
-      </PageHeader>
+      </FloatingAdd>
 
       <ClientsToolbar
         countries={countries
@@ -215,6 +217,17 @@ export default async function ClientsPage({
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
+            {/* Column headers */}
+            <div className="flex items-center gap-4 border-b border-border/50 px-4 py-3">
+              <div className="h-9 w-9 shrink-0" />
+              <div className="w-44 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Client</div>
+              <div className="w-28 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Country</div>
+              <div className="w-24 shrink-0 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Projects</div>
+              <div className="w-36 shrink-0 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Portfolio</div>
+              <div className="hidden xl:block w-32 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Contact</div>
+              <div className="w-16 shrink-0 text-center text-xs font-bold uppercase tracking-wider text-red-400">Overdue</div>
+              <div className="w-24 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Billed</div>
+            </div>
             {clients.map((client) => {
               const activeProjects = client.projects.filter((p) => p.status === "ACTIVE").length;
               const allMilestones = client.projects.flatMap((p) => p.milestones);

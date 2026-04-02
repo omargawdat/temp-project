@@ -60,12 +60,23 @@ export const PROJECT_STATUSES = [
   { key: "CLOSED", label: "Closed", dot: "bg-slate-400" },
 ] as const;
 
+export const PROJECT_TYPES = [
+  { key: "PROJECT", label: "Project", dot: "bg-blue-400" },
+  { key: "PRODUCT", label: "Product", dot: "bg-purple-400" },
+] as const;
+
 export const MILESTONE_STATUSES = [
   { key: "NOT_STARTED", label: "Not Started", dot: "bg-slate-400" },
   { key: "IN_PROGRESS", label: "In Progress", dot: "bg-blue-400" },
   { key: "COMPLETED", label: "Completed", dot: "bg-emerald-400" },
   { key: "READY_FOR_INVOICING", label: "Ready for Invoicing", dot: "bg-purple-400" },
   { key: "INVOICED", label: "Invoiced", dot: "bg-indigo-400" },
+] as const;
+
+export const DELIVERY_NOTE_STATUSES = [
+  { key: "DRAFT", label: "Draft", dot: "bg-slate-400" },
+  { key: "SENT", label: "Sent", dot: "bg-sky-400" },
+  { key: "SIGNED", label: "Signed", dot: "bg-emerald-400" },
 ] as const;
 
 export const INVOICE_STATUSES = [
@@ -117,6 +128,7 @@ export const NOTE_TYPE_STATUSES = [
   { key: "RISK", label: "Risk", dot: "bg-red-400" },
   { key: "ACTION", label: "Action Item", dot: "bg-amber-400" },
   { key: "FINANCE", label: "Finance", dot: "bg-emerald-400" },
+  { key: "FOLLOW_UP", label: "Follow Up", dot: "bg-cyan-400" },
 ] as const;
 
 export const NOTE_TYPE_STYLES: Record<string, StatusStyle> = {
@@ -126,6 +138,7 @@ export const NOTE_TYPE_STYLES: Record<string, StatusStyle> = {
   RISK: { bg: "bg-red-50", text: "text-red-600", dot: "bg-red-500" },
   ACTION: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500" },
   FINANCE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
+  FOLLOW_UP: { bg: "bg-cyan-50", text: "text-cyan-600", dot: "bg-cyan-500" },
 };
 
 export const NOTE_ENTITY_TYPES = [

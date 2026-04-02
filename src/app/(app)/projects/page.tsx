@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/common/page-header";
 import { SchemaProjectCard } from "@/components/ui/schema-project-card";
 import { ProjectListItem } from "@/components/projects/project-list-item";
 import { ProjectSheet } from "@/components/common/project-sheet";
+import { FloatingAdd } from "@/components/common/floating-add";
 import { FolderKanban, SearchX } from "lucide-react";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export default async function ProjectsPage({
     status: typeof params.status === "string" ? params.status : undefined,
     client: typeof params.client === "string" ? params.client : undefined,
     pm: typeof params.pm === "string" ? params.pm : undefined,
+    type: typeof params.type === "string" ? params.type : undefined,
   };
   const sortParams = {
     sort: typeof params.sort === "string" ? params.sort : undefined,
@@ -73,12 +75,13 @@ export default async function ProjectsPage({
   return (
     <div>
       <PageHeader
-        title="Projects"
-        description={`${totalCount} project${totalCount !== 1 ? "s" : ""} across all clients`}
+        title="Projects / Products"
+        description={`${totalCount} project${totalCount !== 1 ? "s" : ""} & products across all clients`}
         breadcrumbs={[]}
-      >
+      />
+      <FloatingAdd>
         <ProjectSheet projectManagers={projectManagers} clients={clients} />
-      </PageHeader>
+      </FloatingAdd>
 
       <ProjectsToolbar
         clients={clients.map((c) => ({ id: c.id, name: c.name, count: c._count.projects }))}
@@ -124,12 +127,24 @@ export default async function ProjectsPage({
                   billedAmount={billedAmount}
                   collectedAmount={collectedAmount}
                   colorIndex={i}
+                  type={project.type}
                 />
               );
             })}
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
+            {/* Column headers */}
+            <div className="flex items-center gap-4 border-b border-border/50 px-4 py-3">
+              <div className="h-9 w-9 shrink-0" />
+              <div className="w-48 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Project</div>
+              <div className="w-28 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Status</div>
+              <div className="w-32 shrink-0 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Value</div>
+              <div className="w-24 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Progress</div>
+              <div className="w-24 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Billed</div>
+              <div className="w-28 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">PM</div>
+              <div className="hidden xl:block w-36 shrink-0 text-xs font-bold uppercase tracking-wider text-muted-foreground/70">Timeline</div>
+            </div>
             {projects.map((project) => {
               const completed = project.milestones.filter(
                 (m) =>
@@ -154,6 +169,7 @@ export default async function ProjectsPage({
                   projectManager={project.projectManager.name}
                   projectManagerPhoto={project.projectManager.photoUrl}
                   status={project.status}
+                  type={project.type}
                   milestonesCompleted={completed}
                   milestonesTotal={project.milestones.length}
                   billedAmount={billedAmount}

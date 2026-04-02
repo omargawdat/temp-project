@@ -14,6 +14,7 @@ interface ProjectListItemProps {
   projectManager: string;
   projectManagerPhoto?: string | null;
   status: string;
+  type?: string;
   milestonesCompleted: number;
   milestonesTotal: number;
   billedAmount: number;
@@ -32,6 +33,7 @@ export function ProjectListItem({
   projectManager,
   projectManagerPhoto,
   status,
+  type,
   milestonesCompleted,
   milestonesTotal,
   billedAmount,
@@ -64,7 +66,10 @@ export function ProjectListItem({
       </div>
 
       {/* Status */}
-      <div className="w-28 shrink-0">
+      <div className="w-28 shrink-0 flex items-center gap-1.5">
+        {type === "PRODUCT" && (
+          <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">Product</span>
+        )}
         <StatusBadge status={status} />
       </div>
 

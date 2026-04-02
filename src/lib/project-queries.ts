@@ -1,10 +1,11 @@
-import type { Prisma, ProjectStatus } from "@prisma/client";
+import type { Prisma, ProjectStatus, ProjectType } from "@prisma/client";
 
 interface ProjectFilterParams {
   q?: string;
   status?: string;
   client?: string;
   pm?: string;
+  type?: string;
 }
 
 interface ProjectSortParams {
@@ -43,6 +44,11 @@ export function buildProjectWhere(
     conditions.push({ projectManagerId: { in: pmFilter } });
   }
 
+  const typeFilter = params.type?.split(",").filter(Boolean) ?? [];
+  if (typeFilter.length > 0) {
+    conditions.push({ type: { in: typeFilter as ProjectType[] } });
+  }
+
   return conditions.length > 0 ? { AND: conditions } : {};
 }
 
@@ -69,5 +75,5 @@ export function buildProjectOrderBy(
 }
 
 export function hasActiveProjectFilters(params: ProjectFilterParams): boolean {
-  return !!(params.q?.trim() || params.status || params.client || params.pm);
+  return !!(params.q?.trim() || params.status || params.client || params.pm || params.type);
 }

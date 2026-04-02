@@ -5,6 +5,7 @@ interface MilestoneFilterParams {
   status?: string;
   project?: string;
   deliveryNote?: string;
+  overdue?: string;
   dateFrom?: string;
   dateTo?: string;
 }
@@ -46,6 +47,21 @@ export function buildMilestoneWhere(
     conditions.push({ requiresDeliveryNote: false });
   }
 
+  // Overdue filter
+  if (params.overdue === "true") {
+    conditions.push({
+      plannedDate: { lt: new Date() },
+      status: { notIn: ["COMPLETED", "READY_FOR_INVOICING", "INVOICED"] },
+    });
+  } else if (params.overdue === "false") {
+    conditions.push({
+      OR: [
+        { plannedDate: { gte: new Date() } },
+        { status: { in: ["COMPLETED", "READY_FOR_INVOICING", "INVOICED"] } },
+      ],
+    });
+  }
+
   // Date range filter
   if (params.dateFrom || params.dateTo) {
     const dateCondition: Record<string, Date> = {};
@@ -81,5 +97,5 @@ export function buildMilestoneOrderBy(
 }
 
 export function hasActiveFilters(params: MilestoneFilterParams): boolean {
-  return !!(params.q?.trim() || params.status || params.project || params.deliveryNote || params.dateFrom || params.dateTo);
+  return !!(params.q?.trim() || params.status || params.project || params.deliveryNote || params.overdue || params.dateFrom || params.dateTo);
 }

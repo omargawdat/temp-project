@@ -26,6 +26,7 @@ interface SchemaProjectCardProps {
   billedAmount: number;
   collectedAmount: number;
   colorIndex: number;
+  type?: string;
   className?: string;
 }
 
@@ -48,6 +49,7 @@ export function SchemaProjectCard({
   billedAmount,
   collectedAmount,
   colorIndex,
+  type,
   className,
 }: SchemaProjectCardProps) {
   const progressPct = safePercent(milestonesCompleted, milestonesTotal);
@@ -89,6 +91,9 @@ export function SchemaProjectCard({
               <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
                 {name}
               </h3>
+              {type === "PRODUCT" && (
+                <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">Product</span>
+              )}
               <StatusBadge status={status} />
             </div>
             <p className="mt-1 text-sm text-muted-foreground truncate">{clientName}</p>

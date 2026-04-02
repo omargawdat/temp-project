@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FolderOpen, ArrowUpRight } from "lucide-react";
-import { DEFAULT_PORTRAITS } from "@/lib/constants";
 import { getInitials, formatCompactNumber } from "@/lib/format";
 
 interface PMCardProps {
@@ -23,7 +22,7 @@ interface PMCardProps {
   colorIndex: number;
 }
 
-export function PMCard({ pm, colorIndex }: PMCardProps) {
+export function PMCard({ pm }: PMCardProps) {
   const initials = getInitials(pm.name);
   const activeCount = pm.projects.filter((p) => p.status === "ACTIVE").length;
   const totalValue = pm.projects.reduce(
@@ -31,78 +30,58 @@ export function PMCard({ pm, colorIndex }: PMCardProps) {
       sum + (typeof p.contractValue === "number" ? p.contractValue : Number(p.contractValue)),
     0,
   );
-  const photoSrc = pm.photoUrl || DEFAULT_PORTRAITS[colorIndex % DEFAULT_PORTRAITS.length];
-  const hasPhoto = !!pm.photoUrl;
 
   return (
     <Link
       href={`/project-managers/${pm.id}`}
-      className="group relative block aspect-[4/5] overflow-hidden rounded-2xl"
+      className="card-hover group relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300"
     >
-      {/* Full-bleed image */}
-      {hasPhoto ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={photoSrc}
-          alt={pm.name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-7xl font-extralight tracking-widest text-muted-foreground">{initials}</span>
+      <div className="p-6">
+        {/* Avatar */}
+        <div className="flex items-start justify-between mb-4">
+          {pm.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={pm.photoUrl}
+              alt={pm.name}
+              className="h-14 w-14 rounded-xl object-cover ring-2 ring-ring/20"
+            />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 ring-2 ring-ring/20">
+              <span className="text-lg font-bold text-primary">{initials}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5">
+            {activeCount > 0 && (
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-600">
+                {activeCount} active
+              </span>
+            )}
+            {pm.projects.length > 0 && (
+              <span className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                <FolderOpen className="h-3 w-3" />
+                {pm.projects.length}
+              </span>
+            )}
           </div>
-          {/* Subtle geometric decoration */}
-          <div className="absolute top-8 right-8 h-32 w-32 rounded-full border border-border" />
-          <div className="absolute top-12 right-12 h-24 w-24 rounded-full border border-border/50" />
-          <div className="absolute bottom-32 left-8 h-16 w-16 rounded-full border border-border" />
         </div>
-      )}
 
-      {/* Gradient overlay — bottom half */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-
-      {/* Top pills */}
-      <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
-        {activeCount > 0 ? (
-          <div className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
-            <span className="text-[10px] font-medium text-secondary-foreground">
-              {activeCount} Active
-            </span>
-          </div>
-        ) : (
-          <div />
-        )}
-        {pm.projects.length > 0 && (
-          <div className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 backdrop-blur-md">
-            <FolderOpen className="h-3 w-3 text-secondary-foreground" />
-            <span className="text-xs font-medium text-foreground">{pm.projects.length}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Bottom content — overlaid on gradient */}
-      <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-
-        {/* Name */}
-        <h3 className="text-xl font-bold tracking-tight text-foreground">
+        {/* Name + Title */}
+        <h3 className="text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
           {pm.name}
         </h3>
-
-        {/* Title */}
         {pm.title && (
-          <p className="mt-1 text-sm text-muted-foreground">{pm.title}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{pm.title}</p>
         )}
 
-        {/* Value + arrow — bottom row */}
+        {/* Value + arrow */}
         <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
           <span className="font-mono text-xs text-muted-foreground">
             {totalValue > 0
               ? `$${formatCompactNumber(totalValue)} managed`
               : "No projects yet"}
           </span>
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-secondary-foreground" />
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
         </div>
       </div>
     </Link>

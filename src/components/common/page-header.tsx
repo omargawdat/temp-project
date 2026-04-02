@@ -56,11 +56,11 @@ export function PageHeader({
       )}
       <div className="flex items-end justify-between gap-6">
         <div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">
+          <h1 className="text-foreground text-xl font-bold tracking-tight">
             {title}
           </h1>
           {description && (
-            <p className="text-muted-foreground mt-2 text-base">
+            <p className="text-muted-foreground mt-2 text-sm">
               {description}
             </p>
           )}

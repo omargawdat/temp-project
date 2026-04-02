@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { PMSheet } from "@/components/common/pm-sheet";
+import { PMCard } from "@/components/common/pm-card";
+import { FloatingAdd } from "@/components/common/floating-add";
 import { Users, SearchX } from "lucide-react";
 import { SortableHeader } from "@/components/toolbar/sortable-header";
 import { PMToolbar } from "@/components/project-managers/pm-toolbar";
@@ -11,7 +13,6 @@ import { parsePage, getPaginationMeta } from "@/lib/pagination";
 import { Pagination } from "@/components/common/pagination";
 import { Button } from "@/components/ui/button";
 import { OverdueAlert } from "@/components/project-managers/overdue-alert";
-import { formatMultiCurrency } from "@/lib/format";
 
 export default async function ProjectManagersPage({
   searchParams,
@@ -27,6 +28,8 @@ export default async function ProjectManagersPage({
     dir: typeof params.dir === "string" ? params.dir : undefined,
   };
 
+  const view = typeof params.view === "string" ? params.view : "list";
+
   const where = buildPMWhere(filterParams);
   const filtersActive = hasActivePMFilters(filterParams);
 
@@ -36,6 +39,7 @@ export default async function ProjectManagersPage({
       include: {
         projects: {
           include: {
+            client: { select: { name: true } },
             milestones: {
               include: {
                 invoice: { select: { id: true, status: true, totalPayable: true } },
@@ -62,145 +66,146 @@ export default async function ProjectManagersPage({
         title="Team"
         description={`${totalCount} project manager${totalCount !== 1 ? "s" : ""}`}
         breadcrumbs={[]}
-      >
+      />
+
+      <FloatingAdd>
         <PMSheet />
-      </PageHeader>
+      </FloatingAdd>
 
       <PMToolbar resultCount={sortedStats.length} />
 
       {sortedStats.length > 0 ? (
         <>
+        {view === "grid" ? (
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {paginatedStats.map((pm, i) => {
+              const manager = managers.find((m) => m.id === pm.id)!;
+              return (
+                <PMCard
+                  key={pm.id}
+                  pm={{
+                    id: pm.id,
+                    name: pm.name,
+                    email: manager.email,
+                    phone: manager.phone,
+                    title: pm.title,
+                    photoUrl: pm.photoUrl,
+                    projects: manager.projects.map((p) => ({
+                      id: p.id,
+                      name: p.name,
+                      client: p.client,
+                      status: p.status,
+                      contractValue: Number(p.contractValue),
+                      currency: p.currency,
+                    })),
+                  }}
+                  colorIndex={i}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated">
+            <table className="w-full" style={{ tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "35%" }} />
+                <col style={{ width: "15%" }} />
+                <col style={{ width: "30%" }} />
+                <col style={{ width: "20%" }} />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-border/15">
+                  <th className="px-6 py-3.5 text-left">
+                    <SortableHeader label="Manager" field="name" basePath="/project-managers" defaultSort="name" />
+                  </th>
+                  <th className="px-4 py-3.5 text-center">
+                    <SortableHeader label="Projects" field="projects" align="center" basePath="/project-managers" defaultSort="name" />
+                  </th>
+                  <th className="px-4 py-3.5 text-left">
+                    <SortableHeader label="Milestones" field="milestones" basePath="/project-managers" defaultSort="name" />
+                  </th>
+                  <th className="px-4 py-3.5 text-left">
+                    <SortableHeader label="Next Deadline" field="nextDeadline" basePath="/project-managers" defaultSort="name" />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedStats.map((pm, idx) => {
+                  const initials = pm.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
-        <div className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated">
-          <table className="w-full" style={{ tableLayout: "fixed" }}>
-            <colgroup>
-              <col style={{ width: "28%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "18%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "16%" }} />
-            </colgroup>
-            <thead>
-              <tr className="border-b border-border/15">
-                <th className="px-6 py-3.5 text-left">
-                  <SortableHeader label="Manager" field="name" basePath="/project-managers" defaultSort="name" />
-                </th>
-                <th className="px-4 py-3.5 text-center">
-                  <SortableHeader label="Projects" field="projects" align="center" basePath="/project-managers" defaultSort="name" />
-                </th>
-                <th className="px-4 py-3.5 text-left">
-                  <SortableHeader label="Milestones" field="milestones" basePath="/project-managers" defaultSort="name" />
-                </th>
-                <th className="px-4 py-3.5 text-left">
-                  <SortableHeader label="Next Deadline" field="nextDeadline" basePath="/project-managers" defaultSort="name" />
-                </th>
-                <th className="px-4 py-3.5 text-right">
-                  <SortableHeader label="Portfolio" field="portfolio" align="right" basePath="/project-managers" defaultSort="name" />
-                </th>
-                <th className="px-4 py-3.5 text-right">
-                  <SortableHeader label="Billed" field="billed" align="right" basePath="/project-managers" defaultSort="name" />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedStats.map((pm, idx) => {
-                const initials = pm.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-
-                // Next deadline formatting
-                let deadlineLabel = "—";
-                let deadlineColor = "text-muted-foreground/60";
-                if (pm.nextDeadline) {
-                  const d = new Date(pm.nextDeadline);
-                  const daysUntil = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                  deadlineLabel = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                  if (daysUntil <= 7) {
-                    deadlineColor = "text-amber-400";
-                  } else {
-                    deadlineColor = "text-muted-foreground/70";
+                  let deadlineLabel = "—";
+                  let deadlineColor = "text-muted-foreground/60";
+                  if (pm.nextDeadline) {
+                    const d = new Date(pm.nextDeadline);
+                    const daysUntil = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                    deadlineLabel = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                    if (daysUntil <= 7) {
+                      deadlineColor = "text-amber-400";
+                    } else {
+                      deadlineColor = "text-muted-foreground/70";
+                    }
                   }
-                }
 
-                return (
-                  <tr
-                    key={pm.id}
-                    className={`group transition-colors hover:bg-accent ${
-                      idx < paginatedStats.length - 1 ? "border-b border-border/10" : ""
-                    }`}
-                  >
-                    {/* Manager */}
-                    <td className="px-6 py-4">
-                      <Link href={`/project-managers/${pm.id}`} className="flex items-center gap-3">
-                        {pm.photoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={pm.photoUrl} alt={pm.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-ring/20" />
-                        ) : (
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 text-xs font-bold text-primary ring-2 ring-ring/20">
-                            {initials}
+                  return (
+                    <tr
+                      key={pm.id}
+                      className={`group transition-colors hover:bg-accent ${
+                        idx < paginatedStats.length - 1 ? "border-b border-border/10" : ""
+                      }`}
+                    >
+                      <td className="px-6 py-4">
+                        <Link href={`/project-managers/${pm.id}`} className="flex items-center gap-3">
+                          {pm.photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={pm.photoUrl} alt={pm.name} className="h-9 w-9 rounded-full object-cover ring-2 ring-ring/20" />
+                          ) : (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-indigo-500/20 text-xs font-bold text-primary ring-2 ring-ring/20">
+                              {initials}
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-sm font-semibold text-foreground group-hover:text-primary/80 transition-colors">{pm.name}</p>
+                            {pm.title && <p className="text-xs text-muted-foreground/70">{pm.title}</p>}
                           </div>
-                        )}
-                        <div>
-                          <p className="text-sm font-semibold text-foreground group-hover:text-primary/80 transition-colors">{pm.name}</p>
-                          {pm.title && <p className="text-xs text-muted-foreground/70">{pm.title}</p>}
-                        </div>
-                      </Link>
-                    </td>
+                        </Link>
+                      </td>
 
-                    {/* Projects */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="flex flex-col items-center gap-0.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-foreground">{pm.totalProjects}</span>
-                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">total</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-emerald-500">{pm.activeProjects}</span>
-                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">active</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Milestones completion */}
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pm.completionPct}%` }} />
-                        </div>
-                        <span className="text-sm tabular-nums text-secondary-foreground">{pm.completedMilestones}/{pm.totalMilestones}</span>
-                        {pm.overdueMilestones > 0 && (
-                          <OverdueAlert count={pm.overdueMilestones} details={pm.overdueMilestoneDetails} />
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Next Deadline */}
-                    <td className="px-4 py-4">
-                      <span className={`text-sm font-semibold ${deadlineColor}`}>{deadlineLabel}</span>
-                    </td>
-
-                    {/* Portfolio */}
-                    <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-bold tabular-nums text-foreground">{formatMultiCurrency(pm.portfolioByCurrency)}</span>
-                    </td>
-
-                    {/* Billed */}
-                    <td className="px-4 py-4 text-right">
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="text-sm font-bold tabular-nums text-foreground">{formatMultiCurrency(pm.billedByCurrency)}</span>
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-1.5 w-12 overflow-hidden rounded-full bg-amber-50">
-                            <div className="h-full rounded-full bg-amber-500/70 transition-all" style={{ width: `${pm.billedPct}%` }} />
+                      <td className="px-4 py-4 text-center">
+                        <div className="flex flex-col items-center gap-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-bold text-foreground">{pm.totalProjects}</span>
+                            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">total</span>
                           </div>
-                          <span className="text-xs tabular-nums text-muted-foreground/60">{pm.billedPct}%</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-bold text-emerald-500">{pm.activeProjects}</span>
+                            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">active</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                            <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pm.completionPct}%` }} />
+                          </div>
+                          <span className="text-sm tabular-nums text-secondary-foreground">{pm.completedMilestones}/{pm.totalMilestones}</span>
+                          {pm.overdueMilestones > 0 && (
+                            <OverdueAlert count={pm.overdueMilestones} details={pm.overdueMilestoneDetails} />
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className={`text-sm font-semibold ${deadlineColor}`}>{deadlineLabel}</span>
+                      </td>
+
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
         <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
         </>
       ) : (

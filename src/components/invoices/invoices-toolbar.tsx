@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { X, FolderKanban } from "lucide-react";
+import { X, FolderKanban, AlertTriangle } from "lucide-react";
 import { ToolbarSearch } from "@/components/toolbar/toolbar-search";
 import { ToolbarStatusPills } from "@/components/toolbar/toolbar-status-pills";
 import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
@@ -27,13 +27,15 @@ export function InvoicesToolbar({
     searchParams.get("project")?.split(",").filter(Boolean) ?? [];
   const dateFrom = searchParams.get("dateFrom") ?? "";
   const dateTo = searchParams.get("dateTo") ?? "";
+  const overdueFilter = searchParams.get("overdue") ?? "";
 
   const hasFilters =
     q ||
     statusFilter.length > 0 ||
     projectFilter.length > 0 ||
     dateFrom ||
-    dateTo;
+    dateTo ||
+    overdueFilter;
 
   const clearAll = useCallback(() => {
     router.replace("/invoices", { scroll: false });
@@ -104,6 +106,21 @@ export function InvoicesToolbar({
             updateParams({ status: v.length > 0 ? v.join(",") : null })
           }
         />
+
+        <div className="h-5 w-px bg-border/30" />
+
+        <button
+          type="button"
+          onClick={() => updateParams({ overdue: overdueFilter === "true" ? null : "true" })}
+          className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+            overdueFilter === "true"
+              ? "bg-red-100 text-red-600"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <AlertTriangle className="h-3 w-3" />
+          Overdue
+        </button>
 
         {hasFilters && (
           <>

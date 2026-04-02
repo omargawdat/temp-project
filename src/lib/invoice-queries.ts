@@ -6,6 +6,7 @@ interface InvoiceFilterParams {
   project?: string;
   dateFrom?: string;
   dateTo?: string;
+  overdue?: string;
 }
 
 interface InvoiceSortParams {
@@ -37,6 +38,22 @@ export function buildInvoiceWhere(
   if (projectFilter.length > 0) {
     conditions.push({
       milestones: { some: { projectId: { in: projectFilter } } },
+    });
+  }
+
+  // Overdue filter
+  if (params.overdue === "true") {
+    conditions.push({
+      paymentDueDate: { lt: new Date() },
+      status: { notIn: ["PAID", "REJECTED"] },
+    });
+  } else if (params.overdue === "false") {
+    conditions.push({
+      OR: [
+        { paymentDueDate: null },
+        { paymentDueDate: { gte: new Date() } },
+        { status: { in: ["PAID", "REJECTED"] } },
+      ],
     });
   }
 
@@ -83,6 +100,7 @@ export function hasActiveInvoiceFilters(
     params.status ||
     params.project ||
     params.dateFrom ||
-    params.dateTo
+    params.dateTo ||
+    params.overdue
   );
 }

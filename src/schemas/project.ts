@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ClientInvoicingMethod } from "@prisma/client";
+import { ClientInvoicingMethod, ProjectType } from "@prisma/client";
 import { parseLocalDate } from "@/lib/form-utils";
 
 export const projectFormSchema = z
@@ -31,6 +31,9 @@ export const projectFormSchema = z
     paymentTerms: z.string().trim().min(1, { error: "Payment terms is required." }),
     clientInvoicingMethod: z.enum(ClientInvoicingMethod, {
       error: "Invoicing method must be one of: PORTAL, EMAIL.",
+    }),
+    type: z.enum(ProjectType, {
+      error: "Type must be Project or Product.",
     }),
   })
   .refine((data) => data.endDate > data.startDate, {
