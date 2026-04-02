@@ -7,6 +7,7 @@ import { DeliveryNoteStatus } from "@prisma/client";
 import { DN_TRANSITIONS } from "@/schemas/transitions";
 import { deliveryNoteFormSchema, deliveryNoteUpdateSchema } from "@/schemas/delivery-note";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { handleFileUpload } from "@/lib/file-upload";
 
 
 export async function createDeliveryNote(
@@ -22,34 +23,29 @@ export async function createDeliveryNote(
       };
     }
 
-    const { milestoneId, description, workDelivered } = result.data;
+    const { projectId, milestoneId, description, workDelivered } = result.data;
 
-    const milestone = await prisma.milestone.findUnique({
-      where: { id: milestoneId },
-      include: { deliveryNote: true },
-    });
+    // Validate milestone if provided
+    if (milestoneId) {
+      const milestone = await prisma.milestone.findUnique({
+        where: { id: milestoneId },
+        include: { deliveryNote: true },
+      });
 
-    if (!milestone) {
-      return { success: false, error: "Milestone not found." };
-    }
+      if (!milestone) {
+        return { success: false, error: "Milestone not found." };
+      }
 
-    if (!milestone.requiresDeliveryNote) {
-      return { success: false, error: "This milestone does not require a delivery note." };
-    }
-
-    if (milestone.deliveryNote) {
-      return { success: false, error: "A delivery note already exists for this milestone." };
-    }
-
-    if (milestone.status !== "COMPLETED" && milestone.status !== "READY_FOR_INVOICING") {
-      return { success: false, error: "Milestone must be completed before creating a delivery note." };
+      if (milestone.deliveryNote) {
+        return { success: false, error: "A delivery note already exists for this milestone." };
+      }
     }
 
     const deliveryNote = await prisma.deliveryNote.create({
-      data: { milestoneId, description, workDelivered, status: "DRAFT" },
+      data: { projectId, milestoneId, description, workDelivered, status: "DRAFT" },
     });
 
-    revalidateEntity("projects", milestone.projectId);
+    revalidateEntity("projects", projectId);
     return { success: true, data: { id: deliveryNote.id } };
   });
 }
@@ -72,7 +68,6 @@ export async function updateDeliveryNote(
 
     const deliveryNote = await prisma.deliveryNote.findUnique({
       where: { id },
-      include: { milestone: true },
     });
 
     if (!deliveryNote) {
@@ -88,7 +83,7 @@ export async function updateDeliveryNote(
       data: { description, workDelivered },
     });
 
-    revalidateEntity("projects", deliveryNote.milestone.projectId);
+    revalidateEntity("projects", deliveryNote.projectId);
     return { success: true, data: { id } };
   });
 }
@@ -96,11 +91,11 @@ export async function updateDeliveryNote(
 export async function updateDeliveryNoteStatus(
   id: string,
   newStatus: DeliveryNoteStatus,
+  formData?: FormData,
 ): Promise<ActionResult> {
   return withErrorHandling(async () => {
     const deliveryNote = await prisma.deliveryNote.findUnique({
       where: { id },
-      include: { milestone: true },
     });
 
     if (!deliveryNote) {
@@ -115,11 +110,20 @@ export async function updateDeliveryNoteStatus(
     const updateData: Record<string, unknown> = { status: newStatus };
 
     if (newStatus === DeliveryNoteStatus.SENT) updateData.sentDate = new Date();
-    if (newStatus === DeliveryNoteStatus.SIGNED) updateData.signedDate = new Date();
+    if (newStatus === DeliveryNoteStatus.SIGNED) {
+      updateData.signedDate = new Date();
+
+      const file = formData?.get("signedDocument") as File | null;
+      if (!file || file.size === 0) {
+        return { success: false, error: "A signed document file is required." };
+      }
+      const result = await handleFileUpload(file, "delivery-notes");
+      updateData.signedDocumentUrl = result.url;
+    }
 
     await prisma.deliveryNote.update({ where: { id }, data: updateData });
 
-    revalidateEntity("projects", deliveryNote.milestone.projectId);
+    revalidateEntity("projects", deliveryNote.projectId);
     return { success: true, data: undefined };
   });
 }

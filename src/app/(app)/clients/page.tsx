@@ -3,10 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { ClientsToolbar } from "@/components/clients/clients-toolbar";
 import { ClientSheet } from "@/components/common/client-sheet";
-import { FloatingAdd } from "@/components/common/floating-add";
 import { Building2, SearchX } from "lucide-react";
 import { OverdueAlert } from "@/components/project-managers/overdue-alert";
-import { ContactActions } from "@/components/clients/contact-actions";
 import { ClientListItem } from "@/components/clients/client-list-item";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { Button } from "@/components/ui/button";
@@ -47,7 +45,7 @@ export default async function ClientsPage({
   const rawPage = parsePage(params.page);
   const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [clients, totalCount, filteredCount, countries] = await Promise.all([
+  const [clients, totalCount, filteredCount, countries, contactCounts] = await Promise.all([
     prisma.client.findMany({
       where,
       orderBy,
@@ -82,7 +80,14 @@ export default async function ClientsPage({
       select: { id: true, name: true, code: true, flag: true, _count: { select: { clients: true } } },
       orderBy: { name: "asc" },
     }),
+    prisma.contact.groupBy({
+      by: ["entityId"],
+      where: { entityType: "Client" },
+      _count: true,
+    }),
   ]);
+
+  const contactCountMap = new Map(contactCounts.map((c) => [c.entityId, c._count]));
 
   const pagination = getPaginationMeta(rawPage, filteredCount);
 
@@ -92,10 +97,9 @@ export default async function ClientsPage({
         title="Clients"
         description={`${totalCount} client${totalCount !== 1 ? "s" : ""} across all sectors`}
         breadcrumbs={[]}
-      />
-      <FloatingAdd>
+      >
         <ClientSheet countries={countries} />
-      </FloatingAdd>
+      </PageHeader>
 
       <ClientsToolbar
         countries={countries
@@ -209,7 +213,9 @@ export default async function ClientsPage({
 
                     <div className="my-4 h-px bg-muted" />
 
-                    <ContactActions contact={client.primaryContact} email={client.email} phone={client.phone} />
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="tabular-nums font-medium">{contactCountMap.get(client.id) ?? 0}</span> contacts
+                    </div>
                   </div>
                 </Link>
               );
@@ -255,7 +261,7 @@ export default async function ClientsPage({
                   totalContractValue={totalContractValue}
                   billedAmount={billedAmount}
                   collectedAmount={collectedAmount}
-                  primaryContact={client.primaryContact}
+                  contactCount={contactCountMap.get(client.id) ?? 0}
                   overdueMilestones={overdueMilestones}
                 />
               );

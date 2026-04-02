@@ -46,19 +46,16 @@ export default async function DeliveryNotesPage({
       skip,
       take: PAGE_SIZE,
       include: {
-        milestone: {
+        project: {
           include: {
-            project: {
-              include: {
-                client: { select: { name: true } },
-              },
-            },
+            client: { select: { name: true } },
           },
         },
+        milestone: { select: { id: true, name: true } },
       },
     }),
     prisma.project.findMany({
-      select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
+      select: { id: true, name: true, _count: { select: { milestones: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.deliveryNote.count(),
@@ -76,7 +73,7 @@ export default async function DeliveryNotesPage({
       />
 
       <DeliveryNotesToolbar
-        projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
+        projects={allProjects.map((p) => ({ id: p.id, name: p.name, count: p._count.milestones }))}
         resultCount={filteredCount}
       />
 
@@ -99,20 +96,20 @@ export default async function DeliveryNotesPage({
             return (
               <Link
                 key={dn.id}
-                href={`/projects/${dn.milestone.projectId}`}
+                href={`/projects/${dn.projectId}`}
                 className={`table-row-hover grid grid-cols-[1fr_180px_150px_100px_110px_110px] gap-x-4 items-center px-6 py-4 ${
                   isSentPending ? "border-l-2 border-l-sky-400" : ""
                 }`}
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{dn.milestone.name}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{dn.milestone?.name ?? "No milestone"}</p>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">{dn.description.length > 60 ? dn.description.slice(0, 60) + "..." : dn.description}</p>
                 </div>
                 <span className="truncate text-sm text-primary">
-                  {dn.milestone.project.name}
+                  {dn.project.name}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {dn.milestone.project.client.name}
+                  {dn.project.client.name}
                 </span>
                 <div>
                   <StatusBadge status={dn.status} />

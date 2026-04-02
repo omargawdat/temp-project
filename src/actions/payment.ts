@@ -52,8 +52,8 @@ export async function createPayment(
         data: { invoiceId, amount, receivedDate, reference },
       });
 
-      const totalPaid = existingPaid + Number(amount);
-      if (totalPaid >= Number(invoice.totalPayable)) {
+      const totalPaid = Math.round((existingPaid + Number(amount)) * 100) / 100;
+      if (totalPaid >= Math.round(Number(invoice.totalPayable) * 100) / 100) {
         await tx.invoice.update({
           where: { id: invoiceId },
           data: { status: "PAID" },

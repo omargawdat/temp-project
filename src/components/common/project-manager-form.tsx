@@ -174,7 +174,6 @@ export function ProjectManagerForm({
             name="name"
             placeholder="Sarah Johnson"
             defaultValue={pm?.name ?? ""}
-            className="h-10"
             required
           />
         </FieldWrapper>
@@ -184,7 +183,6 @@ export function ProjectManagerForm({
             name="title"
             placeholder="Senior Project Manager"
             defaultValue={pm?.title ?? ""}
-            className="h-10"
           />
         </FieldWrapper>
         <FieldWrapper icon={Mail} label="Email" htmlFor="email" error={fieldError("email")}>
@@ -194,7 +192,6 @@ export function ProjectManagerForm({
             type="email"
             placeholder="sarah@company.com"
             defaultValue={pm?.email ?? ""}
-            className="h-10"
             required
           />
         </FieldWrapper>
@@ -205,7 +202,6 @@ export function ProjectManagerForm({
             type="tel"
             placeholder="+966 50 123 4567"
             defaultValue={pm?.phone ?? ""}
-            className="h-10"
           />
         </FieldWrapper>
       </div>

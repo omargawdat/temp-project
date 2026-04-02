@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { ActionResult } from "@/types";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { handleImageUpload } from "@/lib/image-upload";
 import { ProjectStatus } from "@prisma/client";
 import { PROJECT_TRANSITIONS } from "@/schemas/transitions";
 import { projectFormSchema } from "@/schemas/project";
+import { contactsArraySchema } from "@/schemas/contact";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
 
 /**
@@ -101,7 +101,9 @@ export async function createProject(
     }
 
     const data = result.data;
-    const imageUrl = await handleImageUpload(formData, "image", "projects");
+
+    const contactsRaw = formData.get("contacts") as string | null;
+    const contacts = contactsRaw ? contactsArraySchema.parse(JSON.parse(contactsRaw)) : [];
 
     const existing = await prisma.project.findUnique({
       where: { contractNumber: data.contractNumber },
@@ -118,10 +120,19 @@ export async function createProject(
       data: {
         ...data,
         currency: data.currency.toUpperCase(),
-        imageUrl,
         status: "ACTIVE",
       },
     });
+
+    if (contacts.length > 0) {
+      await prisma.contact.createMany({
+        data: contacts.map((c) => ({
+          ...c,
+          entityType: "Project",
+          entityId: project.id,
+        })),
+      });
+    }
 
     revalidateEntity("projects");
     return { success: true, data: { id: project.id } };
@@ -144,12 +155,8 @@ export async function updateProject(
 
     const data = result.data;
 
-    const current = await prisma.project.findUnique({ where: { id } });
-    if (!current) {
-      return { success: false, error: "Project not found." };
-    }
-
-    const imageUrl = await handleImageUpload(formData, "image", "projects", current.imageUrl);
+    const contactsRaw = formData.get("contacts") as string | null;
+    const contacts = contactsRaw ? contactsArraySchema.parse(JSON.parse(contactsRaw)) : [];
 
     const existing = await prisma.project.findFirst({
       where: { contractNumber: data.contractNumber, id: { not: id } },
@@ -164,8 +171,22 @@ export async function updateProject(
 
     await prisma.project.update({
       where: { id },
-      data: { ...data, currency: data.currency.toUpperCase(), imageUrl },
+      data: { ...data, currency: data.currency.toUpperCase() },
     });
+
+    // Replace all contacts for this project
+    await prisma.contact.deleteMany({
+      where: { entityType: "Project", entityId: id },
+    });
+    if (contacts.length > 0) {
+      await prisma.contact.createMany({
+        data: contacts.map((c) => ({
+          ...c,
+          entityType: "Project",
+          entityId: id,
+        })),
+      });
+    }
 
     revalidateEntity("projects", id);
     return { success: true, data: { id } };

@@ -5,7 +5,6 @@ import { getInitials, safePercent, formatCurrency, formatDate } from "@/lib/form
 interface ProjectListItemProps {
   id: string;
   name: string;
-  imageUrl?: string | null;
   clientName: string;
   contractValue: number;
   currency: string;
@@ -24,7 +23,6 @@ interface ProjectListItemProps {
 export function ProjectListItem({
   id,
   name,
-  imageUrl,
   clientName,
   contractValue,
   currency,
@@ -50,14 +48,9 @@ export function ProjectListItem({
       className="group flex items-center gap-4 border-b border-border/50 px-4 py-3 transition-colors hover:bg-accent last:border-b-0"
     >
       {/* Avatar */}
-      {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt={name} className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-ring/20" />
-      ) : (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20">
-          <span className="text-xs font-bold text-primary">{getInitials(name)}</span>
-        </div>
-      )}
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20">
+        <span className="text-xs font-bold text-primary">{getInitials(name)}</span>
+      </div>
 
       {/* Name + Client */}
       <div className="min-w-0 w-48 shrink-0">
@@ -67,9 +60,6 @@ export function ProjectListItem({
 
       {/* Status */}
       <div className="w-28 shrink-0 flex items-center gap-1.5">
-        {type === "PRODUCT" && (
-          <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">Product</span>
-        )}
         <StatusBadge status={status} />
       </div>
 

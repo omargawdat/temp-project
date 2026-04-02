@@ -3,15 +3,12 @@ import { notFound } from "next/navigation";
 import {
   AlertTriangle,
   FileText,
-  CheckCircle2,
-  Clock,
   Calendar,
   Monitor,
   Mail,
   Hash,
   Building2,
   Target,
-  Pause,
   Receipt,
   Download,
 } from "lucide-react";
@@ -19,19 +16,15 @@ import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/common/status-badge";
 import { MilestoneForm } from "@/components/common/milestone-form";
 import { ProjectSheet } from "@/components/common/project-sheet";
-import { ProjectStatusActions } from "@/components/common/project-status-actions";
 import { serializeForClient } from "@/lib/serialize";
 import { InvoiceSheet } from "@/components/common/invoice-sheet";
 import { sumUniqueInvoices, deduplicateInvoices } from "@/lib/financial";
 import { NotesSection } from "@/components/common/notes-section";
 import { FloatingActions } from "@/components/projects/floating-actions";
 import { getInitials, safePercent, formatCurrency, formatDate } from "@/lib/format";
-
-function getLifecycleStep(status: string): number {
-  if (status === "CLOSED") return 2;
-  if (status === "ON_HOLD") return 1;
-  return 0;
-}
+import { ContactsSection } from "@/components/common/contacts-section";
+import { DeliveryNoteSheet } from "@/components/common/delivery-note-sheet";
+import { AddDeliveryNoteSheet } from "@/components/common/add-delivery-note-sheet";
 
 export default async function ProjectDetailPage({
   params,
@@ -40,7 +33,7 @@ export default async function ProjectDetailPage({
 }) {
   const { id } = await params;
 
-  const [project, projectManagers, clients, notes] = await Promise.all([
+  const [project, projectManagers, clients, notes, contacts] = await Promise.all([
     prisma.project.findUnique({
       where: { id },
       include: {
@@ -49,6 +42,10 @@ export default async function ProjectDetailPage({
         milestones: {
           orderBy: { plannedDate: "asc" },
           include: { deliveryNote: true, invoice: { include: { payments: true } } },
+        },
+        deliveryNotes: {
+          orderBy: { createdAt: "desc" },
+          include: { milestone: { select: { id: true, name: true } } },
         },
       },
     }),
@@ -63,19 +60,21 @@ export default async function ProjectDetailPage({
     prisma.note.findMany({
       where: { entityType: "PROJECT", entityId: id },
       orderBy: { createdAt: "desc" },
+      include: { attachments: true },
+    }),
+    prisma.contact.findMany({
+      where: { entityType: "Project", entityId: id },
+      orderBy: { createdAt: "asc" },
     }),
   ]);
 
   if (!project) notFound();
 
-  const totalMilestoneValue = project.milestones.reduce((sum, m) => sum + Number(m.value), 0);
   // Billed = sum of unique invoices (deduplicated to prevent double-counting shared invoices)
   const billedAmount = sumUniqueInvoices(project.milestones);
 
   // Collected = only PAID invoices (deduplicated)
   const collectedAmount = sumUniqueInvoices(project.milestones, "PAID");
-
-  const lifecycleStep = getLifecycleStep(project.status);
 
   const alerts: { type: "warning" | "info"; message: string }[] = [];
   if (project.milestones.length === 0 && project.status === "ACTIVE") {
@@ -91,12 +90,6 @@ export default async function ProjectDetailPage({
   const contractValue = Number(project.contractValue);
   const contractValueFormatted = formatCurrency(contractValue, project.currency);
 
-  const stages = [
-    { label: "Active", icon: Clock, done: lifecycleStep > 0, current: lifecycleStep === 0 },
-    { label: "On Hold", icon: Pause, done: lifecycleStep > 1, current: lifecycleStep === 1 },
-    { label: "Closed", icon: CheckCircle2, done: false, current: lifecycleStep === 2 },
-  ];
-
   const billedPercent = safePercent(billedAmount, contractValue);
   const collectedPercent = safePercent(collectedAmount, contractValue);
 
@@ -104,7 +97,6 @@ export default async function ProjectDetailPage({
   const endDate = new Date(project.endDate);
   const pmInitials = getInitials(project.projectManager.name);
 
-  const currencySymbol = contractValueFormatted.replace(/[\d,.\s]/g, "").trim();
   const isOverbilled = billedAmount > contractValue;
 
   if (isOverbilled) {
@@ -127,64 +119,63 @@ export default async function ProjectDetailPage({
       <div className="relative overflow-hidden rounded-2xl border border-border/25 bg-card p-6 pb-5">
         <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-accent blur-3xl" />
 
-        <div className="relative flex items-start justify-between">
-          <div className="space-y-3">
-            <div className="flex items-center gap-4">
-              {project.imageUrl ? (
+        <div className="relative space-y-3">
+          {/* Row 1: Name + badges + edit */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20">
+                <span className="text-sm font-bold text-primary">{getInitials(project.name)}</span>
+              </div>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">{project.name}</h1>
+              <StatusBadge status={project.status} size="lg" />
+            </div>
+            <ProjectSheet project={{ ...serializeForClient(project), contacts: contacts.map((c) => ({ name: c.name, type: c.type, value: c.value })) }} projectManagers={projectManagers} clients={clients} />
+          </div>
+
+          {/* Row 2: All details */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+            <Link href={`/clients/${project.clientId}`} className="flex items-center gap-1.5 transition-colors hover:text-secondary-foreground">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <span className="font-semibold text-foreground">{project.client.name}</span>
+            </Link>
+            <div className="h-4 w-px bg-border/20" />
+            <div className="flex items-center gap-1.5 font-mono text-muted-foreground">
+              <Hash className="h-3.5 w-3.5" />
+              {project.contractNumber}
+            </div>
+            <div className="h-4 w-px bg-border/20" />
+            <Link
+              href={`/project-managers/${project.projectManager.id}`}
+              className="flex items-center gap-2 transition-colors hover:text-secondary-foreground"
+            >
+              {project.projectManager.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={project.imageUrl}
-                  alt={project.name}
-                  className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-ring/20"
-                />
+                <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-5 w-5 rounded-full object-cover ring-1 ring-ring/20" />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted ring-1 ring-ring/20">
-                  <span className="text-lg font-bold text-secondary-foreground">
-                    {getInitials(project.name)}
-                  </span>
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground ring-1 ring-ring/20">
+                  {pmInitials}
                 </div>
               )}
-              <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-bold tracking-tight text-foreground">{project.name}</h1>
-                  {project.type === "PRODUCT" && (
-                    <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">Product</span>
-                  )}
-                  <StatusBadge status={project.status} />
-                </div>
-              </div>
+              <span className="font-semibold text-foreground">{project.projectManager.name}</span>
+            </Link>
+            <div className="h-4 w-px bg-border/20" />
+            {project.type === "PRODUCT" ? (
+              <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-600">Product</span>
+            ) : (
+              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">Project</span>
+            )}
+            <div className="h-4 w-px bg-border/20" />
+            <div className="flex items-center gap-1.5">
+              {project.clientInvoicingMethod === "PORTAL" ? <Monitor className="h-4 w-4 text-muted-foreground" /> : <Mail className="h-4 w-4 text-muted-foreground" />}
+              <span className="font-semibold text-foreground">{project.clientInvoicingMethod === "PORTAL" ? "Portal" : "Email"}</span>
             </div>
-            <div className="flex items-center gap-5 text-base">
-              <div className="flex items-center gap-1.5">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Client:</span>
-                <span className="font-semibold text-foreground">{project.client.name}</span>
-              </div>
-              <div className="h-4 w-px bg-border/20" />
-              <div className="flex items-center gap-1.5 font-mono text-muted-foreground">
-                <Hash className="h-3.5 w-3.5" />
-                {project.contractNumber}
-              </div>
-              <div className="h-4 w-px bg-border/20" />
-              <Link
-                href={`/project-managers/${project.projectManager.id}`}
-                className="flex items-center gap-2 transition-colors hover:text-secondary-foreground"
-              >
-                <span className="text-muted-foreground">PM:</span>
-                {project.projectManager.photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={project.projectManager.photoUrl} alt={project.projectManager.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-ring/20" />
-                ) : (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground ring-1 ring-ring/20">
-                    {pmInitials}
-                  </div>
-                )}
-                <span className="font-semibold text-foreground">{project.projectManager.name}</span>
-              </Link>
+            <div className="h-4 w-px bg-border/20" />
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="font-semibold text-foreground">{formatDate(startDate, "full")}</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="font-semibold text-foreground">{formatDate(endDate, "full")}</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <ProjectSheet project={serializeForClient(project)} projectManagers={projectManagers} clients={clients} />
           </div>
         </div>
 
@@ -204,54 +195,11 @@ export default async function ProjectDetailPage({
           </div>
         )}
 
-        {/* Lifecycle + Details */}
-        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border/15 pt-4">
-          {/* Lifecycle steps */}
-          <div className="flex items-center gap-1 mr-1">
-            {stages.map((s, i) => (
-              <div key={s.label} className="flex items-center gap-1">
-                <div className="flex items-center gap-1.5">
-                  <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
-                    s.done
-                      ? "bg-muted-foreground/15"
-                      : s.current
-                        ? "bg-foreground/10 ring-1 ring-foreground/15"
-                        : "bg-accent"
-                  }`}>
-                    {s.done ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
-                    ) : (
-                      <s.icon className={`h-3.5 w-3.5 ${s.current ? "text-secondary-foreground" : "text-muted-foreground"}`} />
-                    )}
-                  </div>
-                  <span className={`text-base font-semibold whitespace-nowrap ${
-                    s.done ? "text-muted-foreground" : s.current ? "text-foreground" : "text-muted-foreground"
-                  }`}>
-                    {s.label}
-                  </span>
-                </div>
-                {i < stages.length - 1 && (
-                  <div className={`mx-1.5 h-px w-5 ${s.done ? "bg-muted-foreground/20" : "bg-border/20"}`} />
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="h-4 w-px bg-border/20" />
-
-          <div className="flex items-center gap-2 text-base">
-            <span className="text-muted-foreground">{project.clientInvoicingMethod === "PORTAL" ? <Monitor className="h-4 w-4" /> : <Mail className="h-4 w-4" />}</span>
-            <span className="text-muted-foreground">Invoicing:</span>
-            <span className="font-semibold text-foreground">{project.clientInvoicingMethod === "PORTAL" ? "Portal" : "Email"}</span>
-          </div>
-          <div className="h-4 w-px bg-border/20" />
-          <div className="flex items-center gap-2 text-base">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-semibold text-foreground">{formatDate(startDate, "full")}</span>
-            <span className="text-muted-foreground">→</span>
-            <span className="font-semibold text-foreground">{formatDate(endDate, "full")}</span>
-          </div>
+        {/* Contacts */}
+        <div className="mt-4 border-t border-border/15 pt-4">
+          <ContactsSection entityType="Project" entityId={project.id} contacts={contacts} bare />
         </div>
+
       </div>
 
       {/* ── Billing overview ── */}
@@ -360,11 +308,31 @@ export default async function ProjectDetailPage({
                   <td className="px-4 py-4">
                     {m.requiresDeliveryNote ? (
                       m.deliveryNote ? (
-                        <StatusBadge status={m.deliveryNote.status} />
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={m.deliveryNote.status} />
+                          <DeliveryNoteSheet
+                            projectId={project.id}
+                            milestoneId={m.id}
+                            milestoneName={m.name}
+                            deliveryNote={{
+                              id: m.deliveryNote.id,
+                              description: m.deliveryNote.description,
+                              workDelivered: m.deliveryNote.workDelivered,
+                              status: m.deliveryNote.status,
+                              sentDate: m.deliveryNote.sentDate,
+                              signedDate: m.deliveryNote.signedDate,
+                              signedDocumentUrl: m.deliveryNote.signedDocumentUrl,
+                            }}
+                            variant="view"
+                          />
+                        </div>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 ring-1 ring-rose-200">
-                          Pending
-                        </span>
+                        <DeliveryNoteSheet
+                          projectId={project.id}
+                          milestoneId={m.id}
+                          milestoneName={m.name}
+                          variant="create"
+                        />
                       )
                     ) : (
                       <span className="text-sm text-muted-foreground">—</span>
@@ -394,6 +362,77 @@ export default async function ProjectDetailPage({
         <MilestoneForm projectId={project.id} />
       </div>
 
+      {/* ── Delivery Notes ── */}
+      <div className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <div className="flex items-center gap-2.5">
+            <div className="rounded-lg bg-muted p-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <span className="text-lg font-bold text-foreground">Delivery Notes</span>
+            <span className="rounded-md bg-muted px-2.5 py-0.5 text-sm font-semibold tabular-nums text-muted-foreground">
+              {project.deliveryNotes.length}
+            </span>
+          </div>
+          <AddDeliveryNoteSheet
+            projectId={project.id}
+            milestones={project.milestones
+              .filter((m) => !m.deliveryNote)
+              .map((m) => ({ id: m.id, name: m.name }))}
+          />
+        </div>
+
+        {project.deliveryNotes.length > 0 ? (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border/15">
+                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Milestone</th>
+                <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
+                <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sent</th>
+                <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Signed</th>
+                <th className="px-4 py-3.5 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {project.deliveryNotes.map((dn, idx) => (
+                <tr key={dn.id} className={`transition-colors hover:bg-accent ${idx < project.deliveryNotes.length - 1 ? "border-b border-border/10" : ""}`}>
+                  <td className="px-6 py-4 text-sm font-semibold text-foreground">{dn.milestone?.name ?? "—"}</td>
+                  <td className="px-4 py-4 text-sm text-muted-foreground max-w-[200px] truncate">{dn.description}</td>
+                  <td className="px-4 py-4"><StatusBadge status={dn.status} /></td>
+                  <td className="px-4 py-4 text-sm text-muted-foreground">{dn.sentDate ? formatDate(dn.sentDate, "short") : "—"}</td>
+                  <td className="px-4 py-4 text-sm text-muted-foreground">{dn.signedDate ? formatDate(dn.signedDate, "short") : "—"}</td>
+                  <td className="px-4 py-4 text-center">
+                    <DeliveryNoteSheet
+                      projectId={project.id}
+                      milestoneId={dn.milestoneId ?? ""}
+                      milestoneName={dn.milestone?.name ?? "No milestone"}
+                      deliveryNote={{
+                        id: dn.id,
+                        description: dn.description,
+                        workDelivered: dn.workDelivered,
+                        status: dn.status,
+                        sentDate: dn.sentDate,
+                        signedDate: dn.signedDate,
+                        signedDocumentUrl: dn.signedDocumentUrl,
+                      }}
+                      variant="view"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="mb-3 rounded-full bg-accent p-3">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">No delivery notes yet</p>
+          </div>
+        )}
+      </div>
+
       {/* ── Invoices table ── */}
       <div id="invoices-section" className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated scroll-mt-6">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
@@ -411,6 +450,7 @@ export default async function ProjectDetailPage({
               id: m.id,
               name: m.name,
               value: m.value.toString(),
+              status: m.status,
               invoiced: !!m.invoiceId,
             }))}
             currency={project.currency}

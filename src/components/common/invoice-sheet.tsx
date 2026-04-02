@@ -29,6 +29,7 @@ interface MilestoneItem {
   id: string;
   name: string;
   value: string | number;
+  status: string;
   invoiced: boolean;
 }
 
@@ -40,7 +41,9 @@ export function InvoiceSheet({
   currency: string;
 }) {
   const router = useRouter();
-  const eligibleMilestones = milestones.filter((m) => !m.invoiced);
+  const eligibleMilestones = milestones.filter((m) => !m.invoiced && m.status === "READY_FOR_INVOICING");
+  const invoicedMilestones = milestones.filter((m) => m.invoiced);
+  const notReadyMilestones = milestones.filter((m) => !m.invoiced && m.status !== "READY_FOR_INVOICING");
   const hasEligible = eligibleMilestones.length > 0;
   const [open, setOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -204,29 +207,39 @@ export function InvoiceSheet({
                 </div>
 
                 <div className="space-y-2">
-                  {milestones.map((m) => {
+                  {/* Already invoiced milestones (locked) */}
+                  {invoicedMilestones.map((m) => (
+                    <div
+                      key={m.id}
+                      className="flex items-center gap-3.5 rounded-xl px-4 py-4 opacity-60"
+                    >
+                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-border bg-accent">
+                        <Lock className="h-2.5 w-2.5 text-muted-foreground" />
+                      </div>
+                      <span className="flex-1 text-sm font-medium text-muted-foreground/60">{m.name}</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Invoiced</span>
+                    </div>
+                  ))}
+
+                  {/* Eligible milestones (READY_FOR_INVOICING) */}
+                  {eligibleMilestones.map((m) => {
                     const isSelected = selectedIds.has(m.id);
-                    const isInvoiced = m.invoiced;
                     return (
                       <label
                         key={m.id}
                         className={cn(
-                          "group flex items-center gap-3.5 rounded-xl px-4 py-4 transition-all",
-                          isInvoiced
-                            ? "cursor-not-allowed opacity-60"
-                            : isSelected
-                              ? "cursor-pointer bg-primary/5 ring-1 ring-primary/25"
-                              : "cursor-pointer hover:bg-accent",
+                          "group flex items-center gap-3.5 rounded-xl px-4 py-4 transition-all cursor-pointer",
+                          isSelected
+                            ? "bg-primary/5 ring-1 ring-primary/25"
+                            : "hover:bg-accent",
                         )}
                       >
                         <div
                           className={cn(
                             "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all",
-                            isInvoiced
-                              ? "border-border bg-accent"
-                              : isSelected
-                                ? "border-primary bg-primary"
-                                : "border-border group-hover:border-border",
+                            isSelected
+                              ? "border-primary bg-primary"
+                              : "border-border group-hover:border-border",
                           )}
                         >
                           {isSelected && (
@@ -234,38 +247,49 @@ export function InvoiceSheet({
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                           )}
-                          {isInvoiced && <Lock className="h-2.5 w-2.5 text-muted-foreground" />}
                         </div>
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          disabled={isInvoiced}
                           onChange={() => toggleMilestone(m.id)}
                           className="sr-only"
                         />
-                        <div className="flex-1 min-w-0">
-                          <span className={cn(
-                            "text-sm font-medium",
-                            isInvoiced ? "text-muted-foreground/60" : "text-foreground",
-                          )}>
-                            {m.name}
-                          </span>
-                        </div>
-                        {isInvoiced ? (
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Invoiced
-                          </span>
-                        ) : (
-                          <span className={cn(
-                            "font-mono text-sm font-semibold tabular-nums transition-colors",
-                            isSelected ? "text-primary" : "text-muted-foreground",
-                          )}>
-                            {formatCur(Number(m.value))}
-                          </span>
-                        )}
+                        <span className="flex-1 text-sm font-medium text-foreground">{m.name}</span>
+                        <span className={cn(
+                          "font-mono text-sm font-semibold tabular-nums transition-colors",
+                          isSelected ? "text-primary" : "text-muted-foreground",
+                        )}>
+                          {formatCur(Number(m.value))}
+                        </span>
                       </label>
                     );
                   })}
+
+                  {/* Not ready milestones (disabled, showing status) */}
+                  {notReadyMilestones.length > 0 && (
+                    <>
+                      {(eligibleMilestones.length > 0 || invoicedMilestones.length > 0) && (
+                        <div className="my-1 border-t border-border/10" />
+                      )}
+                      {notReadyMilestones.map((m) => (
+                        <div
+                          key={m.id}
+                          className="flex items-center gap-3.5 rounded-xl px-4 py-3 opacity-45"
+                        >
+                          <div className="h-5 w-5 shrink-0" />
+                          <span className="flex-1 text-sm text-muted-foreground">{m.name}</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            {m.status.replace(/_/g, " ")}
+                          </span>
+                        </div>
+                      ))}
+                    </>
+                  )}
+
+                  {/* Empty state */}
+                  {milestones.length === 0 && (
+                    <p className="py-4 text-center text-sm text-muted-foreground">No milestones available</p>
+                  )}
                 </div>
               </div>
 

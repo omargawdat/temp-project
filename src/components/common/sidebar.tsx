@@ -93,7 +93,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                 href={item.href}
                 className={cn(
                   "group relative flex items-center rounded-xl transition-all duration-200",
-                  open ? "gap-3.5 px-3.5 py-3" : "justify-center p-3",
+                  open ? "gap-3 px-3 py-2" : "justify-center p-2.5",
                   isActive
                     ? "bg-sidebar-accent"
                     : "hover:bg-sidebar-accent/50",
@@ -103,7 +103,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                 <div
                   className={cn(
                     "flex flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200",
-                    open ? "h-10 w-10" : "h-11 w-11",
+                    open ? "h-9 w-9" : "h-10 w-10",
                     isActive
                       ? "shadow-lg"
                       : "bg-sidebar-accent/50 group-hover:bg-sidebar-accent",
@@ -135,7 +135,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                     <span
                       className={cn(
                         "text-[13px] font-semibold transition-colors",
-                        isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground group-hover:text-secondary-foreground",
+                        isActive ? "text-sidebar-accent-foreground" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground",
                       )}
                     >
                       {item.label}

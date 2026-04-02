@@ -29,7 +29,7 @@ import { getInitials, safePercent, formatDate, formatCurrency, formatMultiCurren
 import { serializeForClient } from "@/lib/serialize";
 import { NotesSection } from "@/components/common/notes-section";
 import { ClientFloatingActions } from "@/components/clients/floating-actions";
-import { ContactDetailRow } from "@/components/clients/contact-detail-row";
+import { ContactsSection } from "@/components/common/contacts-section";
 
 export default async function ClientDetailPage({
   params,
@@ -38,7 +38,7 @@ export default async function ClientDetailPage({
 }) {
   const { id } = await params;
 
-  const [client, countries, notes] = await Promise.all([
+  const [client, countries, notes, contacts] = await Promise.all([
     prisma.client.findUnique({
       where: { id },
       include: {
@@ -65,6 +65,11 @@ export default async function ClientDetailPage({
     prisma.note.findMany({
       where: { entityType: "CLIENT", entityId: id },
       orderBy: { createdAt: "desc" },
+      include: { attachments: true },
+    }),
+    prisma.contact.findMany({
+      where: { entityType: "Client", entityId: id },
+      orderBy: { createdAt: "asc" },
     }),
   ]);
 
@@ -145,35 +150,17 @@ export default async function ClientDetailPage({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={client.country.flag} alt={client.country.name} className="h-3 w-5 rounded-[2px] object-cover" />
                   <span>{client.country.name}</span>
+                  {client.billingAddress && (
+                    <>
+                      <span className="text-border">·</span>
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+                      <span>{client.billingAddress}</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
-            <ClientSheet client={serializeForClient(client)} countries={countries} variant="edit" />
-          </div>
-
-          {/* Contact details grid */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 rounded-xl bg-accent px-4 py-3.5">
-            <ContactDetailRow value={client.email} icon="mail" href={`mailto:${client.email}`} />
-            {client.phone && (
-              <ContactDetailRow value={client.phone} icon="phone" href={`tel:${client.phone}`} />
-            )}
-            <div className="flex items-center gap-2.5 text-sm">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Primary:</span>
-              <span className="font-medium text-secondary-foreground">{client.primaryContact}</span>
-            </div>
-            <div className="flex items-center gap-2.5 text-sm">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Finance:</span>
-              <span className="font-medium text-secondary-foreground">{client.financeContact}</span>
-            </div>
-            {client.billingAddress && (
-              <div className="col-span-2 flex items-start gap-2.5 text-sm">
-                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
-                <span className="text-muted-foreground">Billing:</span>
-                <span className="font-medium text-secondary-foreground whitespace-pre-line">{client.billingAddress}</span>
-              </div>
-            )}
+            <ClientSheet client={{ ...serializeForClient(client), contacts: contacts.map((c) => ({ name: c.name, type: c.type, value: c.value })) }} countries={countries} variant="edit" />
           </div>
 
           {/* Portal link */}
@@ -191,6 +178,11 @@ export default async function ClientDetailPage({
               </a>
             </div>
           )}
+
+          {/* Contacts */}
+          <div className="mt-4 border-t border-border/15 pt-4">
+            <ContactsSection entityType="Client" entityId={client.id} contacts={contacts} bare />
+          </div>
         </div>
       </div>
 
@@ -418,14 +410,9 @@ export default async function ClientDetailPage({
                   >
                     <td className="px-6 py-4">
                       <Link href={`/projects/${project.id}`} className="flex items-center gap-2.5 text-sm font-semibold text-foreground hover:text-orange-400 transition-colors">
-                        {project.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={project.imageUrl} alt={project.name} className="h-7 w-7 rounded-lg object-cover ring-1 ring-ring/20 shrink-0" />
-                        ) : (
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-[10px] font-bold text-orange-400 ring-1 ring-ring/20 shrink-0">
-                            {project.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
-                          </div>
-                        )}
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-[10px] font-bold text-orange-400 ring-1 ring-ring/20 shrink-0">
+                          {project.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
+                        </div>
                         {project.name}
                       </Link>
                     </td>

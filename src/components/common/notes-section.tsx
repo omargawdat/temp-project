@@ -2,7 +2,19 @@
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { createNote, updateNote, deleteNote } from "@/actions/note";
+import { createNote, updateNote, deleteNote, deleteNoteAttachment } from "@/actions/note";
+import {
+  AlertDialog,
+  AlertDialogPortal,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import {
   StickyNote,
   Plus,
@@ -19,10 +31,23 @@ import {
   Banknote,
   Send,
   CalendarClock,
+  Paperclip,
+  Link2,
+  FileText,
+  Image as ImageIcon,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+interface NoteAttachmentData {
+  id: string;
+  type: string;
+  url: string;
+  filename: string;
+  mimeType?: string | null;
+}
 
 interface NoteData {
   id: string;
@@ -31,6 +56,12 @@ interface NoteData {
   createdBy: string;
   createdAt: string | Date;
   updatedAt: string | Date;
+  attachments?: NoteAttachmentData[];
+}
+
+interface PendingFile {
+  file: File;
+  preview?: string;
 }
 
 const NOTE_TYPES = [
@@ -61,6 +92,122 @@ function timeAgo(date: string | Date) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+function isImageMime(mime?: string | null) {
+  return mime?.startsWith("image/");
+}
+
+function AttachmentChip({ attachment, onRemove }: { attachment: NoteAttachmentData; onRemove?: () => void }) {
+  const isImage = attachment.type === "FILE" && isImageMime(attachment.mimeType);
+  const Icon = attachment.type === "URL" ? ExternalLink : isImage ? ImageIcon : FileText;
+
+  const isUrl = attachment.type === "URL";
+  const chipColor = isUrl
+    ? "bg-purple-50 text-purple-700 ring-1 ring-purple-200"
+    : "bg-blue-50 text-blue-700 ring-1 ring-blue-200";
+
+  return (
+    <div className={`group/chip flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium ${chipColor}`}>
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      <a
+        href={attachment.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="truncate max-w-[180px] hover:underline"
+      >
+        {attachment.filename}
+      </a>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); onRemove(); }}
+          className={`ml-0.5 shrink-0 rounded-full p-0.5 opacity-0 transition-opacity group-hover/chip:opacity-100 ${isUrl ? "hover:bg-purple-200" : "hover:bg-blue-200"}`}
+        >
+          <X className="h-3 w-3" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AttachmentDisplay({ attachments }: { attachments: NoteAttachmentData[] }) {
+  if (attachments.length === 0) return null;
+
+  const images = attachments.filter((a) => a.type === "FILE" && isImageMime(a.mimeType));
+  const others = attachments.filter((a) => !(a.type === "FILE" && isImageMime(a.mimeType)));
+
+  return (
+    <div className="mt-2 space-y-2">
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {images.map((img) => (
+            <a
+              key={img.id}
+              href={img.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group/img block overflow-hidden rounded-lg border border-border/50"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={img.url}
+                alt={img.filename}
+                className="h-20 w-20 object-cover transition-transform group-hover/img:scale-105"
+              />
+            </a>
+          ))}
+        </div>
+      )}
+      {others.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {others.map((att) => (
+            <AttachmentChip key={att.id} attachment={att} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PendingAttachments({
+  files,
+  urls,
+  onRemoveFile,
+  onRemoveUrl,
+}: {
+  files: PendingFile[];
+  urls: string[];
+  onRemoveFile: (index: number) => void;
+  onRemoveUrl: (index: number) => void;
+}) {
+  if (files.length === 0 && urls.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2 border-t border-border/15 px-4 py-3">
+      {files.map((f, i) => (
+        <div key={i} className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 ring-1 ring-blue-200">
+          {f.file.type.startsWith("image/") ? (
+            <ImageIcon className="h-3.5 w-3.5 shrink-0" />
+          ) : (
+            <FileText className="h-3.5 w-3.5 shrink-0" />
+          )}
+          <span className="truncate max-w-[180px]">{f.file.name}</span>
+          <button type="button" onClick={() => onRemoveFile(i)} className="shrink-0 rounded-full p-0.5 transition-colors hover:bg-blue-200">
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      ))}
+      {urls.map((url, i) => (
+        <div key={`url-${i}`} className="flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-1.5 text-xs font-medium text-purple-700 ring-1 ring-purple-200">
+          <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate max-w-[180px]">{url}</span>
+          <button type="button" onClick={() => onRemoveUrl(i)} className="shrink-0 rounded-full p-0.5 transition-colors hover:bg-purple-200">
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function NoteItem({
   note,
   entityType,
@@ -71,6 +218,7 @@ function NoteItem({
   entityId: string;
 }) {
   const [editing, setEditing] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [content, setContent] = useState(note.content);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -81,18 +229,39 @@ function NoteItem({
     startTransition(async () => {
       const formData = new FormData();
       formData.set("content", content.trim());
-      await updateNote(note.id, formData);
-      toast.success("Note updated");
-      setEditing(false);
-      router.refresh();
+      const result = await updateNote(note.id, formData);
+      if (result.success) {
+        toast.success("Note updated");
+        setEditing(false);
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "Failed to update note.");
+      }
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteNote(note.id);
-      toast.success("Note deleted");
-      router.refresh();
+      const result = await deleteNote(note.id);
+      if (result.success) {
+        toast.success("Note deleted");
+        setDeleteOpen(false);
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "Failed to delete note.");
+      }
+    });
+  }
+
+  function handleRemoveAttachment(attachmentId: string) {
+    startTransition(async () => {
+      const result = await deleteNoteAttachment(attachmentId);
+      if (result.success) {
+        toast.success("Attachment removed");
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "Failed to remove attachment.");
+      }
     });
   }
 
@@ -111,6 +280,17 @@ function NoteItem({
           className="w-full resize-none rounded-md border border-border/50 bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-primary/40 min-h-[60px]"
           autoFocus
         />
+        {note.attachments && note.attachments.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {note.attachments.map((att) => (
+              <AttachmentChip
+                key={att.id}
+                attachment={att}
+                onRemove={() => handleRemoveAttachment(att.id)}
+              />
+            ))}
+          </div>
+        )}
         <div className="mt-2 flex items-center justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={handleCancel} disabled={isPending}>
             <X className="mr-1 h-3 w-3" />
@@ -141,6 +321,9 @@ function NoteItem({
           );
         })()}
         <p className="text-base text-foreground whitespace-pre-wrap">{note.content}</p>
+        {note.attachments && note.attachments.length > 0 && (
+          <AttachmentDisplay attachments={note.attachments} />
+        )}
         <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="font-medium text-muted-foreground">{note.createdBy}</span>
           <span>&middot;</span>
@@ -149,6 +332,13 @@ function NoteItem({
             <>
               <span>&middot;</span>
               <span className="italic">edited {timeAgo(note.updatedAt)}</span>
+            </>
+          )}
+          {note.attachments && note.attachments.length > 0 && (
+            <>
+              <span>&middot;</span>
+              <Paperclip className="h-3 w-3" />
+              <span>{note.attachments.length}</span>
             </>
           )}
         </p>
@@ -165,13 +355,30 @@ function NoteItem({
         </button>
         <button
           type="button"
-          onClick={handleDelete}
+          onClick={() => setDeleteOpen(true)}
           disabled={isPending}
           aria-label="Delete note"
           className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-400"
         >
-          {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+          <Trash2 className="h-3 w-3" />
         </button>
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogPortal>
+            <AlertDialogOverlay />
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete note?</AlertDialogTitle>
+                <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={() => { setDeleteOpen(false); handleDelete(); }} disabled={isPending}>
+                  {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogPortal>
+        </AlertDialog>
       </div>
     </div>
   );
@@ -189,23 +396,69 @@ export function NotesSection({
   const [adding, setAdding] = useState(false);
   const [content, setContent] = useState("");
   const [noteType, setNoteType] = useState("GENERAL");
+  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+  const [pendingUrls, setPendingUrls] = useState<string[]>([]);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInputValue, setUrlInputValue] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleAddFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    const newPending = files.map((file) => ({
+      file,
+      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined,
+    }));
+    setPendingFiles((prev) => [...prev, ...newPending]);
+    e.target.value = "";
+  }
+
+  function handleAddUrl() {
+    if (!urlInputValue.trim()) return;
+    setPendingUrls((prev) => [...prev, urlInputValue.trim()]);
+    setUrlInputValue("");
+    setShowUrlInput(false);
+  }
 
   function handleAdd() {
     if (!content.trim()) return;
     startTransition(async () => {
       const formData = new FormData();
       formData.set("content", content.trim());
-      formData.set("createdBy", "System"); // TODO: replace with authenticated user
+      formData.set("createdBy", "System");
       formData.set("noteType", noteType);
-      await createNote(entityType, entityId, formData);
-      toast.success("Note added");
-      setContent("");
-      setNoteType("GENERAL");
-      setAdding(false);
-      router.refresh();
+
+      for (const pf of pendingFiles) {
+        formData.append("attachmentFiles", pf.file);
+      }
+      for (const url of pendingUrls) {
+        formData.append("attachmentUrls", url);
+      }
+
+      const result = await createNote(entityType, entityId, formData);
+      if (result.success) {
+        toast.success("Note added");
+        setContent("");
+        setNoteType("GENERAL");
+        setPendingFiles([]);
+        setPendingUrls([]);
+        setAdding(false);
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "Failed to add note.");
+      }
     });
+  }
+
+  function resetForm() {
+    setAdding(false);
+    setContent("");
+    setNoteType("GENERAL");
+    setPendingFiles([]);
+    setPendingUrls([]);
+    setShowUrlInput(false);
+    setUrlInputValue("");
   }
 
   return (
@@ -231,9 +484,6 @@ export function NotesSection({
       <div className="divide-y divide-border/10">
         {/* Add note form */}
         {adding && (() => {
-          const selected = NOTE_TYPES.find((t) => t.value === noteType) ?? NOTE_TYPES[0];
-          const SelectedIcon = selected.icon;
-
           return (
             <div className="p-5">
               <div className="overflow-hidden rounded-xl border border-border/30 bg-accent">
@@ -251,9 +501,42 @@ export function NotesSection({
                   autoFocus
                 />
 
+                {/* Pending attachments */}
+                <PendingAttachments
+                  files={pendingFiles}
+                  urls={pendingUrls}
+                  onRemoveFile={(i) => setPendingFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                  onRemoveUrl={(i) => setPendingUrls((prev) => prev.filter((_, idx) => idx !== i))}
+                />
+
+                {/* URL input */}
+                {showUrlInput && (
+                  <div className="flex items-center gap-2 border-t border-border/15 px-4 py-2">
+                    <Link2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <input
+                      type="url"
+                      value={urlInputValue}
+                      onChange={(e) => setUrlInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); handleAddUrl(); }
+                        if (e.key === "Escape") { setShowUrlInput(false); setUrlInputValue(""); }
+                      }}
+                      placeholder="https://..."
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 outline-none"
+                      autoFocus
+                    />
+                    <Button type="button" size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={handleAddUrl} disabled={!urlInputValue.trim()}>
+                      Add
+                    </Button>
+                    <button type="button" onClick={() => { setShowUrlInput(false); setUrlInputValue(""); }} className="text-muted-foreground hover:text-foreground">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 {/* Bottom toolbar */}
                 <div className="flex items-center justify-between border-t border-border/15 px-2 py-1.5">
-                  {/* Type chips — inline in toolbar */}
+                  {/* Left: type chips + attachment buttons */}
                   <div className="flex items-center gap-1">
                     {NOTE_TYPES.map((t) => {
                       const Icon = t.icon;
@@ -275,13 +558,38 @@ export function NotesSection({
                         </button>
                       );
                     })}
+                    <div className="mx-1 h-4 w-px bg-border/30" />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleAddFiles}
+                      accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-1 rounded-full border border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      title="Attach file"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowUrlInput(true)}
+                      className="flex items-center gap-1 rounded-full border border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      title="Attach URL"
+                    >
+                      <Link2 className="h-3 w-3" />
+                    </button>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => { setAdding(false); setContent(""); setNoteType("GENERAL"); }}
+                      onClick={resetForm}
                       disabled={isPending}
                       className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-secondary-foreground"
                     >
@@ -305,9 +613,11 @@ export function NotesSection({
         })()}
 
         {/* Notes list */}
-        {notes.map((note) => (
-          <NoteItem key={note.id} note={note} entityType={entityType} entityId={entityId} />
-        ))}
+        <div className="divide-y divide-border/50">
+          {notes.map((note) => (
+            <NoteItem key={note.id} note={note} entityType={entityType} entityId={entityId} />
+          ))}
+        </div>
 
         {notes.length === 0 && !adding && (
           <div className="py-10 text-center">

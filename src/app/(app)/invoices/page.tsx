@@ -45,7 +45,7 @@ export default async function InvoicesPage({
   const rawPage = parsePage(params.page);
   const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [invoices, allProjects, totalCount, filteredCount] = await Promise.all([
+  const [rawInvoices, allProjects, totalCount, filteredCount] = await Promise.all([
     prisma.invoice.findMany({
       where,
       orderBy: !sortParams.sort ? [{ paymentDueDate: "asc" }] : orderBy,
@@ -58,7 +58,7 @@ export default async function InvoicesPage({
       },
     }),
     prisma.project.findMany({
-      select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
+      select: { id: true, name: true, _count: { select: { milestones: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.invoice.count(),
@@ -66,6 +66,20 @@ export default async function InvoicesPage({
   ]);
 
   const pagination = getPaginationMeta(rawPage, filteredCount);
+
+  // When no explicit sort is set, surface overdue invoices at the top
+  const now = new Date();
+  const invoices = sortParams.sort
+    ? rawInvoices
+    : [...rawInvoices].sort((a, b) => {
+        const aOverdue = a.paymentDueDate && new Date(a.paymentDueDate) < now && !["PAID", "REJECTED"].includes(a.status) ? 0 : 1;
+        const bOverdue = b.paymentDueDate && new Date(b.paymentDueDate) < now && !["PAID", "REJECTED"].includes(b.status) ? 0 : 1;
+        if (aOverdue !== bOverdue) return aOverdue - bOverdue;
+        // Within same group, sort by due date ascending (nulls last)
+        if (!a.paymentDueDate) return 1;
+        if (!b.paymentDueDate) return -1;
+        return new Date(a.paymentDueDate).getTime() - new Date(b.paymentDueDate).getTime();
+      });
 
   return (
     <div>
@@ -77,7 +91,7 @@ export default async function InvoicesPage({
 
       {/* Toolbar */}
       <InvoicesToolbar
-        projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
+        projects={allProjects.map((p) => ({ id: p.id, name: p.name, count: p._count.milestones }))}
         resultCount={filteredCount}
       />
 

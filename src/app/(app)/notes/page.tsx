@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { StickyNote, SearchX } from "lucide-react";
+import { StickyNote, SearchX, Paperclip } from "lucide-react";
 import { SortableHeader } from "@/components/toolbar/sortable-header";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
@@ -77,6 +77,7 @@ export default async function NotesPage({
     orderBy,
     skip: pagination.skip,
     take: PAGE_SIZE,
+    include: { attachments: true },
   });
 
   // Batch resolve entity names
@@ -155,12 +156,20 @@ export default async function NotesPage({
                 </div>
 
                 {/* Content */}
-                <p
-                  className="text-foreground truncate text-sm"
-                  title={note.content}
-                >
-                  {truncated}
-                </p>
+                <div className="flex items-center gap-2 min-w-0">
+                  <p
+                    className="text-foreground truncate text-sm"
+                    title={note.content}
+                  >
+                    {truncated}
+                  </p>
+                  {note.attachments.length > 0 && (
+                    <span className="flex shrink-0 items-center gap-0.5 text-xs text-muted-foreground">
+                      <Paperclip className="h-3 w-3" />
+                      {note.attachments.length}
+                    </span>
+                  )}
+                </div>
 
                 {/* Entity */}
                 <div className="flex items-center gap-2 min-w-0">
@@ -195,6 +204,7 @@ export default async function NotesPage({
                     createdBy: note.createdBy,
                     entityType: note.entityType,
                     entityId: note.entityId,
+                    attachments: note.attachments,
                   }}
                 />
               </a>

@@ -15,7 +15,7 @@ interface ClientListItemProps {
   totalContractValue: number;
   billedAmount: number;
   collectedAmount: number;
-  primaryContact: string;
+  contactCount: number;
   overdueMilestones: number;
 }
 
@@ -31,7 +31,7 @@ export function ClientListItem({
   totalContractValue,
   billedAmount,
   collectedAmount,
-  primaryContact,
+  contactCount,
   overdueMilestones,
 }: ClientListItemProps) {
   const billedPct = safePercent(billedAmount, totalContractValue);
@@ -73,9 +73,9 @@ export function ClientListItem({
         <p className="text-sm font-semibold tabular-nums text-foreground">{formatMultiCurrency(contractByCurrency)}</p>
       </div>
 
-      {/* Primary Contact */}
+      {/* Contacts */}
       <div className="hidden xl:block w-32 shrink-0">
-        <p className="text-xs text-muted-foreground truncate">{primaryContact}</p>
+        <p className="text-xs text-muted-foreground">{contactCount} contacts</p>
       </div>
 
       {/* Overdue indicator */}

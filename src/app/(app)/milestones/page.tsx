@@ -41,10 +41,10 @@ export default async function MilestonesPage({
   const rawPage = parsePage(params.page);
   const skip = (rawPage - 1) * PAGE_SIZE;
 
-  const [milestones, allProjects, totalCount, filteredCount] = await Promise.all([
+  const [rawMilestones, allProjects, totalCount, filteredCount] = await Promise.all([
     prisma.milestone.findMany({ where, orderBy, skip, take: PAGE_SIZE, include: { project: true } }),
     prisma.project.findMany({
-      select: { id: true, name: true, imageUrl: true, _count: { select: { milestones: true } } },
+      select: { id: true, name: true, _count: { select: { milestones: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.milestone.count(),
@@ -52,6 +52,18 @@ export default async function MilestonesPage({
   ]);
 
   const pagination = getPaginationMeta(rawPage, filteredCount);
+
+  // When no explicit sort is set, surface overdue milestones at the top
+  const now = new Date();
+  const terminalStatuses = ["COMPLETED", "INVOICED", "READY_FOR_INVOICING"];
+  const milestones = sortParams.sort
+    ? rawMilestones
+    : [...rawMilestones].sort((a, b) => {
+        const aOverdue = new Date(a.plannedDate) < now && !terminalStatuses.includes(a.status) ? 0 : 1;
+        const bOverdue = new Date(b.plannedDate) < now && !terminalStatuses.includes(b.status) ? 0 : 1;
+        if (aOverdue !== bOverdue) return aOverdue - bOverdue;
+        return new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime();
+      });
 
   return (
     <div>
@@ -63,7 +75,7 @@ export default async function MilestonesPage({
 
       {/* Toolbar */}
       <MilestonesToolbar
-        projects={allProjects.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, count: p._count.milestones }))}
+        projects={allProjects.map((p) => ({ id: p.id, name: p.name, count: p._count.milestones }))}
         resultCount={filteredCount}
       />
 

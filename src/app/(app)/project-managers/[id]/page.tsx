@@ -48,6 +48,7 @@ export default async function ProjectManagerDetailPage({
     prisma.note.findMany({
       where: { entityType: "PROJECT_MANAGER", entityId: id },
       orderBy: { createdAt: "desc" },
+      include: { attachments: true },
     }),
   ]);
 

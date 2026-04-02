@@ -83,7 +83,7 @@ export function SettingsForm({ settings }: { settings: CompanySettings | null })
           defaultValue={settings?.invoiceFooter ?? ""}
           placeholder="Thank you for your business..."
           rows={3}
-          className="border-border/25 bg-accent"
+          className="border-border/25"
         />
       </div>
 
@@ -128,7 +128,7 @@ function Field({
         defaultValue={defaultValue ?? ""}
         placeholder={placeholder}
         type={type}
-        className="h-10 border-border/25 bg-accent"
+        className="border-border/25"
       />
     </div>
   );

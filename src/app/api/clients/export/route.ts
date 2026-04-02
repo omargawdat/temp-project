@@ -19,23 +19,39 @@ export async function GET(request: Request) {
   const where = buildClientWhere(params);
   const orderBy = buildClientOrderBy(sortParams);
 
-  const clients = await prisma.client.findMany({
-    where,
-    orderBy,
-    include: { country: true },
-  });
+  const [clients, contacts] = await Promise.all([
+    prisma.client.findMany({
+      where,
+      orderBy,
+      include: { country: true },
+    }),
+    prisma.contact.findMany({
+      where: { entityType: "Client" },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
-  const records = clients.map((c) => ({
-    Name: c.name,
-    Sector: c.sector.replace(/_/g, " "),
-    Country: c.country.name,
-    "Primary Contact": c.primaryContact,
-    "Finance Contact": c.financeContact,
-    Email: c.email,
-    Phone: c.phone,
-    "Portal Name": c.portalName ?? "",
-    "Portal Link": c.portalLink ?? "",
-  }));
+  const contactsByClient = new Map<string, typeof contacts>();
+  for (const c of contacts) {
+    const list = contactsByClient.get(c.entityId) ?? [];
+    list.push(c);
+    contactsByClient.set(c.entityId, list);
+  }
+
+  const records = clients.map((c) => {
+    const clientContacts = contactsByClient.get(c.id) ?? [];
+    const contactStr = clientContacts
+      .map((ct) => `${ct.name} (${ct.type}: ${ct.value})`)
+      .join("; ");
+    return {
+      Name: c.name,
+      Sector: c.sector.replace(/_/g, " "),
+      Country: c.country.name,
+      Contacts: contactStr,
+      "Portal Name": c.portalName ?? "",
+      "Portal Link": c.portalLink ?? "",
+    };
+  });
 
   return buildExportResponse(records, format, "clients");
 }

@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { CountrySheet } from "@/components/common/country-sheet";
-import { FloatingAdd } from "@/components/common/floating-add";
 import { DeleteCountryButton } from "@/components/common/delete-country-button";
 import { serializeForClient } from "@/lib/serialize";
 import { Globe } from "lucide-react";
@@ -18,10 +17,9 @@ export default async function CountriesPage() {
         title="Countries"
         description={`${countries.length} countr${countries.length !== 1 ? "ies" : "y"}`}
         breadcrumbs={[]}
-      />
-      <FloatingAdd>
+      >
         <CountrySheet />
-      </FloatingAdd>
+      </PageHeader>
 
       {countries.length > 0 ? (
         <div className="overflow-hidden rounded-xl border border-border/25 bg-card card-elevated">

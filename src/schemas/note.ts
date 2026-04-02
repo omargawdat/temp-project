@@ -16,4 +16,9 @@ export const noteEntitySchema = z.object({
   entityId: z.string().trim().min(1, { error: "Entity ID is required." }),
 });
 
+export const attachmentUrlSchema = z.object({
+  url: z.string().url("Must be a valid URL."),
+  filename: z.string().min(1).optional(),
+});
+
 export type NoteFormData = z.infer<typeof noteFormSchema>;

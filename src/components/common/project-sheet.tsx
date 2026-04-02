@@ -4,16 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Project } from "@prisma/client";
 import type { Serialized } from "@/lib/serialize";
+import type { ContactRow } from "@/components/common/contact-form-rows";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ProjectForm } from "@/components/common/project-form";
-import { Plus, Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
+import { EditButton } from "@/components/common/edit-button";
 
 interface ProjectSheetProps {
   projectManagers: {
@@ -23,7 +26,7 @@ interface ProjectSheetProps {
     photoUrl?: string | null;
   }[];
   clients: { id: string; name: string }[];
-  project?: Project | Serialized<Project>;
+  project?: (Project | Serialized<Project>) & { contacts?: ContactRow[] };
   trigger?: "button" | "icon";
 }
 
@@ -48,22 +51,16 @@ export function ProjectSheet({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {isEdit ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-lg border border-primary/25 bg-accent px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-all duration-200 hover:bg-primary/10 hover:shadow-md hover:shadow-primary/10"
-        >
-          <Pencil className="h-4 w-4" strokeWidth={2} />
-          Edit
-        </button>
-      ) : (
-        <Button
-          className="border-0 rounded-full h-14 w-14 p-0 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
-          onClick={() => setOpen(true)}
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-      )}
+      <SheetTrigger
+        render={isEdit ? (
+          <EditButton />
+        ) : (
+          <Button className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20 gap-1.5">
+            <Plus className="h-4 w-4" />
+            Add Project
+          </Button>
+        )}
+      />
 
       <SheetContent
         side="right"

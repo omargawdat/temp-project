@@ -4,7 +4,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Clean in dependency order
+  await prisma.noteAttachment.deleteMany();
   await prisma.note.deleteMany();
+  await prisma.auditLog.deleteMany();
+  await prisma.contact.deleteMany();
   await prisma.payment.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.deliveryNote.deleteMany();
@@ -39,13 +42,8 @@ async function main() {
   const stc = await prisma.client.create({
     data: {
       name: "Saudi Telecom (STC)",
-
       countryId: countries["SA"].id,
       sector: "SEMI_GOVERNMENT",
-      primaryContact: "Khalid Al-Otaibi",
-      financeContact: "Noura Al-Harbi",
-      email: "vendor.relations@stc.com.sa",
-      phone: "+966 11 218 0000",
       billingAddress: "King Fahd Road, Al Muruj, Riyadh 12283, Saudi Arabia",
       portalName: "STC Vendor Portal",
       portalLink: "https://vendors.stc.com.sa",
@@ -55,13 +53,8 @@ async function main() {
   const enbd = await prisma.client.create({
     data: {
       name: "Emirates NBD",
-
       countryId: countries["AE"].id,
       sector: "PRIVATE",
-      primaryContact: "Rashed Al-Maktoum",
-      financeContact: "Aisha Kazim",
-      email: "procurement@emiratesnbd.com",
-      phone: "+971 4 316 0000",
       billingAddress: "Baniyas Road, Deira, Dubai, UAE",
       portalName: "Ariba",
       portalLink: "https://ariba.emiratesnbd.com",
@@ -71,13 +64,8 @@ async function main() {
   const neom = await prisma.client.create({
     data: {
       name: "NEOM",
-
       countryId: countries["SA"].id,
       sector: "GOVERNMENT",
-      primaryContact: "Faisal Al-Ruwaily",
-      financeContact: "Maha Al-Zahrani",
-      email: "tech.procurement@neom.com",
-      phone: "+966 14 800 0000",
       billingAddress: "NEOM, Tabuk Province, Saudi Arabia",
       portalName: "NEOM Procurement",
       portalLink: "https://procurement.neom.com",
@@ -88,13 +76,8 @@ async function main() {
   const careem = await prisma.client.create({
     data: {
       name: "Careem Technologies",
-
       countryId: countries["AE"].id,
       sector: "PRIVATE",
-      primaryContact: "Youssef El-Naggar",
-      financeContact: "Dina Hossam",
-      email: "tech.ops@careem.com",
-      phone: "+971 4 456 1200",
       billingAddress: "Building 5, Dubai Internet City, Dubai, UAE",
     },
   });
@@ -102,18 +85,29 @@ async function main() {
   const mof = await prisma.client.create({
     data: {
       name: "Ministry of Finance",
-
       countryId: countries["SA"].id,
       sector: "GOVERNMENT",
-      primaryContact: "Abdullah Al-Qahtani",
-      financeContact: "Hind Al-Shammari",
-      email: "it.projects@mof.gov.sa",
-      phone: "+966 11 405 0000",
       billingAddress: "King Abdulaziz Road, Riyadh 11177, Saudi Arabia",
       portalName: "Etimad",
       portalLink: "https://etimad.sa",
       notes: "All invoices must reference Etimad PO number",
     },
+  });
+
+  // ─── Contacts ──────────────────────────────────────────────────
+  await prisma.contact.createMany({
+    data: [
+      { entityType: "Client", entityId: stc.id, name: "Khalid Al-Otaibi", type: "EMAIL", value: "vendor.relations@stc.com.sa" },
+      { entityType: "Client", entityId: stc.id, name: "Noura Al-Harbi", type: "PHONE", value: "+966 11 218 0000" },
+      { entityType: "Client", entityId: enbd.id, name: "Rashed Al-Maktoum", type: "EMAIL", value: "procurement@emiratesnbd.com" },
+      { entityType: "Client", entityId: enbd.id, name: "Aisha Kazim", type: "PHONE", value: "+971 4 316 0000" },
+      { entityType: "Client", entityId: neom.id, name: "Faisal Al-Ruwaily", type: "EMAIL", value: "tech.procurement@neom.com" },
+      { entityType: "Client", entityId: neom.id, name: "Maha Al-Zahrani", type: "PHONE", value: "+966 14 800 0000" },
+      { entityType: "Client", entityId: careem.id, name: "Youssef El-Naggar", type: "EMAIL", value: "tech.ops@careem.com" },
+      { entityType: "Client", entityId: careem.id, name: "Dina Hossam", type: "PHONE", value: "+971 4 456 1200" },
+      { entityType: "Client", entityId: mof.id, name: "Abdullah Al-Qahtani", type: "EMAIL", value: "it.projects@mof.gov.sa" },
+      { entityType: "Client", entityId: mof.id, name: "Hind Al-Shammari", type: "PHONE", value: "+966 11 405 0000" },
+    ],
   });
 
   // ─── Project Managers (4) ─────────────────────────────────────
@@ -163,7 +157,6 @@ async function main() {
   const stcProject = await prisma.project.create({
     data: {
       name: "STC Digital Platform",
-      imageUrl: "/images/projects/stc-digital.jpg",
       clientId: stc.id,
       contractNumber: "STC-2025-DIG-001",
       contractValue: 850000,
@@ -181,7 +174,6 @@ async function main() {
   const enbdMobile = await prisma.project.create({
     data: {
       name: "ENBD Mobile Banking",
-      imageUrl: "/images/projects/enbd-mobile.jpg",
       clientId: enbd.id,
       contractNumber: "ENBD-2025-MOB-042",
       contractValue: 1200000,
@@ -199,7 +191,6 @@ async function main() {
   const neomProject = await prisma.project.create({
     data: {
       name: "NEOM Smart City Portal",
-      imageUrl: "/images/projects/neom-smart.jpg",
       clientId: neom.id,
       contractNumber: "NEOM-2025-SCP-007",
       contractValue: 2500000,
@@ -217,7 +208,6 @@ async function main() {
   const careemProject = await prisma.project.create({
     data: {
       name: "Careem Fleet Management",
-      imageUrl: "/images/projects/careem-fleet.jpg",
       clientId: careem.id,
       contractNumber: "CRM-2025-FLT-015",
       contractValue: 600000,
@@ -235,7 +225,6 @@ async function main() {
   const mofProject = await prisma.project.create({
     data: {
       name: "MOF Budget System",
-      imageUrl: "/images/projects/mof-budget.jpg",
       clientId: mof.id,
       contractNumber: "MOF-2025-BDG-003",
       contractValue: 450000,
@@ -253,7 +242,6 @@ async function main() {
   const enbdRewards = await prisma.project.create({
     data: {
       name: "ENBD Card Rewards",
-      imageUrl: "/images/projects/enbd-rewards.jpg",
       clientId: enbd.id,
       contractNumber: "ENBD-2025-RWD-088",
       contractValue: 320000,
@@ -266,6 +254,22 @@ async function main() {
       status: "ACTIVE",
       type: "PRODUCT",
     },
+  });
+
+  // ─── Project Contacts ──────────────────────────────────────────
+  await prisma.contact.createMany({
+    data: [
+      { entityType: "Project", entityId: stcProject.id, name: "Majed Al-Dosari", type: "EMAIL", value: "majed.dosari@stc.com.sa" },
+      { entityType: "Project", entityId: stcProject.id, name: "Layla Al-Amri", type: "PHONE", value: "+966 50 234 5678" },
+      { entityType: "Project", entityId: enbdMobile.id, name: "Tariq Hussain", type: "EMAIL", value: "tariq.hussain@emiratesnbd.com" },
+      { entityType: "Project", entityId: enbdMobile.id, name: "Samira Khoury", type: "PHONE", value: "+971 50 789 1234" },
+      { entityType: "Project", entityId: careemProject.id, name: "Hassan Fayed", type: "EMAIL", value: "hassan.fayed@careem.com" },
+      { entityType: "Project", entityId: careemProject.id, name: "Amira Nasser", type: "PHONE", value: "+971 55 321 9876" },
+      { entityType: "Project", entityId: enbdRewards.id, name: "Nadia Malik", type: "EMAIL", value: "nadia.malik@emiratesnbd.com" },
+      { entityType: "Project", entityId: enbdRewards.id, name: "Faris Al-Balushi", type: "PHONE", value: "+971 50 654 3210" },
+      { entityType: "Project", entityId: neomProject.id, name: "Salman Al-Harbi", type: "EMAIL", value: "salman.harbi@neom.com" },
+      { entityType: "Project", entityId: mofProject.id, name: "Reem Al-Otaibi", type: "EMAIL", value: "reem.otaibi@mof.gov.sa" },
+    ],
   });
 
   // ─── Milestones ───────────────────────────────────────────────
@@ -463,13 +467,13 @@ async function main() {
     },
   });
 
-  // Additional milestones with upcoming deadlines (next 30 days from ~2026-03-17)
+  // Additional milestones with upcoming deadlines (next 30 days from ~2026-04-02)
   await prisma.milestone.create({
     data: {
       projectId: enbdMobile.id,
       name: "Security Audit",
       value: 120000,
-      plannedDate: new Date("2026-03-20"),
+      plannedDate: new Date("2026-04-05"),
       status: "IN_PROGRESS",
       requiresDeliveryNote: true,
     },
@@ -480,7 +484,7 @@ async function main() {
       projectId: stcProject.id,
       name: "API Documentation",
       value: 85000,
-      plannedDate: new Date("2026-03-24"),
+      plannedDate: new Date("2026-04-10"),
       status: "IN_PROGRESS",
       requiresDeliveryNote: false,
     },
@@ -491,7 +495,7 @@ async function main() {
       projectId: careemProject.id,
       name: "Driver App v2",
       value: 95000,
-      plannedDate: new Date("2026-03-19"),
+      plannedDate: new Date("2026-04-03"),
       status: "IN_PROGRESS",
       requiresDeliveryNote: false,
     },
@@ -502,7 +506,7 @@ async function main() {
       projectId: enbdMobile.id,
       name: "Performance Testing",
       value: 80000,
-      plannedDate: new Date("2026-04-02"),
+      plannedDate: new Date("2026-04-18"),
       status: "NOT_STARTED",
       requiresDeliveryNote: false,
     },
@@ -513,7 +517,7 @@ async function main() {
       projectId: stcProject.id,
       name: "Data Migration",
       value: 110000,
-      plannedDate: new Date("2026-04-10"),
+      plannedDate: new Date("2026-04-25"),
       status: "NOT_STARTED",
       requiresDeliveryNote: true,
     },
@@ -524,7 +528,7 @@ async function main() {
       projectId: enbdRewards.id,
       name: "Partner Integration",
       value: 75000,
-      plannedDate: new Date("2026-03-22"),
+      plannedDate: new Date("2026-04-08"),
       status: "IN_PROGRESS",
       requiresDeliveryNote: false,
     },
@@ -535,6 +539,7 @@ async function main() {
   // STC Requirements: SIGNED
   await prisma.deliveryNote.create({
     data: {
+      projectId: stcProject.id,
       milestoneId: stcRequirements.id,
       description: "Requirements & analysis deliverables for STC Digital Platform",
       workDelivered:
@@ -548,6 +553,7 @@ async function main() {
   // STC UI/UX: SIGNED
   await prisma.deliveryNote.create({
     data: {
+      projectId: stcProject.id,
       milestoneId: stcDesign.id,
       description: "UI/UX design deliverables for STC Digital Platform",
       workDelivered:
@@ -561,6 +567,7 @@ async function main() {
   // STC Backend: DRAFT (in progress, DN created but not sent)
   await prisma.deliveryNote.create({
     data: {
+      projectId: stcProject.id,
       milestoneId: stcBackend.id,
       description: "Backend development deliverables for STC Digital Platform",
       workDelivered:
@@ -572,6 +579,7 @@ async function main() {
   // ENBD Core Features: SIGNED
   await prisma.deliveryNote.create({
     data: {
+      projectId: enbdMobile.id,
       milestoneId: enbdCoreFeatures.id,
       description: "Core features delivery for ENBD Mobile Banking",
       workDelivered:
@@ -585,6 +593,7 @@ async function main() {
   // NEOM Discovery: SENT (not signed — shows pending state)
   await prisma.deliveryNote.create({
     data: {
+      projectId: neomProject.id,
       milestoneId: neomDiscovery.id,
       description: "Discovery phase deliverables for NEOM Smart City Portal",
       workDelivered:
@@ -597,6 +606,7 @@ async function main() {
   // Careem Fleet Dashboard: SIGNED
   await prisma.deliveryNote.create({
     data: {
+      projectId: careemProject.id,
       milestoneId: careemDashboard.id,
       description: "Fleet dashboard deliverables for Careem",
       workDelivered:
@@ -610,6 +620,7 @@ async function main() {
   // MOF System Dev: SIGNED
   await prisma.deliveryNote.create({
     data: {
+      projectId: mofProject.id,
       milestoneId: mofSystemDev.id,
       description: "System development deliverables for MOF Budget System",
       workDelivered:
@@ -627,8 +638,8 @@ async function main() {
     data: {
       invoiceNumber: "INV-2025-001",
       amount: 450000,
-      vatAmount: 67500,
-      totalPayable: 517500,
+      vatAmount: 0,
+      totalPayable: 450000,
       status: "PAID",
       submittedDate: new Date("2025-07-05"),
       paymentDueDate: new Date("2025-08-04"),
@@ -751,7 +762,7 @@ async function main() {
   await prisma.payment.create({
     data: {
       invoiceId: inv2025001.id,
-      amount: 300000,
+      amount: 270000,
       receivedDate: new Date("2025-08-01"),
       reference: "ETIMAD-TRF-20250801-001",
     },
@@ -759,7 +770,7 @@ async function main() {
   await prisma.payment.create({
     data: {
       invoiceId: inv2025001.id,
-      amount: 217500,
+      amount: 180000,
       receivedDate: new Date("2025-08-20"),
       reference: "ETIMAD-TRF-20250820-002",
     },
@@ -809,6 +820,32 @@ async function main() {
     ],
   });
 
+  // ─── Note Attachments ──────────────────────────────────────────
+  // Get a few notes to attach files to
+  const allNotes = await prisma.note.findMany({ take: 5, orderBy: { createdAt: "asc" } });
+  if (allNotes.length >= 5) {
+    await prisma.noteAttachment.createMany({
+      data: [
+        { noteId: allNotes[0].id, type: "URL", url: "https://docs.google.com/spreadsheets/d/example-rate-card", filename: "STC Rate Card 2026", mimeType: null },
+        { noteId: allNotes[2].id, type: "URL", url: "https://confluence.internal/pages/stc-po-guide", filename: "STC PO Requirements Guide", mimeType: null },
+        { noteId: allNotes[3].id, type: "URL", url: "https://emiratesnbd.com/procurement-contacts", filename: "ENBD Procurement Contacts", mimeType: null },
+        { noteId: allNotes[4].id, type: "FILE", url: "/uploads/enbd-vat-policy-2026.pdf", filename: "ENBD VAT Policy 2026.pdf", mimeType: "application/pdf" },
+      ],
+    });
+  }
+
+  // ─── Audit Log ────────────────────────────────────────────────
+  await prisma.auditLog.createMany({
+    data: [
+      { action: "CREATE", entityType: "Project", entityId: stcProject.id, entityName: "STC Digital Platform", performedBy: "Sarah Johnson", changes: { status: "ACTIVE" }, createdAt: new Date("2025-06-01") },
+      { action: "STATUS_CHANGE", entityType: "Project", entityId: neomProject.id, entityName: "NEOM Smart City Portal", performedBy: "Ahmed Al-Rashid", changes: { from: "ACTIVE", to: "ON_HOLD" }, createdAt: new Date("2026-01-20") },
+      { action: "STATUS_CHANGE", entityType: "Project", entityId: mofProject.id, entityName: "MOF Budget System", performedBy: "Sarah Johnson", changes: { from: "ACTIVE", to: "CLOSED" }, createdAt: new Date("2025-11-01") },
+      { action: "UPDATE", entityType: "Milestone", entityId: enbdRewardsEngine.id, entityName: "Rewards Engine", performedBy: "Omar Gawdat", changes: { status: { from: "IN_PROGRESS", to: "COMPLETED" } }, createdAt: new Date("2026-02-14") },
+      { action: "CREATE", entityType: "Invoice", entityId: inv2025001.id, entityName: "INV-2025-001", performedBy: "Sarah Johnson", changes: { amount: 450000, currency: "SAR" }, createdAt: new Date("2025-07-05") },
+      { action: "STATUS_CHANGE", entityType: "Invoice", entityId: inv2025001.id, entityName: "INV-2025-001", performedBy: "System", changes: { from: "SUBMITTED", to: "PAID" }, createdAt: new Date("2025-08-20") },
+    ],
+  });
+
   // ─── Company Settings ─────────────────────────────────────────
 
   await prisma.companySettings.upsert({
@@ -836,6 +873,7 @@ async function main() {
   console.log("Seed data created successfully!");
   console.log("  - 9 countries (Gulf focus)");
   console.log("  - 5 clients (GOVERNMENT, PRIVATE, SEMI_GOVERNMENT)");
+  console.log("  - 10 client contacts + 10 project contacts");
   console.log("  - 4 project managers");
   console.log("  - 6 projects (ACTIVE, ON_HOLD, CLOSED)");
   console.log("  - 17 milestones (all 5 statuses covered)");
@@ -843,6 +881,8 @@ async function main() {
   console.log("  - 7 invoices (all 6 statuses covered)");
   console.log("  - 3 payments (partial + full)");
   console.log("  - 24 notes (all 6 note types covered)");
+  console.log("  - 4 note attachments (URL + FILE)");
+  console.log("  - 6 audit log entries");
 }
 
 main()

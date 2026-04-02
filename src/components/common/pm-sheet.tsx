@@ -7,13 +7,15 @@ import type { Serialized } from "@/lib/serialize";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
 import { ProjectManagerForm } from "@/components/common/project-manager-form";
-import { Plus, Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
+import { EditButton } from "@/components/common/edit-button";
 
 interface PMSheetProps {
   pm?: ProjectManager | Serialized<ProjectManager>;
@@ -36,24 +38,16 @@ export function PMSheet({ pm, variant = "create" }: PMSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {isEdit ? (
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setOpen(true)}
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </Button>
-      ) : (
-        <Button
-          className="border-0 rounded-full h-14 w-14 p-0 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
-          onClick={() => setOpen(true)}
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-      )}
+      <SheetTrigger
+        render={isEdit ? (
+          <EditButton />
+        ) : (
+          <Button className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20 gap-1.5">
+            <Plus className="h-4 w-4" />
+            Add Manager
+          </Button>
+        )}
+      />
 
       <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
         {!isEdit && (

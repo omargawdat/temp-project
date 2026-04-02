@@ -8,6 +8,7 @@ import type { Serialized } from "@/lib/serialize";
 import { createClient, updateClient } from "@/actions/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FieldWrapper } from "@/components/common/field-wrapper";
 import type { ActionResult } from "@/types";
 import { motion } from "framer-motion";
@@ -15,20 +16,15 @@ import {
   Loader2,
   AlertCircle,
   Building2,
-  Hash,
   Globe,
   MapPin,
-  User,
-  Mail,
-  Phone,
   Monitor,
   Link2,
   FileText,
-
-  X,
+  Users,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ContactFormRows, type ContactRow } from "@/components/common/contact-form-rows";
 
 type CountryOption = { id: string; name: string; code: string; flag: string };
 
@@ -134,17 +130,19 @@ export function ClientForm({
   countries,
   onSuccess,
 }: {
-  client?: (Client | Serialized<Client>) & { countryId?: string };
+  client?: (Client | Serialized<Client>) & { countryId?: string; contacts?: ContactRow[] };
   countries: CountryOption[];
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!client;
   const [isDirty, setIsDirty] = React.useState(false);
+  const [contacts, setContacts] = React.useState<ContactRow[]>(client?.contacts ?? []);
 
   async function handleAction(
     _prevState: ActionResult<{ id: string }> | null,
     formData: FormData,
   ): Promise<ActionResult<{ id: string }>> {
+    formData.set("contacts", JSON.stringify(contacts));
     if (isEdit) {
       return updateClient(client!.id, formData);
     }
@@ -182,82 +180,41 @@ export function ClientForm({
       {/* Fields */}
       <div className="grid gap-4">
 
+        <FieldWrapper icon={Globe} label="Sector" htmlFor="sector" error={fieldError("sector")}>
+          <SectorSelect defaultValue={client?.sector} />
+        </FieldWrapper>
+
         <FieldWrapper icon={Building2} label="Name" htmlFor="name" error={fieldError("name")}>
           <Input
             id="name"
             name="name"
-            placeholder="e.g. Saudi Telecom"
             defaultValue={client?.name ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
             required
           />
-        </FieldWrapper>
-
-        <FieldWrapper icon={Globe} label="Sector" htmlFor="sector" error={fieldError("sector")}>
-          <SectorSelect defaultValue={client?.sector} />
         </FieldWrapper>
         <FieldWrapper icon={MapPin} label="Country" htmlFor="country" error={fieldError("countryId")}>
           <CountrySelect countries={countries} defaultValue={client?.countryId} />
         </FieldWrapper>
-        <FieldWrapper icon={User} label="Primary Contact" htmlFor="primaryContact" error={fieldError("primaryContact")}>
-          <Input
-            id="primaryContact"
-            name="primaryContact"
-            placeholder="e.g. Khalid Al-Otaibi"
-            defaultValue={client?.primaryContact ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
-            required
-          />
-        </FieldWrapper>
-        <FieldWrapper icon={User} label="Finance Contact" htmlFor="financeContact" error={fieldError("financeContact")}>
-          <Input
-            id="financeContact"
-            name="financeContact"
-            placeholder="e.g. Noura Al-Harbi"
-            defaultValue={client?.financeContact ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
-            required
-          />
-        </FieldWrapper>
-        <FieldWrapper icon={Mail} label="Email" htmlFor="email" error={fieldError("email")}>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="e.g. contact@company.com"
-            defaultValue={client?.email ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
-            required
-          />
-        </FieldWrapper>
-        <FieldWrapper icon={Phone} label="Phone" htmlFor="phone" error={fieldError("phone")}>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="e.g. +966 50 123 4567"
-            defaultValue={client?.phone ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
-            required
+        <FieldWrapper icon={Users} label="Contacts" htmlFor="contacts">
+          <ContactFormRows
+            contacts={contacts}
+            onChange={(c) => { setContacts(c); setIsDirty(true); }}
           />
         </FieldWrapper>
         <FieldWrapper icon={MapPin} label="Billing Address" htmlFor="billingAddress" error={fieldError("billingAddress")}>
-          <textarea
+          <Textarea
             id="billingAddress"
             name="billingAddress"
-            placeholder="e.g. King Fahd Road, Riyadh 12283"
             defaultValue={client?.billingAddress ?? ""}
             required
-            className="flex w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-none"
+            className="min-h-[80px] resize-none"
           />
         </FieldWrapper>
         <FieldWrapper icon={Monitor} label="Portal Name (Optional)" htmlFor="portalName">
           <Input
             id="portalName"
             name="portalName"
-            placeholder="e.g. Ariba, Etimad"
             defaultValue={client?.portalName ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
           />
         </FieldWrapper>
         <FieldWrapper icon={Link2} label="Portal Link (Optional)" htmlFor="portalLink">
@@ -265,18 +222,15 @@ export function ClientForm({
             id="portalLink"
             name="portalLink"
             type="url"
-            placeholder="e.g. https://portal.example.com"
             defaultValue={client?.portalLink ?? ""}
-            className="h-10 placeholder:text-muted-foreground/70 placeholder:not-italic"
           />
         </FieldWrapper>
         <FieldWrapper icon={FileText} label="Notes (Optional)" htmlFor="notes">
-          <textarea
+          <Textarea
             id="notes"
             name="notes"
-            placeholder="e.g. Preferred payment method, special requirements..."
             defaultValue={client?.notes ?? ""}
-            className="flex w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 placeholder:not-italic focus:outline-none focus:ring-2 focus:ring-ring min-h-[80px] resize-none"
+            className="min-h-[80px] resize-none"
           />
         </FieldWrapper>
       </div>

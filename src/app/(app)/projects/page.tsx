@@ -4,7 +4,6 @@ import { PageHeader } from "@/components/common/page-header";
 import { SchemaProjectCard } from "@/components/ui/schema-project-card";
 import { ProjectListItem } from "@/components/projects/project-list-item";
 import { ProjectSheet } from "@/components/common/project-sheet";
-import { FloatingAdd } from "@/components/common/floating-add";
 import { FolderKanban, SearchX } from "lucide-react";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { Button } from "@/components/ui/button";
@@ -78,10 +77,9 @@ export default async function ProjectsPage({
         title="Projects / Products"
         description={`${totalCount} project${totalCount !== 1 ? "s" : ""} & products across all clients`}
         breadcrumbs={[]}
-      />
-      <FloatingAdd>
+      >
         <ProjectSheet projectManagers={projectManagers} clients={clients} />
-      </FloatingAdd>
+      </PageHeader>
 
       <ProjectsToolbar
         clients={clients.map((c) => ({ id: c.id, name: c.name, count: c._count.projects }))}
@@ -111,7 +109,6 @@ export default async function ProjectsPage({
                   key={project.id}
                   id={project.id}
                   name={project.name}
-                  imageUrl={project.imageUrl}
                   clientName={project.client.name}
                   contractNumber={project.contractNumber}
                   contractValue={Number(project.contractValue)}
@@ -160,7 +157,6 @@ export default async function ProjectsPage({
                   key={project.id}
                   id={project.id}
                   name={project.name}
-                  imageUrl={project.imageUrl}
                   clientName={project.client.name}
                   contractValue={Number(project.contractValue)}
                   currency={project.currency}

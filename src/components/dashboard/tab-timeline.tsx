@@ -115,7 +115,11 @@ function ProjectTimeline({ projects }: { projects: TimelineProject[] }) {
       cursor.setMonth(cursor.getMonth() + 1);
     }
 
-    return { minTs: min, maxTs: max, months: monthMarkers };
+    // Thin out labels to avoid overlap: show at most ~8 labels
+    const step = Math.max(1, Math.ceil(monthMarkers.length / 8));
+    const visibleMarkers = monthMarkers.filter((_, i) => i % step === 0);
+
+    return { minTs: min, maxTs: max, months: visibleMarkers };
   }, [projects]);
 
   if (projects.length === 0) {

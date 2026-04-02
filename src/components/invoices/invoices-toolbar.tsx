@@ -14,7 +14,7 @@ export function InvoicesToolbar({
   projects,
   resultCount,
 }: {
-  projects: { id: string; name: string; imageUrl?: string | null; count?: number }[];
+  projects: { id: string; name: string; count?: number }[];
   resultCount: number;
 }) {
   const router = useRouter();

@@ -18,6 +18,7 @@ const AUDITED_MODELS: Record<string, AuditModelConfig> = {
   Payment:         { entityType: "Payment",         nameField: "reference" },
   Country:         { entityType: "Country",         nameField: "name" },
   ProjectManager:  { entityType: "ProjectManager",  nameField: "name" },
+  Contact:         { entityType: "Contact",         nameField: "name" },
   Note:            { entityType: "Note",            nameField: "entityType" },
   CompanySettings: { entityType: "CompanySettings", nameField: "companyName" },
 };
@@ -25,7 +26,6 @@ const AUDITED_MODELS: Record<string, AuditModelConfig> = {
 const EXCLUDED_DIFF_FIELDS = new Set([
   "createdAt",
   "updatedAt",
-  "imageUrl",
   "photoUrl",
   "logoUrl",
 ]);

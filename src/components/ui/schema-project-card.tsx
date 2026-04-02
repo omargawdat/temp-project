@@ -10,7 +10,6 @@ import { getInitials, safePercent, formatCurrency, formatDate } from "@/lib/form
 interface SchemaProjectCardProps {
   id: string;
   name: string;
-  imageUrl?: string | null;
   clientName: string;
   contractNumber: string;
   contractValue: number;
@@ -33,7 +32,6 @@ interface SchemaProjectCardProps {
 export function SchemaProjectCard({
   id,
   name,
-  imageUrl,
   clientName,
   contractNumber,
   contractValue,
@@ -72,28 +70,16 @@ export function SchemaProjectCard({
       <div className="relative p-6">
         {/* Row 1: Icon + Name + Status */}
         <div className="flex items-start gap-3">
-          {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={name}
-              className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-ring/20"
-            />
-          ) : (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20">
-              <span className="text-sm font-bold text-primary">
-                {getInitials(name)}
-              </span>
-            </div>
-          )}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 ring-1 ring-primary/20">
+            <span className="text-sm font-bold text-primary">
+              {getInitials(name)}
+            </span>
+          </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
                 {name}
               </h3>
-              {type === "PRODUCT" && (
-                <span className="rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-600">Product</span>
-              )}
               <StatusBadge status={status} />
             </div>
             <p className="mt-1 text-sm text-muted-foreground truncate">{clientName}</p>

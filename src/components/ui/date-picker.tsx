@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { inputStyles } from "@/components/ui/input";
 
 interface ProjectDatePickerProps {
   name: string;
@@ -211,10 +213,11 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(!open)}
-        className={compact
-          ? "flex w-full items-center justify-between rounded-md border border-border bg-accent px-2.5 text-xs text-foreground transition-all hover:border-border/40 focus:outline-none focus:ring-2 focus:ring-ring h-8 mt-1"
-          : "flex h-10 w-full items-center justify-between rounded-md border border-border bg-transparent px-3 text-sm text-foreground transition-all hover:border-border/80 focus:outline-none focus:ring-2 focus:ring-ring"
-        }
+        className={cn(
+          inputStyles,
+          "flex items-center justify-between cursor-pointer hover:border-border/80",
+          compact && "h-8 px-2.5 text-xs mt-1",
+        )}
       >
         <span className={displayValue ? "text-foreground" : "text-muted-foreground"}>
           {displayValue || "Pick a date"}

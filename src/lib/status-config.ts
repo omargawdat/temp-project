@@ -4,13 +4,14 @@ export interface StatusStyle {
   bg: string;
   text: string;
   dot: string;
+  ring?: string;
 }
 
 export const STATUS_CONFIG: Record<string, StatusStyle> = {
   // Project statuses
-  ACTIVE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
-  ON_HOLD: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500" },
-  CLOSED: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
+  ACTIVE: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500", ring: "ring-emerald-200" },
+  ON_HOLD: { bg: "bg-amber-50", text: "text-amber-600", dot: "bg-amber-500", ring: "ring-amber-200" },
+  CLOSED: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400", ring: "ring-slate-200" },
 
   // Milestone statuses
   NOT_STARTED: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },

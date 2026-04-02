@@ -12,18 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
+  SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
 import { FieldWrapper } from "@/components/common/field-wrapper";
+import { EditButton } from "@/components/common/edit-button";
 import type { ActionResult } from "@/types";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   Plus,
-  Pencil,
   Loader2,
   AlertCircle,
   MapPin,
@@ -211,24 +212,16 @@ export function CountrySheet({ country, variant = "create" }: CountrySheetProps)
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {isEdit ? (
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setOpen(true)}
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </Button>
-      ) : (
-        <Button
-          className="border-0 rounded-full h-14 w-14 p-0 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
-          onClick={() => setOpen(true)}
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-      )}
+      <SheetTrigger
+        render={isEdit ? (
+          <EditButton />
+        ) : (
+          <Button className="btn-gradient border-0 px-5 font-semibold text-primary-foreground shadow-lg shadow-primary/20 gap-1.5">
+            <Plus className="h-4 w-4" />
+            Add Country
+          </Button>
+        )}
+      />
 
       <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
         {!isEdit && (

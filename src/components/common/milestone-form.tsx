@@ -5,7 +5,7 @@ import { createMilestone } from "@/actions/milestone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProjectDatePicker } from "@/components/ui/date-picker";
-import type { ActionResult } from "@/types";
+import type { ActionResult, FieldErrors } from "@/types";
 import { Loader2, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,6 +25,7 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
   const [displayValue, setDisplayValue] = useState("");
   const [dn, setDn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [dateKey, setDateKey] = useState(0);
@@ -36,6 +37,7 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
 
   function handleSubmit(formData: FormData) {
     setError(null);
+    setFieldErrors({});
     const currentName = formData.get("name") as string;
     const currentDisplayValue = displayValue;
 
@@ -53,10 +55,14 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 1500);
       } else {
-        toast.error(result.error ?? "Something went wrong.");
         setName(currentName);
         setDisplayValue(currentDisplayValue);
-        setError(result.error ?? "Something went wrong.");
+        if (result.fieldErrors) {
+          setFieldErrors(result.fieldErrors);
+        } else {
+          toast.error(result.error ?? "Something went wrong.");
+          setError(result.error ?? "Something went wrong.");
+        }
       }
     });
   }
@@ -75,8 +81,9 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-9 border-border/25 bg-accent text-sm placeholder:text-muted-foreground/70"
+            className={`h-9 border-border/25 text-sm placeholder:text-muted-foreground/70 ${fieldErrors.name ? "border-red-500/40 ring-1 ring-red-500/20" : ""}`}
           />
+          {fieldErrors.name && <p className="text-[11px] text-red-400">{fieldErrors.name[0]}</p>}
         </div>
         <div className="min-w-0 flex-1 space-y-1">
           <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Value</label>
@@ -85,11 +92,13 @@ export function MilestoneForm({ projectId }: { projectId: string }) {
             required
             value={displayValue}
             onChange={handleValueChange}
-            className={`h-9 border-border/25 bg-accent text-sm font-semibold tabular-nums placeholder:text-muted-foreground/70 placeholder:font-normal ${error ? "border-red-500/40 ring-1 ring-red-500/20" : ""}`}
+            className={`h-9 border-border/25 text-sm font-semibold tabular-nums placeholder:text-muted-foreground/70 placeholder:font-normal ${fieldErrors.value ? "border-red-500/40 ring-1 ring-red-500/20" : ""}`}
           />
+          {fieldErrors.value && <p className="text-[11px] text-red-400">{fieldErrors.value[0]}</p>}
         </div>
         <div className="min-w-0 flex-1">
           <ProjectDatePicker key={dateKey} name="plannedDate" label="Date" compact />
+          {fieldErrors.plannedDate && <p className="text-[11px] text-red-400">{fieldErrors.plannedDate[0]}</p>}
         </div>
         <input type="hidden" name="requiresDeliveryNote" value={dn ? "on" : ""} />
         <button

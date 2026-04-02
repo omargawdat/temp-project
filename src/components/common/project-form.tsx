@@ -7,7 +7,7 @@ import type { Project, ProjectType } from "@prisma/client";
 import type { Serialized } from "@/lib/serialize";
 import { createProject, updateProject } from "@/actions/project";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, inputStyles } from "@/components/ui/input";
 import { ProjectDatePicker } from "@/components/ui/date-picker";
 import { FieldWrapper } from "@/components/common/field-wrapper";
 import { CURRENCIES, DEFAULT_CURRENCY } from "@/lib/constants";
@@ -29,8 +29,6 @@ import {
   Handshake,
   BadgeCheck,
   Settings,
-  ImagePlus,
-  X,
   ChevronDown,
   Search,
   Check,
@@ -39,6 +37,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ContactFormRows, type ContactRow } from "@/components/common/contact-form-rows";
 
 function SubmitButton({ isEdit, isDirty }: { isEdit: boolean; isDirty: boolean }) {
   const { pending } = useFormStatus();
@@ -99,17 +98,14 @@ export function ProjectForm({
   clients,
   onSuccess,
 }: {
-  project?: Project | Serialized<Project>;
+  project?: (Project | Serialized<Project>) & { contacts?: ContactRow[] };
   projectManagers: { id: string; name: string; title?: string | null; photoUrl?: string | null }[];
   clients: { id: string; name: string }[];
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!project;
   const [isDirty, setIsDirty] = React.useState(false);
-  const [imagePreview, setImagePreview] = React.useState<string | null>(
-    project?.imageUrl ?? null,
-  );
-  const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const [contacts, setContacts] = React.useState<ContactRow[]>(project?.contacts ?? []);
 
   // Client selector state
   const [clientOpen, setClientOpen] = React.useState(false);
@@ -136,6 +132,7 @@ export function ProjectForm({
     _prevState: ActionResult<{ id: string }> | null,
     formData: FormData,
   ): Promise<ActionResult<{ id: string }>> {
+    formData.set("contacts", JSON.stringify(contacts));
     if (isEdit) {
       return updateProject(project!.id, formData);
     }
@@ -155,9 +152,6 @@ export function ProjectForm({
       onSuccess?.(state.data.id);
     }
   }, [state, onSuccess, isEdit]);
-
-  const selectClass =
-    "flex h-10 w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
     <form action={formAction} className="space-y-6" onChange={() => setIsDirty(true)}>
@@ -211,58 +205,6 @@ export function ProjectForm({
           step={1}
         />
         <div className="space-y-4">
-          {/* Project Image */}
-          <FieldWrapper icon={ImagePlus} label="Image" htmlFor="image">
-            <button
-              type="button"
-              onClick={() => imageInputRef.current?.click()}
-              className="flex w-full items-center gap-3 rounded-lg border border-border bg-accent px-3 py-2.5 text-left transition-colors hover:bg-muted"
-            >
-              {imagePreview ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imagePreview} alt="Project" className="h-10 w-10 rounded-lg object-cover ring-1 ring-ring/20" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">Image selected</p>
-                    <p className="text-xs text-muted-foreground">Click to change</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setImagePreview(null); if (imageInputRef.current) imageInputRef.current.value = ""; setIsDirty(true); }}
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                    <ImagePlus className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Upload image <span className="text-xs">(optional)</span></p>
-                    <p className="text-xs text-muted-foreground/60">JPG, PNG or WebP. Max 5MB</p>
-                  </div>
-                </>
-              )}
-            </button>
-            <input
-              ref={imageInputRef}
-              id="image"
-              type="file"
-              name="image"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setImagePreview(URL.createObjectURL(file));
-                  setIsDirty(true);
-                }
-              }}
-            />
-          </FieldWrapper>
-
           <FieldWrapper icon={Building2} label="Client" htmlFor="clientId" error={fieldError("clientId")}>
             <input type="hidden" name="clientId" value={selectedClientId} required />
             <div className="relative" ref={clientRef}>
@@ -270,11 +212,12 @@ export function ProjectForm({
                 type="button"
                 onClick={() => { setClientOpen(!clientOpen); setClientSearch(""); }}
                 className={cn(
-                  "flex h-10 w-full items-center justify-between rounded-md border px-3 text-sm transition-colors",
+                  inputStyles,
+                  "flex items-center justify-between cursor-pointer",
                   clientOpen
                     ? "border-primary/40 ring-2 ring-primary/20"
-                    : "border-border hover:border-border/80",
-                  selectedClient ? "text-foreground" : "text-muted-foreground",
+                    : "hover:border-border/80",
+                  !selectedClient && "text-muted-foreground",
                 )}
               >
                 <span className="flex items-center gap-2 truncate">
@@ -338,10 +281,10 @@ export function ProjectForm({
             </div>
           </FieldWrapper>
           <FieldWrapper icon={FileText} label="Project Name" htmlFor="name" error={fieldError("name")}>
-            <Input id="name" name="name" placeholder="E-Commerce Platform Redesign" defaultValue={project?.name ?? ""} className="h-10" required />
+            <Input id="name" name="name" placeholder="E-Commerce Platform Redesign" defaultValue={project?.name ?? ""} required />
           </FieldWrapper>
           <FieldWrapper icon={Hash} label="Contract Number" htmlFor="contractNumber" error={fieldError("contractNumber")}>
-            <Input id="contractNumber" name="contractNumber" placeholder="TC-2026-001" defaultValue={project?.contractNumber ?? ""} className="h-10" required />
+            <Input id="contractNumber" name="contractNumber" placeholder="TC-2026-001" defaultValue={project?.contractNumber ?? ""} required />
           </FieldWrapper>
         </div>
       </div>
@@ -369,7 +312,6 @@ export function ProjectForm({
               step="0.01"
               placeholder="1000000"
               defaultValue={project?.contractValue?.toString() ?? ""}
-              className="h-10"
               required
             />
           </FieldWrapper>
@@ -384,7 +326,6 @@ export function ProjectForm({
               name="paymentTerms"
               placeholder="Net 30"
               defaultValue={project?.paymentTerms ?? ""}
-              className="h-10"
               required
             />
           </FieldWrapper>
@@ -516,6 +457,21 @@ export function ProjectForm({
           {isEdit && (
             <input type="hidden" name="status" value={project?.status ?? "ACTIVE"} />
           )}
+      </div>
+
+      {/* Section 5: Contacts */}
+      <div className="border-border/50 bg-card rounded-lg border p-6 shadow-lg shadow-black/10">
+        <SectionHeader
+          icon={User}
+          title="Contacts"
+          subtitle="Add project contacts (email or phone)"
+          accentColor="bg-purple-500/10 text-purple-400"
+          step={5}
+        />
+        <ContactFormRows
+          contacts={contacts}
+          onChange={(c) => { setContacts(c); setIsDirty(true); }}
+        />
       </div>
 
       <SubmitButton isEdit={isEdit} isDirty={isDirty} />

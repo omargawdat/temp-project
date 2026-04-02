@@ -55,6 +55,11 @@ enum ClientSector {
   SEMI_GOVERNMENT
 }
 
+enum ContactType {
+  EMAIL
+  PHONE
+}
+
 // ─── Models ─────────────────────────────────────────────────────
 
 model Country {
@@ -75,10 +80,6 @@ model Client {
 
   countryId       String
   sector          ClientSector
-  primaryContact  String
-  financeContact  String
-  email           String
-  phone           String
   billingAddress  String    @db.Text
   portalName      String?
   portalLink      String?
@@ -110,7 +111,6 @@ model ProjectManager {
 model Project {
   id                    String                @id @default(cuid())
   name                  String
-  imageUrl              String?
   clientId              String
   contractNumber        String                @unique
   contractValue         Decimal               @db.Decimal(15, 2)
@@ -126,6 +126,7 @@ model Project {
   client         Client         @relation(fields: [clientId], references: [id])
   projectManager ProjectManager @relation(fields: [projectManagerId], references: [id])
   milestones     Milestone[]
+  deliveryNotes  DeliveryNote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -155,11 +156,13 @@ model Milestone {
   @@index([projectId, status])
   @@index([status])
   @@index([invoiceId])
+  @@index([plannedDate])
 }
 
 model DeliveryNote {
   id                String             @id @default(cuid())
-  milestoneId       String             @unique
+  projectId         String
+  milestoneId       String?            @unique
   description       String             @db.Text
   workDelivered     String             @db.Text
   status            DeliveryNoteStatus @default(DRAFT)
@@ -167,10 +170,13 @@ model DeliveryNote {
   sentDate          DateTime?
   signedDate        DateTime?
 
-  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([projectId])
 }
 
 model Invoice {
@@ -190,6 +196,7 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   @@index([status])
+  @@index([paymentDueDate])
 }
 
 model CompanySettings {
@@ -225,6 +232,20 @@ model Payment {
   @@index([invoiceId])
 }
 
+model Contact {
+  id         String      @id @default(cuid())
+  entityType String
+  entityId   String
+  name       String
+  type       ContactType
+  value      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([entityType, entityId])
+}
+
 model Note {
   id         String   @id @default(cuid())
   entityType String
@@ -233,10 +254,27 @@ model Note {
   content    String   @db.Text
   createdBy  String
 
+  attachments NoteAttachment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([entityType, entityId])
+}
+
+model NoteAttachment {
+  id       String  @id @default(cuid())
+  noteId   String
+  type     String  // "FILE" or "URL"
+  url      String
+  filename String
+  mimeType String?
+
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
 }
 
 // ─── Audit ──────────────────────────────────────────────────────

@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, Check, Copy, ExternalLink } from "lucide-react";
-
-const ICONS = { mail: Mail, phone: Phone } as const;
+import { Check, Copy, ExternalLink } from "lucide-react";
 
 export function ContactDetailRow({
   value,
-  icon,
   href,
 }: {
   value: string;
@@ -15,13 +12,11 @@ export function ContactDetailRow({
   href: string;
 }) {
   const [copied, setCopied] = useState(false);
-  const Icon = ICONS[icon];
 
   return (
-    <div className="flex items-center gap-2.5 text-sm group">
-      <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-      <span className="text-muted-foreground">{value}</span>
-      <div className="ml-auto flex items-center gap-0.5 shrink-0">
+    <div className="flex items-center gap-1.5 text-sm group">
+      <span className="text-muted-foreground truncate">{value}</span>
+      <div className="flex items-center gap-0.5 shrink-0">
         <button
           type="button"
           onClick={() => {

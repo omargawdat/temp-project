@@ -61,10 +61,10 @@ export async function createInvoice(
       }
     }
 
-    // Auto-calculate amount from milestone values
-    const amount = milestones.reduce((sum, m) => sum + Number(m.value), 0);
-    const vatNum = Number(vatAmount);
-    const totalPayable = amount + vatNum;
+    // Auto-calculate amount from milestone values (round to 2dp to avoid floating point drift)
+    const amount = Math.round(milestones.reduce((sum, m) => sum + Number(m.value), 0) * 100) / 100;
+    const vatNum = Math.round(Number(vatAmount) * 100) / 100;
+    const totalPayable = Math.round((amount + vatNum) * 100) / 100;
 
     // Generate invoice number + create invoice + link milestones atomically
     const invoice = await prisma.$transaction(async (tx) => {

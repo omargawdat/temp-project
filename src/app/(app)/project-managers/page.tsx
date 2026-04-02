@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { PMSheet } from "@/components/common/pm-sheet";
 import { PMCard } from "@/components/common/pm-card";
-import { FloatingAdd } from "@/components/common/floating-add";
 import { Users, SearchX } from "lucide-react";
 import { SortableHeader } from "@/components/toolbar/sortable-header";
 import { PMToolbar } from "@/components/project-managers/pm-toolbar";
@@ -66,11 +65,9 @@ export default async function ProjectManagersPage({
         title="Team"
         description={`${totalCount} project manager${totalCount !== 1 ? "s" : ""}`}
         breadcrumbs={[]}
-      />
-
-      <FloatingAdd>
+      >
         <PMSheet />
-      </FloatingAdd>
+      </PageHeader>
 
       <PMToolbar resultCount={sortedStats.length} />
 
