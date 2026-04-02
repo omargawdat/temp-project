@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/common/page-header";
 import { SchemaProjectCard } from "@/components/ui/schema-project-card";
+import { ProjectListItem } from "@/components/projects/project-list-item";
 import { ProjectSheet } from "@/components/common/project-sheet";
 import { FolderKanban, SearchX } from "lucide-react";
 import { sumUniqueInvoices } from "@/lib/financial";
@@ -33,6 +34,8 @@ export default async function ProjectsPage({
     dir: typeof params.dir === "string" ? params.dir : undefined,
   };
 
+  const view = typeof params.view === "string" ? params.view : "list";
+
   const where = buildProjectWhere(filterParams);
   const orderBy = buildProjectOrderBy(sortParams);
   const filtersActive = hasActiveProjectFilters(filterParams);
@@ -46,7 +49,7 @@ export default async function ProjectsPage({
       skip,
       take: PAGE_SIZE,
       include: {
-        client: { select: { name: true, imageUrl: true } },
+        client: { select: { name: true } },
         projectManager: { select: { name: true, photoUrl: true } },
         milestones: {
           select: { status: true, value: true, invoice: { select: { id: true, totalPayable: true, status: true } } },
@@ -58,7 +61,7 @@ export default async function ProjectsPage({
       orderBy: { name: "asc" },
     }),
     prisma.client.findMany({
-      select: { id: true, name: true, imageUrl: true, _count: { select: { projects: true } } },
+      select: { id: true, name: true, _count: { select: { projects: true } } },
       orderBy: { name: "asc" },
     }),
     prisma.project.count(),
@@ -78,52 +81,88 @@ export default async function ProjectsPage({
       </PageHeader>
 
       <ProjectsToolbar
-        clients={clients.map((c) => ({ id: c.id, name: c.name, imageUrl: c.imageUrl, count: c._count.projects }))}
+        clients={clients.map((c) => ({ id: c.id, name: c.name, count: c._count.projects }))}
         projectManagers={projectManagers.map((pm) => ({ id: pm.id, name: pm.name, imageUrl: pm.photoUrl, count: pm._count.projects }))}
         resultCount={filteredCount}
       />
 
       {filteredCount > 0 ? (
         <>
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project, i) => {
-            const completed = project.milestones.filter(
-              (m) =>
-                m.status === "COMPLETED" ||
-                m.status === "READY_FOR_INVOICING" ||
-                m.status === "INVOICED",
-            ).length;
-            const billedAmount = sumUniqueInvoices(project.milestones);
-            const collectedAmount = sumUniqueInvoices(project.milestones, "PAID");
-            const invoiceCount = new Set(
-              project.milestones.map((m) => m.invoice?.id).filter(Boolean),
-            ).size;
+        {view === "grid" ? (
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project, i) => {
+              const completed = project.milestones.filter(
+                (m) =>
+                  m.status === "COMPLETED" ||
+                  m.status === "READY_FOR_INVOICING" ||
+                  m.status === "INVOICED",
+              ).length;
+              const billedAmount = sumUniqueInvoices(project.milestones);
+              const collectedAmount = sumUniqueInvoices(project.milestones, "PAID");
+              const invoiceCount = new Set(
+                project.milestones.map((m) => m.invoice?.id).filter(Boolean),
+              ).size;
 
-            return (
-              <SchemaProjectCard
-                key={project.id}
-                id={project.id}
-                name={project.name}
-                imageUrl={project.imageUrl ?? project.client.imageUrl}
-                clientName={project.client.name}
-                contractNumber={project.contractNumber}
-                contractValue={Number(project.contractValue)}
-                currency={project.currency}
-                startDate={project.startDate}
-                endDate={project.endDate}
-                projectManager={project.projectManager.name}
-                projectManagerPhoto={project.projectManager.photoUrl}
-                status={project.status}
-                milestonesCompleted={completed}
-                milestonesTotal={project.milestones.length}
-                invoiceCount={invoiceCount}
-                billedAmount={billedAmount}
-                collectedAmount={collectedAmount}
-                colorIndex={i}
-              />
-            );
-          })}
-        </div>
+              return (
+                <SchemaProjectCard
+                  key={project.id}
+                  id={project.id}
+                  name={project.name}
+                  imageUrl={project.imageUrl}
+                  clientName={project.client.name}
+                  contractNumber={project.contractNumber}
+                  contractValue={Number(project.contractValue)}
+                  currency={project.currency}
+                  startDate={project.startDate}
+                  endDate={project.endDate}
+                  projectManager={project.projectManager.name}
+                  projectManagerPhoto={project.projectManager.photoUrl}
+                  status={project.status}
+                  milestonesCompleted={completed}
+                  milestonesTotal={project.milestones.length}
+                  invoiceCount={invoiceCount}
+                  billedAmount={billedAmount}
+                  collectedAmount={collectedAmount}
+                  colorIndex={i}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            {projects.map((project) => {
+              const completed = project.milestones.filter(
+                (m) =>
+                  m.status === "COMPLETED" ||
+                  m.status === "READY_FOR_INVOICING" ||
+                  m.status === "INVOICED",
+              ).length;
+              const billedAmount = sumUniqueInvoices(project.milestones);
+              const collectedAmount = sumUniqueInvoices(project.milestones, "PAID");
+
+              return (
+                <ProjectListItem
+                  key={project.id}
+                  id={project.id}
+                  name={project.name}
+                  imageUrl={project.imageUrl}
+                  clientName={project.client.name}
+                  contractValue={Number(project.contractValue)}
+                  currency={project.currency}
+                  startDate={project.startDate}
+                  endDate={project.endDate}
+                  projectManager={project.projectManager.name}
+                  projectManagerPhoto={project.projectManager.photoUrl}
+                  status={project.status}
+                  milestonesCompleted={completed}
+                  milestonesTotal={project.milestones.length}
+                  billedAmount={billedAmount}
+                  collectedAmount={collectedAmount}
+                />
+              );
+            })}
+          </div>
+        )}
         <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
         </>
       ) : (

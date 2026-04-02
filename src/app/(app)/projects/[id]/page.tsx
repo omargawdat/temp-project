@@ -57,7 +57,7 @@ export default async function ProjectDetailPage({
       orderBy: { name: "asc" },
     }),
     prisma.client.findMany({
-      select: { id: true, name: true, imageUrl: true },
+      select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
     prisma.note.findMany({
@@ -130,10 +130,10 @@ export default async function ProjectDetailPage({
         <div className="relative flex items-start justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-4">
-              {(project.imageUrl || project.client.imageUrl) ? (
+              {project.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={(project.imageUrl ?? project.client.imageUrl)!}
+                  src={project.imageUrl}
                   alt={project.name}
                   className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-ring/20"
                 />

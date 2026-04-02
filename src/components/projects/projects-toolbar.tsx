@@ -8,6 +8,7 @@ import { ToolbarStatusPills } from "@/components/toolbar/toolbar-status-pills";
 import { ToolbarMultiSelect } from "@/components/toolbar/toolbar-multi-select";
 import { ToolbarExportButton } from "@/components/toolbar/toolbar-export-button";
 import { ToolbarSortDropdown } from "@/components/toolbar/toolbar-sort-dropdown";
+import { ToolbarViewToggle } from "@/components/toolbar/toolbar-view-toggle";
 import { PROJECT_STATUSES } from "@/lib/status-config";
 
 const SORT_OPTIONS = [
@@ -23,7 +24,7 @@ export function ProjectsToolbar({
   projectManagers,
   resultCount,
 }: {
-  clients: { id: string; name: string; imageUrl?: string | null; count?: number }[];
+  clients: { id: string; name: string; count?: number }[];
   projectManagers: { id: string; name: string; imageUrl?: string | null; count?: number }[];
   resultCount: number;
 }) {
@@ -36,6 +37,7 @@ export function ProjectsToolbar({
   const pmFilter = searchParams.get("pm")?.split(",").filter(Boolean) ?? [];
   const sort = searchParams.get("sort") ?? "";
   const dir = searchParams.get("dir") ?? "asc";
+  const view = searchParams.get("view") ?? "list";
 
   const hasFilters = q || statusFilter.length > 0 || clientFilter.length > 0 || pmFilter.length > 0;
 
@@ -95,6 +97,10 @@ export function ProjectsToolbar({
         <span className="text-xs tabular-nums text-muted-foreground">
           {resultCount} result{resultCount !== 1 ? "s" : ""}
         </span>
+
+        <div className="h-5 w-px bg-border/15" />
+
+        <ToolbarViewToggle view={view} onChange={(v) => updateParams({ view: v === "list" ? null : v })} />
 
         <div className="h-5 w-px bg-border/15" />
 

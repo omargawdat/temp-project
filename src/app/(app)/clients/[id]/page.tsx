@@ -131,18 +131,9 @@ export default async function ClientDetailPage({
           {/* Top: Avatar + Name + Badge + Code/Country */}
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-4">
-              {client.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={client.imageUrl}
-                  alt={client.name}
-                  className="h-14 w-14 rounded-xl object-cover ring-2 ring-ring/20"
-                />
-              ) : (
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base font-bold text-foreground ring-2 ring-ring/20">
-                  {initials}
-                </div>
-              )}
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base font-bold text-foreground ring-2 ring-ring/20">
+                {initials}
+              </div>
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="text-2xl font-bold tracking-tight text-foreground">{client.name}</h1>

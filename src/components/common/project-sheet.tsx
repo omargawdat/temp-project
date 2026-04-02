@@ -22,7 +22,7 @@ interface ProjectSheetProps {
     title?: string | null;
     photoUrl?: string | null;
   }[];
-  clients: { id: string; name: string; imageUrl?: string | null }[];
+  clients: { id: string; name: string }[];
   project?: Project | Serialized<Project>;
   trigger?: "button" | "icon";
 }

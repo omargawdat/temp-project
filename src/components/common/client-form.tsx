@@ -24,7 +24,7 @@ import {
   Monitor,
   Link2,
   FileText,
-  ImagePlus,
+
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -140,8 +140,6 @@ export function ClientForm({
 }) {
   const isEdit = !!client;
   const [isDirty, setIsDirty] = React.useState(false);
-  const [imagePreview, setImagePreview] = React.useState<string | null>(client?.imageUrl ?? null);
-  const imageInputRef = React.useRef<HTMLInputElement>(null);
 
   async function handleAction(
     _prevState: ActionResult<{ id: string }> | null,
@@ -183,57 +181,6 @@ export function ClientForm({
 
       {/* Fields */}
       <div className="grid gap-4">
-        {/* Client Image */}
-        <FieldWrapper icon={ImagePlus} label="Logo" htmlFor="image">
-          <button
-            type="button"
-            onClick={() => imageInputRef.current?.click()}
-            className="flex w-full items-center gap-3 rounded-lg border border-border bg-accent px-3 py-2.5 text-left transition-colors hover:bg-muted"
-          >
-            {imagePreview ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imagePreview} alt="Client" className="h-10 w-10 rounded-lg object-cover ring-1 ring-ring/20" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Image selected</p>
-                  <p className="text-xs text-muted-foreground">Click to change</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); setImagePreview(null); if (imageInputRef.current) imageInputRef.current.value = ""; setIsDirty(true); }}
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                  <ImagePlus className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Upload image <span className="text-xs">(optional)</span></p>
-                  <p className="text-xs text-muted-foreground/60">JPG, PNG or WebP. Max 5MB</p>
-                </div>
-              </>
-            )}
-          </button>
-          <input
-            ref={imageInputRef}
-            id="image"
-            type="file"
-            name="image"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setImagePreview(URL.createObjectURL(file));
-                setIsDirty(true);
-              }
-            }}
-          />
-        </FieldWrapper>
 
         <FieldWrapper icon={Building2} label="Name" htmlFor="name" error={fieldError("name")}>
           <Input

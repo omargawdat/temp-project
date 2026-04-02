@@ -99,7 +99,7 @@ export function ProjectForm({
 }: {
   project?: Project | Serialized<Project>;
   projectManagers: { id: string; name: string; title?: string | null; photoUrl?: string | null }[];
-  clients: { id: string; name: string; imageUrl?: string | null }[];
+  clients: { id: string; name: string }[];
   onSuccess?: (id: string) => void;
 }) {
   const isEdit = !!project;
@@ -248,10 +248,6 @@ export function ProjectForm({
                 )}
               >
                 <span className="flex items-center gap-2 truncate">
-                  {selectedClient?.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={selectedClient.imageUrl} alt={selectedClient.name} className="h-5 w-5 rounded-full object-cover ring-1 ring-ring/20" />
-                  )}
                   {selectedClient?.name ?? "Select a client"}
                 </span>
                 <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", clientOpen && "rotate-180")} />
@@ -295,14 +291,9 @@ export function ProjectForm({
                               : "text-secondary-foreground hover:bg-accent",
                           )}
                         >
-                          {c.imageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={c.imageUrl} alt={c.name} className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-ring/20" />
-                          ) : (
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
-                              {c.name.charAt(0)}
-                            </div>
-                          )}
+                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+                            {c.name.charAt(0)}
+                          </div>
                           <span className="flex-1 truncate font-medium">{c.name}</span>
                           {isActive && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
                         </button>

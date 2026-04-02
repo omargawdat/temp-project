@@ -39,7 +39,7 @@ async function main() {
   const stc = await prisma.client.create({
     data: {
       name: "Saudi Telecom (STC)",
-      imageUrl: "/images/clients/stc.png",
+
       countryId: countries["SA"].id,
       sector: "SEMI_GOVERNMENT",
       primaryContact: "Khalid Al-Otaibi",
@@ -55,7 +55,7 @@ async function main() {
   const enbd = await prisma.client.create({
     data: {
       name: "Emirates NBD",
-      imageUrl: "/images/clients/enbd.png",
+
       countryId: countries["AE"].id,
       sector: "PRIVATE",
       primaryContact: "Rashed Al-Maktoum",
@@ -71,7 +71,7 @@ async function main() {
   const neom = await prisma.client.create({
     data: {
       name: "NEOM",
-      imageUrl: "/images/clients/neom.png",
+
       countryId: countries["SA"].id,
       sector: "GOVERNMENT",
       primaryContact: "Faisal Al-Ruwaily",
@@ -88,7 +88,7 @@ async function main() {
   const careem = await prisma.client.create({
     data: {
       name: "Careem Technologies",
-      imageUrl: "/images/clients/careem.png",
+
       countryId: countries["AE"].id,
       sector: "PRIVATE",
       primaryContact: "Youssef El-Naggar",
@@ -102,7 +102,7 @@ async function main() {
   const mof = await prisma.client.create({
     data: {
       name: "Ministry of Finance",
-      imageUrl: "/images/clients/mof.png",
+
       countryId: countries["SA"].id,
       sector: "GOVERNMENT",
       primaryContact: "Abdullah Al-Qahtani",

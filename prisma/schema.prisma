@@ -67,7 +67,6 @@ model Country {
 model Client {
   id              String       @id @default(cuid())
   name            String
-  imageUrl        String?
 
   countryId       String
   sector          ClientSector

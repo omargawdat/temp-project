@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { withErrorHandling, revalidateEntity } from "@/lib/actions";
-import { handleImageUpload } from "@/lib/image-upload";
+
 import type { ActionResult } from "@/types";
 import { clientFormSchema } from "@/schemas/client";
 import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
@@ -22,11 +22,9 @@ export async function createClient(
     }
 
     const fields = result.data;
-    const imageUrl = await handleImageUpload(formData, "image", "clients");
-
 
     const client = await prisma.client.create({
-      data: { ...fields, imageUrl },
+      data: fields,
     });
 
     revalidateEntity("clients");
@@ -54,12 +52,9 @@ export async function updateClient(
       return { success: false, error: "Client not found." };
     }
 
-    const imageUrl = await handleImageUpload(formData, "image", "clients", current.imageUrl);
-
-
     await prisma.client.update({
       where: { id },
-      data: { ...fields, imageUrl },
+      data: fields,
     });
 
     revalidateEntity("clients", id);

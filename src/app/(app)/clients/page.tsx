@@ -6,6 +6,7 @@ import { ClientSheet } from "@/components/common/client-sheet";
 import { Building2, SearchX } from "lucide-react";
 import { OverdueAlert } from "@/components/project-managers/overdue-alert";
 import { ContactActions } from "@/components/clients/contact-actions";
+import { ClientListItem } from "@/components/clients/client-list-item";
 import { sumUniqueInvoices } from "@/lib/financial";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,8 @@ export default async function ClientsPage({
     sort: typeof params.sort === "string" ? params.sort : undefined,
     dir: typeof params.dir === "string" ? params.dir : undefined,
   };
+
+  const view = typeof params.view === "string" ? params.view : "list";
 
   const where = buildClientWhere(filterParams);
   const orderBy = buildClientOrderBy(sortParams);
@@ -101,156 +104,151 @@ export default async function ClientsPage({
 
       {filteredCount > 0 ? (
         <>
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {clients.map((client) => {
-            const activeProjects = client.projects.filter(
-              (p) => p.status === "ACTIVE",
-            ).length;
+        {view === "grid" ? (
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {clients.map((client) => {
+              const activeProjects = client.projects.filter(
+                (p) => p.status === "ACTIVE",
+              ).length;
 
-            // Aggregate contract value across all projects (group by currency)
-            const allMilestones = client.projects.flatMap((p) => p.milestones);
-            const billedAmount = sumUniqueInvoices(allMilestones);
-            const collectedAmount = sumUniqueInvoices(allMilestones, "PAID");
+              const allMilestones = client.projects.flatMap((p) => p.milestones);
+              const billedAmount = sumUniqueInvoices(allMilestones);
+              const collectedAmount = sumUniqueInvoices(allMilestones, "PAID");
 
-            // Sum contract values grouped by currency
-            const contractByCurrency: CurrencyTotals = {};
-            for (const p of client.projects) {
-              addToCurrency(contractByCurrency, p.currency, Number(p.contractValue));
-            }
-            const totalContractValue = Object.values(contractByCurrency).reduce((s, v) => s + v, 0);
+              const contractByCurrency: CurrencyTotals = {};
+              for (const p of client.projects) {
+                addToCurrency(contractByCurrency, p.currency, Number(p.contractValue));
+              }
+              const totalContractValue = Object.values(contractByCurrency).reduce((s, v) => s + v, 0);
 
-            const billedPct = safePercent(billedAmount, totalContractValue);
-            const collectedPct = safePercent(collectedAmount, totalContractValue);
+              const billedPct = safePercent(billedAmount, totalContractValue);
+              const collectedPct = safePercent(collectedAmount, totalContractValue);
 
-            const now = new Date();
-            const overdueDetails = client.projects.flatMap((p) =>
-              filterOverdue(p.milestones, now).map((m) => ({
-                milestoneName: m.name,
-                projectName: p.name,
-                plannedDate: m.plannedDate,
-                daysOverdue: daysDifference(m.plannedDate, now),
-              })),
-            );
-            const overdueMilestones = overdueDetails.length;
+              const now = new Date();
+              const overdueDetails = client.projects.flatMap((p) =>
+                filterOverdue(p.milestones, now).map((m) => ({
+                  milestoneName: m.name,
+                  projectName: p.name,
+                  plannedDate: m.plannedDate,
+                  daysOverdue: daysDifference(m.plannedDate, now),
+                })),
+              );
+              const overdueMilestones = overdueDetails.length;
 
-            const sector = SECTOR_STYLES[client.sector] ?? DEFAULT_STATUS_STYLE;
+              const sector = SECTOR_STYLES[client.sector] ?? DEFAULT_STATUS_STYLE;
 
-            const initials = getInitials(client.name);
+              const initials = getInitials(client.name);
 
-            return (
-              <Link
-                key={client.id}
-                href={`/clients/${client.id}`}
-                className="card-hover noise-overlay group relative block overflow-hidden rounded-2xl border border-border transition-all duration-300"
-                style={{
-                  background:
-                    "linear-gradient(165deg, rgba(255,255,255,1), rgba(248,250,252,1))",
-                }}
-              >
-                {/* Subtle top glow */}
-                <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[70%] -translate-x-1/2 rounded-full bg-orange-500/[0.04] blur-3xl" />
+              return (
+                <Link
+                  key={client.id}
+                  href={`/clients/${client.id}`}
+                  className="card-hover noise-overlay group relative block overflow-hidden rounded-2xl border border-border transition-all duration-300"
+                  style={{
+                    background:
+                      "linear-gradient(165deg, rgba(255,255,255,1), rgba(248,250,252,1))",
+                  }}
+                >
+                  <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[70%] -translate-x-1/2 rounded-full bg-orange-500/[0.04] blur-3xl" />
 
-                {/* Overdue indicator with hover tooltip */}
-                {overdueMilestones > 0 && (
-                  <div className="absolute top-3 right-3 z-10">
-                    <OverdueAlert count={overdueMilestones} details={overdueDetails} />
-                  </div>
-                )}
+                  {overdueMilestones > 0 && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <OverdueAlert count={overdueMilestones} details={overdueDetails} />
+                    </div>
+                  )}
 
-                <div className="relative p-6">
-                  {/* Row 1: Image/Initials + Name + Code */}
-                  <div className="flex items-start gap-3">
-                    {client.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={client.imageUrl}
-                        alt={client.name}
-                        className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-ring/20"
-                      />
-                    ) : (
+                  <div className="relative p-6">
+                    <div className="flex items-start gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-500/5 ring-1 ring-ring/20">
-                        <span className="text-sm font-bold text-orange-400">
-                          {initials}
-                        </span>
+                        <span className="text-sm font-bold text-orange-400">{initials}</span>
                       </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
-                          {client.name}
-                        </h3>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={client.country.flag} alt={client.country.name} className="h-3.5 w-5 shrink-0 rounded-[2px] object-cover" />
-                      </div>
-                      <div className="mt-0.5 flex items-center gap-2">
-                        <span className={cn("text-xs font-semibold", sector.text)}>
-                          {formatSector(client.sector)}
-                        </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground truncate">
+                            {client.name}
+                          </h3>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={client.country.flag} alt={client.country.name} className="h-3.5 w-5 shrink-0 rounded-[2px] object-cover" />
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-2">
+                          <span className={cn("text-xs font-semibold", sector.text)}>
+                            {formatSector(client.sector)}
+                          </span>
+                        </div>
                       </div>
                     </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-accent">
+                      <div className="bg-accent px-3.5 py-3">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Projects</p>
+                        <p className="mt-1 text-sm font-bold tabular-nums text-foreground">
+                          {client.projects.length}
+                          <span className="ml-1 text-sm font-medium text-emerald-500">{activeProjects} active</span>
+                        </p>
+                      </div>
+                      <div className="bg-accent px-3.5 py-3">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Contract Value</p>
+                        <p className="mt-1 text-sm font-bold tabular-nums text-foreground">{formatMultiCurrency(contractByCurrency)}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-medium text-muted-foreground">Billed / Collected</span>
+                        <span className="text-[10px] tabular-nums text-muted-foreground">{billedPct}% / {collectedPct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
+                        <div className="relative h-full">
+                          <div className="absolute inset-y-0 left-0 rounded-full bg-amber-500/50 transition-all duration-700" style={{ width: `${billedPct}%` }} />
+                          <div className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80 transition-all duration-700" style={{ width: `${collectedPct}%` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="my-4 h-px bg-muted" />
+
+                    <ContactActions contact={client.primaryContact} email={client.email} phone={client.phone} />
                   </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            {clients.map((client) => {
+              const activeProjects = client.projects.filter((p) => p.status === "ACTIVE").length;
+              const allMilestones = client.projects.flatMap((p) => p.milestones);
+              const billedAmount = sumUniqueInvoices(allMilestones);
+              const collectedAmount = sumUniqueInvoices(allMilestones, "PAID");
+              const contractByCurrency: CurrencyTotals = {};
+              for (const p of client.projects) {
+                addToCurrency(contractByCurrency, p.currency, Number(p.contractValue));
+              }
+              const totalContractValue = Object.values(contractByCurrency).reduce((s, v) => s + v, 0);
+              const now = new Date();
+              const overdueMilestones = client.projects.flatMap((p) => filterOverdue(p.milestones, now)).length;
 
-                  {/* Row 3: Stats */}
-                  <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-accent">
-                    <div className="bg-accent px-3.5 py-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                        Projects
-                      </p>
-                      <p className="mt-1 text-sm font-bold tabular-nums text-foreground">
-                        {client.projects.length}
-                        <span className="ml-1 text-sm font-medium text-emerald-500">
-                          {activeProjects} active
-                        </span>
-                      </p>
-                    </div>
-                    <div className="bg-accent px-3.5 py-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                        Contract Value
-                      </p>
-                      <p className="mt-1 text-sm font-bold tabular-nums text-foreground">
-                        {formatMultiCurrency(contractByCurrency)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Row 4: Financial progress bar */}
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-medium text-muted-foreground">
-                        Billed / Collected
-                      </span>
-                      <span className="text-[10px] tabular-nums text-muted-foreground">
-                        {billedPct}% / {collectedPct}%
-                      </span>
-                    </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
-                      <div className="relative h-full">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full bg-amber-500/50 transition-all duration-700"
-                          style={{ width: `${billedPct}%` }}
-                        />
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/80 transition-all duration-700"
-                          style={{ width: `${collectedPct}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="my-4 h-px bg-muted" />
-
-                  {/* Row 5: Contact info */}
-                  <ContactActions
-                    contact={client.primaryContact}
-                    email={client.email}
-                    phone={client.phone}
-                  />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+              return (
+                <ClientListItem
+                  key={client.id}
+                  id={client.id}
+                  name={client.name}
+                  sector={client.sector}
+                  countryName={client.country.name}
+                  countryFlag={client.country.flag}
+                  projectsCount={client.projects.length}
+                  activeProjects={activeProjects}
+                  contractByCurrency={contractByCurrency}
+                  totalContractValue={totalContractValue}
+                  billedAmount={billedAmount}
+                  collectedAmount={collectedAmount}
+                  primaryContact={client.primaryContact}
+                  overdueMilestones={overdueMilestones}
+                />
+              );
+            })}
+          </div>
+        )}
         <Pagination page={pagination.page} totalPages={pagination.totalPages} totalCount={pagination.totalCount} />
         </>
       ) : (
