@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 interface ProjectDatePickerProps {
   name: string;
@@ -73,6 +73,9 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
   const daysInMonth = getDaysInMonth(viewYear, viewMonth);
   const firstDay = getFirstDayOfMonth(viewYear, viewMonth);
 
+  function prevYear() { setViewYear(viewYear - 1); }
+  function nextYear() { setViewYear(viewYear + 1); }
+
   function prevMonth() {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(viewYear - 1); }
     else setViewMonth(viewMonth - 1);
@@ -114,15 +117,25 @@ export function ProjectDatePicker({ name, label, defaultValue, compact, onValueC
       >
         {/* Header */}
         <div className="mb-2 flex items-center justify-between">
-          <button type="button" onClick={prevMonth} className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+          <div className="flex items-center">
+            <button type="button" onClick={prevYear} className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <ChevronsLeft className="h-4 w-4" />
+            </button>
+            <button type="button" onClick={prevMonth} className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          </div>
           <span className="text-xs font-semibold text-foreground">
             {MONTHS[viewMonth]} {viewYear}
           </span>
-          <button type="button" onClick={nextMonth} className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          <div className="flex items-center">
+            <button type="button" onClick={nextMonth} className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <button type="button" onClick={nextYear} className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <ChevronsRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* Day headers */}
