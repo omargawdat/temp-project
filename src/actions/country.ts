@@ -8,7 +8,7 @@ import type { ActionResult } from "@/types";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { countryFormSchema } from "@/schemas/country";
-import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { validateFormData } from "@/lib/form-utils";
 
 
 async function handleFlagUpload(
@@ -58,16 +58,10 @@ export async function createCountry(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = countryFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(countryFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const { name, code } = result.data;
+    const { name, code } = validated.data;
     const flag = await handleFlagUpload(formData, null);
 
     const existingName = await prisma.country.findUnique({ where: { name } });
@@ -102,16 +96,10 @@ export async function updateCountry(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = countryFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(countryFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const { name, code } = result.data;
+    const { name, code } = validated.data;
     const current = await prisma.country.findUnique({ where: { id } });
     if (!current) {
       return { success: false, error: "Country not found." };

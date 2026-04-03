@@ -5,23 +5,17 @@ import { withErrorHandling, revalidateEntity } from "@/lib/actions";
 import { handleImageUpload } from "@/lib/image-upload";
 import type { ActionResult } from "@/types";
 import { projectManagerFormSchema } from "@/schemas/project-manager";
-import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { validateFormData } from "@/lib/form-utils";
 
 
 export async function createProjectManager(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = projectManagerFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(projectManagerFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const { name, email, phone, title } = result.data;
+    const { name, email, phone, title } = validated.data;
 
     const existing = await prisma.projectManager.findUnique({ where: { email } });
     if (existing) {
@@ -48,16 +42,10 @@ export async function updateProjectManager(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = projectManagerFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(projectManagerFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const { name, email, phone, title } = result.data;
+    const { name, email, phone, title } = validated.data;
 
     const existing = await prisma.projectManager.findFirst({
       where: { email, id: { not: id } },

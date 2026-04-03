@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useTransition, useRef, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { createDeliveryNote, updateDeliveryNote, updateDeliveryNoteStatus } from "@/actions/delivery-note";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/sheet";
 import { FieldWrapper } from "@/components/common/field-wrapper";
 import { StatusBadge } from "@/components/common/status-badge";
+import { deliveryNoteFormSchema } from "@/schemas/delivery-note";
+import { validateFormData } from "@/lib/form-utils";
 import type { ActionResult } from "@/types";
 import {
   Plus,
@@ -68,6 +70,8 @@ export function DeliveryNoteSheet({
   ): Promise<ActionResult<{ id: string }>> {
     formData.set("projectId", projectId);
     formData.set("milestoneId", milestoneId);
+    const validated = validateFormData(deliveryNoteFormSchema, formData);
+    if (!validated.success) return validated;
     return createDeliveryNote(formData);
   }
 
@@ -135,7 +139,7 @@ export function DeliveryNoteSheet({
         </SheetHeader>
 
         {isCreate ? (
-          <form action={formAction} className="px-6 pb-6 space-y-5 mt-4">
+          <form onSubmit={(e) => { e.preventDefault(); startTransition(() => formAction(new FormData(e.currentTarget))); }} className="px-6 pb-6 space-y-5 mt-4">
             {state && !state.success && state.error && (
               <div className="flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm">
                 <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-400" />

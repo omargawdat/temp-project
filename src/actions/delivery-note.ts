@@ -6,7 +6,7 @@ import { withErrorHandling, revalidateEntity } from "@/lib/actions";
 import { DeliveryNoteStatus } from "@prisma/client";
 import { DN_TRANSITIONS } from "@/schemas/transitions";
 import { deliveryNoteFormSchema, deliveryNoteUpdateSchema } from "@/schemas/delivery-note";
-import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { validateFormData } from "@/lib/form-utils";
 import { handleFileUpload } from "@/lib/file-upload";
 
 
@@ -14,16 +14,10 @@ export async function createDeliveryNote(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = deliveryNoteFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(deliveryNoteFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const { projectId, milestoneId, description, workDelivered } = result.data;
+    const { projectId, milestoneId, description, workDelivered } = validated.data;
 
     // Validate milestone if provided
     if (milestoneId) {
@@ -55,16 +49,10 @@ export async function updateDeliveryNote(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = deliveryNoteUpdateSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(deliveryNoteUpdateSchema, formData);
+    if (!validated.success) return validated;
 
-    const { description, workDelivered } = result.data;
+    const { description, workDelivered } = validated.data;
 
     const deliveryNote = await prisma.deliveryNote.findUnique({
       where: { id },

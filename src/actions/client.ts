@@ -6,27 +6,21 @@ import { withErrorHandling, revalidateEntity } from "@/lib/actions";
 import type { ActionResult } from "@/types";
 import { clientFormSchema } from "@/schemas/client";
 import { contactsArraySchema } from "@/schemas/contact";
-import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { validateFormData } from "@/lib/form-utils";
 
 
 export async function createClient(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = clientFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(clientFormSchema, formData);
+    if (!validated.success) return validated;
 
     const contactsRaw = formData.get("contacts") as string | null;
     const contacts = contactsRaw ? contactsArraySchema.parse(JSON.parse(contactsRaw)) : [];
 
     const client = await prisma.client.create({
-      data: result.data,
+      data: validated.data,
     });
 
     if (contacts.length > 0) {
@@ -49,14 +43,8 @@ export async function updateClient(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = clientFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(clientFormSchema, formData);
+    if (!validated.success) return validated;
 
     const current = await prisma.client.findUnique({ where: { id } });
     if (!current) {
@@ -68,7 +56,7 @@ export async function updateClient(
 
     await prisma.client.update({
       where: { id },
-      data: result.data,
+      data: validated.data,
     });
 
     // Replace all contacts for this client

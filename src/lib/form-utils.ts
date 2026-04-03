@@ -1,4 +1,4 @@
-import type { FieldErrors } from "@/types";
+import type { FieldErrors, ActionResult } from "@/types";
 import { z } from "zod";
 
 /**
@@ -27,6 +27,26 @@ export function zodErrorToFieldErrors(error: z.ZodError): FieldErrors {
     }
   }
   return fieldErrors;
+}
+
+/**
+ * Validates FormData against a Zod schema, returning an ActionResult.
+ * On failure, returns a ready-to-return error with fieldErrors.
+ * On success, returns the parsed data.
+ */
+export function validateFormData<T extends z.ZodType>(
+  schema: T,
+  formData: FormData,
+): ActionResult<z.infer<T>> {
+  const result = schema.safeParse(formDataToObject(formData));
+  if (!result.success) {
+    return {
+      success: false,
+      error: "Please fix the errors below.",
+      fieldErrors: zodErrorToFieldErrors(result.error),
+    };
+  }
+  return { success: true, data: result.data };
 }
 
 /**

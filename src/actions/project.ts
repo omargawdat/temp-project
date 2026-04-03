@@ -8,7 +8,7 @@ import { ProjectStatus } from "@prisma/client";
 import { PROJECT_TRANSITIONS } from "@/schemas/transitions";
 import { projectFormSchema } from "@/schemas/project";
 import { contactsArraySchema } from "@/schemas/contact";
-import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { validateFormData } from "@/lib/form-utils";
 
 /**
  * Recalculates project status based on milestones and invoices.
@@ -91,16 +91,10 @@ export async function createProject(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = projectFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(projectFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const data = result.data;
+    const data = validated.data;
 
     const contactsRaw = formData.get("contacts") as string | null;
     const contacts = contactsRaw ? contactsArraySchema.parse(JSON.parse(contactsRaw)) : [];
@@ -144,16 +138,10 @@ export async function updateProject(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = projectFormSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(projectFormSchema, formData);
+    if (!validated.success) return validated;
 
-    const data = result.data;
+    const data = validated.data;
 
     const contactsRaw = formData.get("contacts") as string | null;
     const contacts = contactsRaw ? contactsArraySchema.parse(JSON.parse(contactsRaw)) : [];

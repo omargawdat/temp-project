@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/sheet";
 import { FieldWrapper } from "@/components/common/field-wrapper";
 import { EditButton } from "@/components/common/edit-button";
+import { countryFormSchema } from "@/schemas/country";
+import { validateFormData } from "@/lib/form-utils";
 import type { ActionResult } from "@/types";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -134,6 +136,8 @@ function CountryForm({
     _prevState: ActionResult<{ id: string }> | null,
     formData: FormData,
   ): Promise<ActionResult<{ id: string }>> {
+    const validated = validateFormData(countryFormSchema, formData);
+    if (!validated.success) return validated;
     if (isEdit) {
       return updateCountry(country!.id, formData);
     }
@@ -153,7 +157,7 @@ function CountryForm({
   }, [state, onSuccess, isEdit]);
 
   return (
-    <form key={country?.id ?? "new"} action={formAction} className="space-y-5" onChange={() => setIsDirty(true)}>
+    <form key={country?.id ?? "new"} onSubmit={(e) => { e.preventDefault(); startTransition(() => formAction(new FormData(e.currentTarget))); }} className="space-y-5" onChange={() => setIsDirty(true)}>
       {state && !state.success && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}

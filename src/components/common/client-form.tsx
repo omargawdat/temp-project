@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useActionState } from "react";
+import { useActionState, startTransition } from "react";
 import { useFormStatus } from "react-dom";
 import type { Client } from "@prisma/client";
 import type { Serialized } from "@/lib/serialize";
@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldWrapper } from "@/components/common/field-wrapper";
+import { clientFormSchema } from "@/schemas/client";
+import { validateFormData } from "@/lib/form-utils";
 import type { ActionResult } from "@/types";
 import { motion } from "framer-motion";
 import {
@@ -142,6 +144,8 @@ export function ClientForm({
     _prevState: ActionResult<{ id: string }> | null,
     formData: FormData,
   ): Promise<ActionResult<{ id: string }>> {
+    const validated = validateFormData(clientFormSchema, formData);
+    if (!validated.success) return validated;
     formData.set("contacts", JSON.stringify(contacts));
     if (isEdit) {
       return updateClient(client!.id, formData);
@@ -165,7 +169,7 @@ export function ClientForm({
   }, [state, onSuccess, isEdit]);
 
   return (
-    <form key={client?.id ?? "new"} action={formAction} className="space-y-5" onChange={() => setIsDirty(true)}>
+    <form key={client?.id ?? "new"} onSubmit={(e) => { e.preventDefault(); startTransition(() => formAction(new FormData(e.currentTarget))); }} className="space-y-5" onChange={() => setIsDirty(true)}>
       {state && !state.success && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
