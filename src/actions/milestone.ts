@@ -182,16 +182,6 @@ export async function updateMilestoneStatus(
       };
     }
 
-    if (newStatus === MilestoneStatus.READY_FOR_INVOICING && milestone.requiresDeliveryNote) {
-      if (!milestone.deliveryNote || milestone.deliveryNote.status !== "SIGNED") {
-        return {
-          success: false,
-          error:
-            "Delivery note must be signed before marking as ready for invoicing.",
-        };
-      }
-    }
-
     await prisma.milestone.update({
       where: { id },
       data: { status: newStatus },

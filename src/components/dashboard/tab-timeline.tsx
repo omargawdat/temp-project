@@ -61,8 +61,6 @@ function getMilestoneColor(status: string): string {
       return "bg-emerald-500";
     case "INVOICED":
       return "bg-indigo-500";
-    case "READY_FOR_INVOICING":
-      return "bg-purple-500";
     case "NOT_STARTED":
       return "bg-slate-400";
     default:

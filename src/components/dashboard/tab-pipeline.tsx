@@ -24,7 +24,7 @@ interface TabPipelineProps {
   invoicesByStatus: Record<string, PipelineInvoice[]>;
 }
 
-const MILESTONE_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "READY_FOR_INVOICING", "INVOICED"];
+const MILESTONE_STATUSES = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "INVOICED"];
 const INVOICE_STATUSES = ["DRAFT", "SUBMITTED", "UNDER_REVIEW", "APPROVED", "PAID"];
 
 function StatusColumnHeader({ status, count }: { status: string; count: number }) {

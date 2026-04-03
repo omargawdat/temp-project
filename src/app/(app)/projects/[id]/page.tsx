@@ -25,6 +25,8 @@ import { getInitials, safePercent, formatCurrency, formatDate } from "@/lib/form
 import { ContactsSection } from "@/components/common/contacts-section";
 import { DeliveryNoteSheet } from "@/components/common/delivery-note-sheet";
 import { AddDeliveryNoteSheet } from "@/components/common/add-delivery-note-sheet";
+import { MilestoneStatusAction } from "@/components/common/milestone-status-action";
+import { InvoiceDetailSheet } from "@/components/common/invoice-detail-sheet";
 
 export default async function ProjectDetailPage({
   params,
@@ -83,8 +85,8 @@ export default async function ProjectDetailPage({
   if (project.milestones.filter((m) => m.requiresDeliveryNote && !m.deliveryNote && m.status === "COMPLETED").length > 0) {
     alerts.push({ type: "warning", message: "Completed milestone(s) missing delivery note." });
   }
-  if (project.milestones.filter((m) => m.status === "READY_FOR_INVOICING" && !m.invoice).length > 0) {
-    alerts.push({ type: "info", message: "Milestone(s) ready for invoicing." });
+  if (project.milestones.filter((m) => m.status === "COMPLETED" && !m.invoice).length > 0) {
+    alerts.push({ type: "info", message: "Completed milestone(s) ready for invoicing." });
   }
 
   const contractValue = Number(project.contractValue);
@@ -281,6 +283,7 @@ export default async function ProjectDetailPage({
                 <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
                 <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Delivery Note</th>
                 <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Invoice</th>
+                <th className="px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -345,6 +348,12 @@ export default async function ProjectDetailPage({
                       <span className="text-sm text-muted-foreground">—</span>
                     )}
                   </td>
+                  <td className="px-4 py-4 text-right">
+                    <MilestoneStatusAction
+                      milestoneId={m.id}
+                      currentStatus={m.status}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -376,9 +385,13 @@ export default async function ProjectDetailPage({
           </div>
           <AddDeliveryNoteSheet
             projectId={project.id}
-            milestones={project.milestones
-              .filter((m) => !m.deliveryNote)
-              .map((m) => ({ id: m.id, name: m.name }))}
+            milestones={project.milestones.map((m) => ({
+              id: m.id,
+              name: m.name,
+              status: m.status,
+              hasDeliveryNote: !!m.deliveryNote,
+              requiresDeliveryNote: m.requiresDeliveryNote,
+            }))}
           />
         </div>
 
@@ -483,7 +496,26 @@ export default async function ProjectDetailPage({
                       }`}
                     >
                       <td className="px-6 py-4">
-                        <span className="font-mono text-sm font-semibold text-foreground">{inv.invoiceNumber}</span>
+                        <InvoiceDetailSheet
+                          invoice={{
+                            id: inv.id,
+                            invoiceNumber: inv.invoiceNumber,
+                            amount: inv.amount,
+                            vatAmount: inv.vatAmount,
+                            totalPayable: inv.totalPayable,
+                            status: inv.status,
+                            paymentDueDate: inv.paymentDueDate,
+                            submittedDate: inv.submittedDate,
+                            milestoneNames: inv.milestoneNames,
+                            payments: inv.payments.map((p) => ({
+                              id: p.id,
+                              amount: Number(p.amount),
+                              receivedDate: p.receivedDate.toISOString(),
+                              reference: p.reference,
+                            })),
+                          }}
+                          currency={project.currency}
+                        />
                       </td>
                       <td className="px-4 py-4 text-sm text-foreground" title={inv.milestoneNames.join(", ")}>
                         {inv.milestoneNames[0]}

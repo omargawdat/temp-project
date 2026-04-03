@@ -7,22 +7,16 @@ import { recalculateProjectStatus } from "./project";
 import { InvoiceStatus } from "@prisma/client";
 import { INVOICE_TRANSITIONS } from "@/schemas/transitions";
 import { invoiceCreateSchema, invoiceUpdateSchema } from "@/schemas/invoice";
-import { formDataToObject, zodErrorToFieldErrors } from "@/lib/form-utils";
+import { validateFormData, parseLocalDate } from "@/lib/form-utils";
 
 export async function createInvoice(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = invoiceCreateSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(invoiceCreateSchema, formData);
+    if (!validated.success) return validated;
 
-    const { milestoneIds, vatAmount } = result.data;
+    const { milestoneIds, vatAmount } = validated.data;
 
     const milestones = await prisma.milestone.findMany({
       where: { id: { in: milestoneIds } },
@@ -40,10 +34,10 @@ export async function createInvoice(
     }
     const projectId = milestones[0].projectId;
 
-    // All must be READY_FOR_INVOICING
-    const notReady = milestones.find((m) => m.status !== "READY_FOR_INVOICING");
+    // All must be COMPLETED
+    const notReady = milestones.find((m) => m.status !== "COMPLETED");
     if (notReady) {
-      return { success: false, error: `Milestone "${notReady.name}" is not ready for invoicing.` };
+      return { success: false, error: `Milestone "${notReady.name}" is not completed.` };
     }
 
     // None can already have an invoice
@@ -110,16 +104,10 @@ export async function updateInvoice(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   return withErrorHandling(async () => {
-    const result = invoiceUpdateSchema.safeParse(formDataToObject(formData));
-    if (!result.success) {
-      return {
-        success: false,
-        error: "Please fix the errors below.",
-        fieldErrors: zodErrorToFieldErrors(result.error),
-      };
-    }
+    const validated = validateFormData(invoiceUpdateSchema, formData);
+    if (!validated.success) return validated;
 
-    const { invoiceNumber, vatAmount } = result.data;
+    const { invoiceNumber, vatAmount } = validated.data;
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -208,6 +196,47 @@ export async function updateInvoiceStatus(
     await recalculateProjectStatus(projectId);
     revalidateEntity("invoices");
     revalidateEntity("projects", projectId);
+
+    return { success: true, data: undefined };
+  });
+}
+
+export async function setInvoicePaymentDueDate(
+  id: string,
+  formData: FormData,
+): Promise<ActionResult> {
+  return withErrorHandling(async () => {
+    const dateStr = formData.get("paymentDueDate") as string;
+    if (!dateStr) {
+      return { success: false, error: "Payment due date is required." };
+    }
+
+    const paymentDueDate = parseLocalDate(dateStr);
+    if (isNaN(paymentDueDate.getTime())) {
+      return { success: false, error: "Invalid date." };
+    }
+
+    const invoice = await prisma.invoice.findUnique({
+      where: { id },
+      include: { milestones: { select: { projectId: true } } },
+    });
+
+    if (!invoice) {
+      return { success: false, error: "Invoice not found." };
+    }
+
+    if (invoice.status !== "DRAFT" && invoice.status !== "SUBMITTED") {
+      return { success: false, error: "Can only set due date on draft or submitted invoices." };
+    }
+
+    await prisma.invoice.update({
+      where: { id },
+      data: { paymentDueDate },
+    });
+
+    const projectId = invoice.milestones[0]?.projectId;
+    if (projectId) revalidateEntity("projects", projectId);
+    revalidateEntity("invoices");
 
     return { success: true, data: undefined };
   });

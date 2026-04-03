@@ -95,7 +95,6 @@ export default async function ProjectsPage({
               const completed = project.milestones.filter(
                 (m) =>
                   m.status === "COMPLETED" ||
-                  m.status === "READY_FOR_INVOICING" ||
                   m.status === "INVOICED",
               ).length;
               const billedAmount = sumUniqueInvoices(project.milestones);
@@ -146,7 +145,6 @@ export default async function ProjectsPage({
               const completed = project.milestones.filter(
                 (m) =>
                   m.status === "COMPLETED" ||
-                  m.status === "READY_FOR_INVOICING" ||
                   m.status === "INVOICED",
               ).length;
               const billedAmount = sumUniqueInvoices(project.milestones);

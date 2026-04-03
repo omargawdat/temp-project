@@ -51,13 +51,13 @@ export function buildMilestoneWhere(
   if (params.overdue === "true") {
     conditions.push({
       plannedDate: { lt: new Date() },
-      status: { notIn: ["COMPLETED", "READY_FOR_INVOICING", "INVOICED"] },
+      status: { notIn: ["COMPLETED", "INVOICED"] },
     });
   } else if (params.overdue === "false") {
     conditions.push({
       OR: [
         { plannedDate: { gte: new Date() } },
-        { status: { in: ["COMPLETED", "READY_FOR_INVOICING", "INVOICED"] } },
+        { status: { in: ["COMPLETED", "INVOICED"] } },
       ],
     });
   }

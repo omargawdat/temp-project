@@ -34,9 +34,16 @@ export interface DeduplicatedInvoice {
   totalPayable: number;
   status: string;
   paymentDueDate: Date | null;
+  submittedDate: Date | null;
   createdAt: Date;
   milestoneNames: string[];
   projectName?: string;
+  payments: Array<{
+    id: string;
+    amount: DecimalLike;
+    receivedDate: Date;
+    reference: string;
+  }>;
 }
 
 /**
@@ -78,7 +85,14 @@ export function deduplicateInvoices<
       totalPayable: DecimalLike;
       status: string;
       paymentDueDate: Date | null;
+      submittedDate?: Date | null;
       createdAt: Date;
+      payments?: Array<{
+        id: string;
+        amount: DecimalLike;
+        receivedDate: Date;
+        reference: string;
+      }>;
     } | null;
     invoiceId?: string | null;
   },
@@ -101,9 +115,11 @@ export function deduplicateInvoices<
         totalPayable: Number(m.invoice.totalPayable),
         status: m.invoice.status,
         paymentDueDate: m.invoice.paymentDueDate,
+        submittedDate: m.invoice.submittedDate ?? null,
         createdAt: m.invoice.createdAt,
         milestoneNames: [m.name],
         projectName: projectNameResolver?.(m),
+        payments: m.invoice.payments ?? [],
       });
     }
   }

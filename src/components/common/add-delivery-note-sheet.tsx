@@ -27,10 +27,22 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { MilestoneSelector, type MilestoneChoice } from "@/components/common/milestone-selector";
 
 interface MilestoneOption {
   id: string;
   name: string;
+  status: string;
+  hasDeliveryNote: boolean;
+  requiresDeliveryNote: boolean;
+}
+
+function getDisabledReason(m: MilestoneOption): string | null {
+  if (m.hasDeliveryNote) return "Already has a delivery note";
+  if (!m.requiresDeliveryNote) return "Delivery note not required";
+  if (m.status === "NOT_STARTED") return "Not started yet";
+  if (m.status === "INVOICED") return "Already invoiced";
+  return null;
 }
 
 export function AddDeliveryNoteSheet({
@@ -73,6 +85,8 @@ export function AddDeliveryNoteSheet({
     }
   }, [state, router]);
 
+  const hasSelection = selectedMilestoneId !== "";
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
@@ -98,63 +112,18 @@ export function AddDeliveryNoteSheet({
             </div>
           )}
 
-          {milestones.length > 0 && (
-            <FieldWrapper icon={Target} label="Milestone (optional)" htmlFor="milestoneId">
-              <div className="space-y-1.5">
-                <label
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm cursor-pointer transition-all",
-                    selectedMilestoneId === ""
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/25"
-                      : "border-border hover:bg-accent",
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="_milestone_radio"
-                    value=""
-                    checked={selectedMilestoneId === ""}
-                    onChange={() => setSelectedMilestoneId("")}
-                    className="sr-only"
-                  />
-                  <div className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-                    selectedMilestoneId === "" ? "border-primary bg-primary" : "border-border",
-                  )}>
-                    {selectedMilestoneId === "" && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                  </div>
-                  <span className="text-muted-foreground">No milestone</span>
-                </label>
-                {milestones.map((m) => (
-                  <label
-                    key={m.id}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm cursor-pointer transition-all",
-                      selectedMilestoneId === m.id
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/25"
-                        : "border-border hover:bg-accent",
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name="_milestone_radio"
-                      value={m.id}
-                      checked={selectedMilestoneId === m.id}
-                      onChange={() => setSelectedMilestoneId(m.id)}
-                      className="sr-only"
-                    />
-                    <div className={cn(
-                      "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-                      selectedMilestoneId === m.id ? "border-primary bg-primary" : "border-border",
-                    )}>
-                      {selectedMilestoneId === m.id && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                    </div>
-                    <span className="font-medium text-foreground">{m.name}</span>
-                  </label>
-                ))}
-              </div>
-            </FieldWrapper>
-          )}
+          <FieldWrapper icon={Target} label="Milestone" htmlFor="milestoneId">
+            <MilestoneSelector
+              milestones={milestones.map((m): MilestoneChoice => ({
+                id: m.id,
+                name: m.name,
+                disabledReason: getDisabledReason(m),
+              }))}
+              mode="single"
+              selected={new Set(selectedMilestoneId ? [selectedMilestoneId] : [])}
+              onSelect={(id) => setSelectedMilestoneId(id)}
+            />
+          </FieldWrapper>
 
           <FieldWrapper icon={FileText} label="Description" htmlFor="description" error={fieldError("description")}>
             <Textarea
@@ -178,7 +147,13 @@ export function AddDeliveryNoteSheet({
 
           <Button
             type="submit"
-            className="w-full btn-gradient border-0 font-semibold text-primary-foreground shadow-lg shadow-primary/20"
+            disabled={!hasSelection}
+            className={cn(
+              "w-full border-0 font-semibold shadow-lg transition-all",
+              hasSelection
+                ? "btn-gradient text-primary-foreground shadow-primary/20"
+                : "bg-muted text-muted-foreground shadow-none",
+            )}
           >
             Create Delivery Note
           </Button>

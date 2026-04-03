@@ -55,7 +55,7 @@ export default async function MilestonesPage({
 
   // When no explicit sort is set, surface overdue milestones at the top
   const now = new Date();
-  const terminalStatuses = ["COMPLETED", "INVOICED", "READY_FOR_INVOICING"];
+  const terminalStatuses = ["COMPLETED", "INVOICED"];
   const milestones = sortParams.sort
     ? rawMilestones
     : [...rawMilestones].sort((a, b) => {

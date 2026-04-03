@@ -18,12 +18,12 @@ import {
   Loader2,
   CheckCircle2,
   Download,
-  Lock,
   Target,
   Percent,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { MilestoneSelector, type MilestoneChoice } from "@/components/common/milestone-selector";
 
 interface MilestoneItem {
   id: string;
@@ -31,6 +31,13 @@ interface MilestoneItem {
   value: string | number;
   status: string;
   invoiced: boolean;
+}
+
+function getInvoiceDisabledReason(m: MilestoneItem): string | null {
+  if (m.invoiced) return "Already invoiced";
+  if (m.status === "NOT_STARTED") return "Not started yet";
+  if (m.status === "IN_PROGRESS") return "In progress";
+  return null;
 }
 
 export function InvoiceSheet({
@@ -41,9 +48,14 @@ export function InvoiceSheet({
   currency: string;
 }) {
   const router = useRouter();
-  const eligibleMilestones = milestones.filter((m) => !m.invoiced && m.status === "READY_FOR_INVOICING");
-  const invoicedMilestones = milestones.filter((m) => m.invoiced);
-  const notReadyMilestones = milestones.filter((m) => !m.invoiced && m.status !== "READY_FOR_INVOICING");
+  const eligibleMilestones = milestones.filter((m) => !getInvoiceDisabledReason(m));
+
+  const milestoneChoices: MilestoneChoice[] = milestones.map((m) => ({
+    id: m.id,
+    name: m.name,
+    value: m.value,
+    disabledReason: getInvoiceDisabledReason(m),
+  }));
   const hasEligible = eligibleMilestones.length > 0;
   const [open, setOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -206,91 +218,13 @@ export function InvoiceSheet({
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  {/* Already invoiced milestones (locked) */}
-                  {invoicedMilestones.map((m) => (
-                    <div
-                      key={m.id}
-                      className="flex items-center gap-3.5 rounded-xl px-4 py-4 opacity-60"
-                    >
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-border bg-accent">
-                        <Lock className="h-2.5 w-2.5 text-muted-foreground" />
-                      </div>
-                      <span className="flex-1 text-sm font-medium text-muted-foreground/60">{m.name}</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Invoiced</span>
-                    </div>
-                  ))}
-
-                  {/* Eligible milestones (READY_FOR_INVOICING) */}
-                  {eligibleMilestones.map((m) => {
-                    const isSelected = selectedIds.has(m.id);
-                    return (
-                      <label
-                        key={m.id}
-                        className={cn(
-                          "group flex items-center gap-3.5 rounded-xl px-4 py-4 transition-all cursor-pointer",
-                          isSelected
-                            ? "bg-primary/5 ring-1 ring-primary/25"
-                            : "hover:bg-accent",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all",
-                            isSelected
-                              ? "border-primary bg-primary"
-                              : "border-border group-hover:border-border",
-                          )}
-                        >
-                          {isSelected && (
-                            <svg className="h-3 w-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                          )}
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleMilestone(m.id)}
-                          className="sr-only"
-                        />
-                        <span className="flex-1 text-sm font-medium text-foreground">{m.name}</span>
-                        <span className={cn(
-                          "font-mono text-sm font-semibold tabular-nums transition-colors",
-                          isSelected ? "text-primary" : "text-muted-foreground",
-                        )}>
-                          {formatCur(Number(m.value))}
-                        </span>
-                      </label>
-                    );
-                  })}
-
-                  {/* Not ready milestones (disabled, showing status) */}
-                  {notReadyMilestones.length > 0 && (
-                    <>
-                      {(eligibleMilestones.length > 0 || invoicedMilestones.length > 0) && (
-                        <div className="my-1 border-t border-border/10" />
-                      )}
-                      {notReadyMilestones.map((m) => (
-                        <div
-                          key={m.id}
-                          className="flex items-center gap-3.5 rounded-xl px-4 py-3 opacity-45"
-                        >
-                          <div className="h-5 w-5 shrink-0" />
-                          <span className="flex-1 text-sm text-muted-foreground">{m.name}</span>
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            {m.status.replace(/_/g, " ")}
-                          </span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-
-                  {/* Empty state */}
-                  {milestones.length === 0 && (
-                    <p className="py-4 text-center text-sm text-muted-foreground">No milestones available</p>
-                  )}
-                </div>
+                <MilestoneSelector
+                  milestones={milestoneChoices}
+                  mode="multi"
+                  selected={selectedIds}
+                  onSelect={toggleMilestone}
+                  currency={currency}
+                />
               </div>
 
               {/* Financial breakdown */}

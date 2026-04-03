@@ -14,8 +14,7 @@ export const PROJECT_TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
 export const MILESTONE_TRANSITIONS: Record<MilestoneStatus, MilestoneStatus[]> = {
   [MilestoneStatus.NOT_STARTED]: [MilestoneStatus.IN_PROGRESS],
   [MilestoneStatus.IN_PROGRESS]: [MilestoneStatus.COMPLETED],
-  [MilestoneStatus.COMPLETED]: [MilestoneStatus.READY_FOR_INVOICING],
-  [MilestoneStatus.READY_FOR_INVOICING]: [], // INVOICED is set automatically by createInvoice
+  [MilestoneStatus.COMPLETED]: [], // INVOICED is set automatically by createInvoice
   [MilestoneStatus.INVOICED]: [],
 };
 

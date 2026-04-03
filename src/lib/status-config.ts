@@ -17,7 +17,6 @@ export const STATUS_CONFIG: Record<string, StatusStyle> = {
   NOT_STARTED: { bg: "bg-slate-100", text: "text-slate-500", dot: "bg-slate-400" },
   IN_PROGRESS: { bg: "bg-blue-50", text: "text-blue-600", dot: "bg-blue-500 animate-pulse" },
   COMPLETED: { bg: "bg-emerald-50", text: "text-emerald-600", dot: "bg-emerald-500" },
-  READY_FOR_INVOICING: { bg: "bg-purple-50", text: "text-purple-600", dot: "bg-purple-500" },
   INVOICED: { bg: "bg-indigo-50", text: "text-indigo-600", dot: "bg-indigo-500" },
 
   // Delivery note statuses
@@ -70,7 +69,6 @@ export const MILESTONE_STATUSES = [
   { key: "NOT_STARTED", label: "Not Started", dot: "bg-slate-400" },
   { key: "IN_PROGRESS", label: "In Progress", dot: "bg-blue-400" },
   { key: "COMPLETED", label: "Completed", dot: "bg-emerald-400" },
-  { key: "READY_FOR_INVOICING", label: "Ready for Invoicing", dot: "bg-purple-400" },
   { key: "INVOICED", label: "Invoiced", dot: "bg-indigo-400" },
 ] as const;
 

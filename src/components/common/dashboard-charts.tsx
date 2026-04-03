@@ -176,7 +176,6 @@ const MILESTONE_COLORS: Record<string, string> = {
   NOT_STARTED: "#475569",
   IN_PROGRESS: "#60a5fa",
   COMPLETED: "#34d399",
-  READY_FOR_INVOICING: "#a78bfa",
   INVOICED: "#818cf8",
 };
 
@@ -184,7 +183,6 @@ const MILESTONE_LABELS: Record<string, string> = {
   NOT_STARTED: "Not Started",
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
-  READY_FOR_INVOICING: "Ready to Invoice",
   INVOICED: "Invoiced",
 };
 

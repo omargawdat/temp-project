@@ -126,7 +126,7 @@ export default async function DashboardPage({
   const totalOverdueItems = overdueMilestones.length + overdueInvoices.length;
 
   // ── Pipeline Data ──
-  const milestoneStatuses = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "READY_FOR_INVOICING", "INVOICED"] as const;
+  const milestoneStatuses = ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "INVOICED"] as const;
   const milestonesByStatus: Record<string, { id: string; name: string; projectName: string; value: number; currency: string; projectId: string }[]> = {};
   for (const status of milestoneStatuses) milestonesByStatus[status] = [];
   allProjects.forEach((p) => {

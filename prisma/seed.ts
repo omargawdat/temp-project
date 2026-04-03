@@ -337,7 +337,7 @@ async function main() {
       name: "Core Features",
       value: 540000,
       plannedDate: new Date("2026-05-15"),
-      status: "READY_FOR_INVOICING",
+      status: "COMPLETED",
       requiresDeliveryNote: true,
     },
   });
@@ -740,7 +740,7 @@ async function main() {
   });
   await prisma.milestone.update({
     where: { id: enbdRewardsEngine.id },
-    data: { status: "READY_FOR_INVOICING" },
+    data: { status: "COMPLETED" },
   });
 
   // INV-2026-005: Rejected example (NEOM Discovery attempt)

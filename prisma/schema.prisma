@@ -30,7 +30,6 @@ enum MilestoneStatus {
   NOT_STARTED
   IN_PROGRESS
   COMPLETED
-  READY_FOR_INVOICING
   INVOICED
 }
 

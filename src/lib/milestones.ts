@@ -5,7 +5,6 @@
 
 export const COMPLETED_STATUSES = [
   "COMPLETED",
-  "READY_FOR_INVOICING",
   "INVOICED",
 ] as const;
 
